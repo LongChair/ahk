@@ -11,21 +11,20 @@
 #include free_resources.ahk
 #include build_ships.ahk
 
-Version := "3.0"
-
 #NoEnv
 SetWorkingDir %A_ScriptDir%
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
-;SendMode Event
 #SingleInstance Force
 SetTitleMatchMode 2
 #WinActivateForce
 SetControlDelay 1
 SetWinDelay 0
 SetKeyDelay -1
-;SetMouseDelay -1
 SetBatchLines -1
+
+; script version
+Version := "3.0"
 
 ; Working directory
 BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
@@ -56,9 +55,6 @@ Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
   
 Loop
 {
-    
-    
-    
     /*
     LaunchNova()
 	r := NovaFindClick("buttons\nova_icon_big.png", 30 , "n0", FoundX, FoundY)
@@ -82,7 +78,6 @@ Loop
     */
 	*/
 	
-	
     ; Read Configureation
     Log("Reading Configuration...")
     ReadConfig()
@@ -95,12 +90,6 @@ Loop
     
     Log("Waiting...")
     Sleep, LoopTime
-    
-    /*
-    SendDiscord("Blah blah test")
-    Sleep, 60000
-    */
-    
     
 } Until (not DoLoop)
 
