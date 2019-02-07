@@ -11,6 +11,7 @@
 #include free_resources.ahk
 #include build_ships.ahk
 
+Version := "3.0"
 
 #NoEnv
 SetWorkingDir %A_ScriptDir%
@@ -51,7 +52,7 @@ OtherResCollected := 0
 FrigatesAmount := 700
 FrigatesBuilt := 0
 
-Log("Nova Empire Automation - (c) LongChair 2019")
+Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
   
 Loop
 {
