@@ -31,7 +31,7 @@ SetBatchLines -1
 BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
 
 ; Loop time and activation
-LoopTime := 5 * 60000
+LoopTime := 0
 DoLoop := 1
     
 ; Window Size
@@ -49,7 +49,7 @@ FreeResCollected := 0
 OtherResCollected := 0
 
 ; Frigates amount to build
-FrigatesAmount := 700
+FrigatesAmount := 0
 FrigatesBuilt := 0
 
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
@@ -173,6 +173,7 @@ ReadConfig()
     IniRead, FrigatesBuilt, %FullPath%, COUNTERS, FrigatesBuilt, 0
     
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
+    IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
     
 }
 
@@ -190,7 +191,7 @@ WriteConfig()
     IniWrite, %FrigatesBuilt%, %FullPath%, COUNTERS, FrigatesBuilt
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
-    
+    IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
 }
 
 ;*******************************************************************************
