@@ -20,12 +20,24 @@ NovaLeftMouseClick(X,Y)
     MouseClick L, MainWinX + X, MainWinY + Y
 }
 
+;*******************************************************************************
+; NovaDragMouse : Spans the screen starting at X,Y for SpanX, SpanY
+;*******************************************************************************
 NovaDragMouse(X, Y, SpanX, SpanY)
 {
     global
 
     MouseClickDrag, L, MainWinX + X, MainWinY + Y, MainWinX + X + SpanX, MainWinY + Y + SpanY, 10
     sleep, 2000
+}
+
+;*******************************************************************************
+; NovaEscapeClick : Left click in an area that should close any contextual menu
+;*******************************************************************************
+NovaEscapeClick()
+{
+	global
+	NovaLeftMouseClick(452, 635)
 }
 
 ;*******************************************************************************
