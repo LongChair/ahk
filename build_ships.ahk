@@ -51,6 +51,53 @@ PopRightMenu(Visible)
 }
 
 ;*******************************************************************************
+; HandleFreeSlot : Handle the Filling of a free shipyard slot
+; X, Y : Window coordinate of the location of the slot
+;*******************************************************************************
+HandleFreeSlot(X, Y)
+{
+	Log("Found a free slot at (" . X . "," . Y . ")")
+	
+	; open the slot
+	NovaLeftMouseClick(X, Y)
+	Sleep, 500
+	
+	; make sure frigates are selected on that shipyard
+	if !NovaFindClick("buttons\frigate.png", 0, "w1000 n0")
+	{
+		Log("Could not find frigates as current ship, exiting.")
+		return 0
+	}
+	
+	; then click on build button
+	if !NovaFindClick("buttons\build.png", 0, "w1000 n1")
+	{
+		Log("Could not find build button, exiting.")
+		return 0
+	}
+	
+	; Add one more build to the counter
+	FrigatesBuilt := FrigatesBuilt + 1
+	
+	; then click on back button               
+	if !NovaFindClick("buttons\back.png", 0, "w1000 n1")
+	{
+		Log("Could not find back button, exiting.")
+		return 0
+	}
+	
+	; wait to come back to main screen with economy button highlighted
+	if !NovaFindClick("buttons\economy_on.png", 0, "w3000 n")
+	{
+		Log("Could not find economy tab, while getting back to main screen, exiting.")
+		return 0
+	}
+	
+	
+	return 1
+}
+
+;*******************************************************************************
 ; BuildFrigates : Will try to queue frigates until the amount is reached
 ; Amount : Number of frigates that should be built
 ;*******************************************************************************
@@ -70,75 +117,22 @@ BuildFrigates(Amount)
         return 0
     }
     
-    ;Look for a free slot
-    Search := 1
-    DownCount := 0
-    while Search and DownCount <= 2
-    {
-        Log("Looking for a free shipyard slot...")
-        if WaitImage("buttons\free_slot.png", 540, 100, 976, 752, 2, FoundX, FoundY, 70)
-        {
-            Log("Found a free shipyard slot, clicking on it...")
-            ; click on free slot
-            NovaLeftMouseClick(FoundX + 20, FoundY + 20)
-            
-            ; make sure frigates are selected on that shipyard
-            if !WaitImage("buttons\frigate.png",  6, 279, 201, 400, 2, FoundX, FoundY, 0)
-            {
-                Log("Could not find frigates as current ship, exiting.")
-                return 0
-            }
-            
-            ; then click on build button
-            if !WaitImage("buttons\build.png", 951, 457, 1106, 520, 2, FoundX, FoundY, 0)
-            {
-                Log("Could not find build button, exiting.")
-                return 0
-            }
-            
-            ; click on build button
-            Log("Clicking on shipyard slot...")
-            NovaLeftMouseClick(FoundX + 20, FoundY + 20)
-            sleep,1000
-            
-            FrigatesBuilt := FrigatesBuilt + 1
-            
-            ; then click on back button                
-            if !WaitImage("buttons\back.png", 2, 48, 142, 103, 2, FoundX, FoundY, 0)
-            {
-                Log("Could not find back button, exiting.")
-                return 0
-            }
-            
-            Log("Clicking on back button...")
-             ; click on back button
-            NovaLeftMouseClick(FoundX + 20, FoundY + 20)
-            
-            ; wait for right menu to come back
-            Log("Wait for right menu to come back...")
-            if !WaitImage("buttons\economy_on.png",  921, 70, 1116, 215, 5, FoundX, FoundY, 30)
-            {
-                Log("Couldn't Find the economy button, exiting.")
-                return 0
-            }
+	;Look for a free slots
+	Loop, 3
+	{
+		Log("Checking available shipyards slots ...")
+		ResCount := NovaFindClick("buttons\free_slot.png", 80, "e n0 w1000 FuncHandleResource")
+		
+		Log("Found " . ResCount . " free slots, Scrolling down ...")
+		
+		; move mouse on top of shipyards
+		NovaMouseMove(680, 305)
+		sleep, 500
 
-        }
-        else
-        {
-            Log("No more free slots found, scrolling down...")
-            
-            ; Scroll up to find eventual new shipyards slots
-            DownCount := DownCount + 1
-            
-            ; move mouse on top of shipyards
-            NovaMouseMove(680, 305)
-            sleep, 500
-            
-            MouseClick, WheelDown,,, 1
-            Sleep, 3000
-        }
-    }
-    
+		MouseClick, WheelDown,,, 1
+		Sleep, 3000
+	}
+	
     ; Discard the main menu
     if !PopRightMenu(0)
     {

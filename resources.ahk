@@ -1,12 +1,12 @@
 #include utils.ahk
 
 ;*******************************************************************************
-; CollectResources : Parse current system and collect ressources if any
-; by sending workers onto them
+; HandleResource : Handle the collection of a single ressource
+; X, Y : Window coordinate of the location of the resource
 ;*******************************************************************************
 HandleResource(X, Y)
 {
-	Log("Found a resource at (" . X . "," . Y . "), indetifying ...")
+	Log("Found a resource at (" . X . "," . Y . "), identifying ...")
 	
 	; Click it
 	NovaLeftMouseClick(X, Y)
