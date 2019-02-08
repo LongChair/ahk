@@ -1,6 +1,5 @@
-; This script was created using Pulover's Macro Creator
-; www.macrocreator.com
-
+; Nova automation  LongChair 2019
+; This script automates a few non fun tasks in Nova empire
 
 #Include  %A_ScriptDir% 
 #include libs\FindClick.ahk
