@@ -78,13 +78,7 @@ CollectResources()
     ; control  mousewheel
     Log("Zooming out the map ...")
     WinActivate, BlueStacks
-    WinMove, BlueStacks,, AppX, AppY, AppW, AppH
-    WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, BlueStacks
-    NovaMouseMove(MainWinW/2, MainWinH/2)
-    Send, {Control down}
-    MouseClick, WheelDown,,, 1
-    Sleep, 2000
-    Send, {Control up}
+    Sendinput, ^!WheelDown
     
     ; now Look for all resources on the map and call our callback
     Log("Looking for resources ...")
