@@ -76,13 +76,19 @@ CollectResources()
     
     ; Zoom out to get the whole map on screen
     ; control  mousewheel
-    NovaMouseMove(MainWinW /2, MainWinH /2)
+    Log("Zooming out the map ...")
+    WinActivate, BlueStacks
+    WinMove, BlueStacks,, AppX, AppY, AppW, AppH
+    WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, BlueStacks
+    NovaMouseMove(MainWinW/2, MainWinH/2)
     Send, {Control down}
     MouseClick, WheelDown,,, 1
+    Sleep, 2000
     Send, {Control up}
     
     ; now Look for all resources on the map and call our callback
-    ResCount := NovaFindClick("resources\res1.png", 80, "e n0 w1000 FuncHandleResource")
+    Log("Looking for resources ...")
+    ResCount := NovaFindClick("resources\res1.png", 20, "e n0 w1000 FuncHandleResource")
 	Log("We found " . ResCount . " resources.")
     Log("End of resources collection.")
 	
@@ -102,7 +108,7 @@ Toggle2DMode()
     if !NovaFindClick("buttons\right_menu_off.png", 80, "w1000 n0")
     {
         Log("Unfolding 2D/3D menu")
-        if !NovaFindClick("buttons\right_menu_off.png", 80, "w1000 n1")
+        if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1")
         {
             Log("ERROR : Failed to unfold thr right 2D/3D menu, stopping")
             return 0
@@ -114,9 +120,14 @@ Toggle2DMode()
     }
 
     ; switch to 2D
-    if NovaFindClick("buttons\2D.png", 80, "w1000 n1")
+    if NovaFindClick("buttons\2D.png", 20, "w1000 n0")
     {
         Log("Switching to 2D")
+        if !NovaFindClick("buttons\3D_dot.png", 20, "w1000 n1")
+        {
+            Log("ERROR : Failed to find the 3D dot to click, stopping")
+            return 0
+        }
     }
     else
     {

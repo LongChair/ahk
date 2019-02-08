@@ -57,7 +57,15 @@ CheckFreeResources()
         Sleep, 1000
         
         ; look for the grab button
+        Log("Clicking on grab button...")
         if !NovaFindClick("buttons\recuperer.png", 80, "w1000 n1")
+        {
+            Log("ERROR : Failed to click the grab button for free resources, exiting")
+            return 0
+        }
+        
+        Log("Waiting for reward screen...")
+        if !NovaFindClick("buttons\reward.png", 80, "w2000 n1")
         {
             Log("ERROR : Failed to click the grab button for free resources, exiting")
             return 0
@@ -69,8 +77,8 @@ CheckFreeResources()
         LoopCount := 0
         Loop
         {
-            NovaEscapeClick()
             LoopCount := LoopCount + 1
+            Sleep, 1000
         } Until WaitNovaScreen("STATION", 1) or LoopCount > 5
         
         if LoopCount > 5 

@@ -52,7 +52,7 @@ FrigatesAmount := 0
 FrigatesBuilt := 0
 
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
-  
+
 Loop
 {
     /*
