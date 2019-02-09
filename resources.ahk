@@ -1,4 +1,17 @@
-#include utils.ahk
+﻿#include utils.ahk
+
+MapPosX := 0
+MapPosY := 0
+
+; scan area coordinates
+AreaX1 := 300
+AreaY1 := 170
+AreaX2 := 1600
+AreaY2 := 980
+
+; Current type of ressoures
+CurrentResType := ""
+RemainingMecas := 0
 
 ;*******************************************************************************
 ; HandleResource : Handle the collection of a single ressource
@@ -6,25 +19,41 @@
 ;*******************************************************************************
 HandleResource(X, Y)
 {
-	Log("Found a resource at (" . X . "," . Y . "), identifying ...")
+	global
+	X := X - MainWinX
+	Y := Y - MainWinY
 	
-	; Click it
+	; exit if we have no more mecas
+	if (RemainingMecas = 0)
+		Return
+		
+	Log("Found a resource at (" . X . "," . Y . "), with type " . CurrentResType)
+	
+	; Click the resource
 	NovaLeftMouseClick(X, Y)
 	Sleep, 500
 	
-	; Identify it
-	ResType := IdentifyRessource
-	
-	if (ResType = "UNKNOWN")
+	; click collect button
+	Log("Collecting it ...")
+	if !NovaFindClick("buttons\collect.png", 70, "w2000 n1")
 	{
-		Log("ERROR : failed to indentify resources, exiting.")
-		return 0
+		Log("ERROR : failed to find collect button, exiting.")
+		return
 	}
 	
-	Log("Found a ressource of type " . ResType)
+	; eventually click on the OK button if we had no more mecas
+	if NovaFindClick("buttons\Ok.png", 50, "w2000 n1")
+	{
+		Log("Obviosuly no more mecas ...")
+		RemainingMecas := 0
+		return
+	}
+	Else
+	{
+		Log("sending meca ...")
+		OtherResCollected := OtherResCollected + 1
+	}
 	
-	
-	return 1
 }
 
 ;*******************************************************************************
@@ -73,20 +102,99 @@ CollectResources()
         Log("ERROR : Failed to toggle 2D mode, exiting.")
         return 0
     }
-    
-    ; Zoom out to get the whole map on screen
-    ; control  mousewheel
-    Log("Zooming out the map ...")
-    WinActivate, BlueStacks
-    Sendinput, ^!WheelDown
-    
-    ; now Look for all resources on the map and call our callback
-    Log("Looking for resources ...")
-    ResCount := NovaFindClick("resources\res1.png", 20, "e n0 w1000 FuncHandleResource")
-	Log("We found " . ResCount . " resources.")
+
+	RemainingMecas := 1
+	
+	CollectResourcesByType("ALLIUM")
+	
+	if (RemainingMecas)
+		CollectResourcesByType("CRYSTALS")
+	
+	if (RemainingMecas)
+		CollectResourcesByType("MINERALS")
+	
     Log("End of resources collection.")
 	
     return 1
+}
+
+
+;*******************************************************************************
+; CollectResourcesByType : browse the map and collect a ressource from The
+; given type
+;*******************************************************************************
+CollectResourcesByType(ResType)
+{
+
+	global
+	; Loop the map to scan ressources
+	X := -2
+	Y := 3
+	Dir := 1
+	TotalRes := 0
+	
+	Log("Looking for resources " . ResType . "...")
+	
+	; Loop Y
+	Loop, 7
+	{
+		; Loop X
+		Loop, 5 
+		{
+			MapMoveTo(X,Y)
+			
+			TotalRes := ScanArea(ResType)
+			
+			; exit if we have no more mecas
+			if (RemainingMecas = 0)
+				Goto CollectEnd
+				
+			X := X + Dir
+		}
+		
+		X := X - Dir 
+		Dir := -Dir
+		Y := Y - 1
+	}
+	
+CollectEnd:
+	MapMoveTo(0,0)
+	
+    ; now Look for all resources on the map and call our callback
+	Log("We found " . TotalRes . " resources for " . ResType)
+}
+
+
+;*******************************************************************************
+; ScanArea : Scan current map area for Restype ressource
+; Will return the number of ressources found and update teh ressources 
+; global info
+;*******************************************************************************
+ScanArea(ResType)
+{
+	global
+	CurrentResType := ResType
+	
+	If (ResType = "ALLIUM")
+	{
+		return NovaFindClick("resources\HD_Allium2.png", 50, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	}
+		
+	If (ResType = "CRYSTALS")
+	{
+		return NovaFindClick("resources\HD_Crystals2.png", 50, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	}
+	
+	If (ResType = "MINERALS")
+	{
+		CountMine :=  NovaFindClick("resources\HD_Mine2.png", 50, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		
+		CountPlanet :=  NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		
+		return (CountMine + CountPlanet)
+	}
+
+	return 0
 }
 
 
@@ -99,10 +207,10 @@ Toggle2DMode()
     Log("Toggling 2D Mode ...")
     
     ; Look if pane is already openned
-    if !NovaFindClick("buttons\right_menu_off.png", 80, "w1000 n0")
+    if !NovaFindClick("buttons\right_menu_off.png", 80, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Unfolding 2D/3D menu")
-        if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1")
+        if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1", FoundX, FoundY, 1450, 640, 1760, 820)
         {
             Log("ERROR : Failed to unfold thr right 2D/3D menu, stopping")
             return 0
@@ -114,7 +222,7 @@ Toggle2DMode()
     }
 
     ; switch to 2D
-    if NovaFindClick("buttons\2D.png", 20, "w1000 n0")
+    if NovaFindClick("buttons\2D.png", 20, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Switching to 2D")
         if !NovaFindClick("buttons\3D_dot.png", 20, "w1000 n1")
@@ -247,43 +355,54 @@ CheckandPick()
 MapMoveTo(X, Y)
 {
     global
-	Log("Moving on map to " . X . ", " . Y)
-	StepX := 200
-    StepY := 100
+	StepX := 1100
+    StepY := 600
+	MoveX := 0
+	MoveY := 0
+	MoveXDir := 0
+	MoveYDir := 0
+	
 	if (X > MapPosX)
 	{
-        LoopCount := X - MapPosX
-		Loop, %LoopCount%
-		{
-			NovaDragMouse(MainWinW /2, MainWinH /2, -StepX, 0)
-		}
+        MoveX := X - MapPosX
+		MoveXDir := -1
 	}
 	else if (X < MapPosX)
 	{
-        LoopCount := MapPosX - X
-		Loop, %LoopCount%
-		{
-			NovaDragMouse(MainWinW /2, MainWinH /2, StepX, 0)
-		}
+        MoveX := MapPosX - X
+		MoveXDir := 1
 	}
 	
 	if (Y > MapPosY)
 	{
-        LoopCount := Y - MapPosY
-		Loop, %LoopCount%
-		{
-			NovaDragMouse(MainWinW /2, MainWinH /2, 0, StepY)
-		}
+		MoveY := Y - MapPosY
+		MoveYDir := 1
 	}
 	else if (Y < MapPosY)
 	{
-        LoopCount := MapPosY - Y
-		Loop, %LoopCount%
-		{
-			NovaDragMouse(MainWinW /2, MainWinH /2, 0, -StepY)
-		}
+		MoveY := MapPosY - Y
+		MoveYDir := -1
 	}
 	
+	; now we need to move 
+	if (MoveX > MoveY)
+		LoopCount := MoveX
+	Else	
+		LoopCount := MoveY
+	
+	Loop, %LoopCount%
+	{
+		NovaDragMouse(MainWinW /2, MainWinH /2, MoveXDir * StepX, MoveYDir * StepY)
+		MoveX := MoveX - 1
+		MoveY := MoveY - 1
+		
+		if MoveX <= 0 
+			MoveXDir := 0
+			
+		if MoveY <= 0 
+			MoveYDir := 0
+	}
+		
 	MapPosX := X
 	MapPosY := Y
 }

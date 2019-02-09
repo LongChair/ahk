@@ -1,4 +1,4 @@
-; Nova automation  LongChair 2019
+﻿; Nova automation  LongChair 2019
 ; This script automates a few non fun tasks in Nova empire
 
 #Include  %A_ScriptDir% 
@@ -17,10 +17,6 @@ CoordMode, Pixel, Screen
 #SingleInstance Force
 SetTitleMatchMode 2
 #WinActivateForce
-SetControlDelay 1
-SetWinDelay 0
-SetKeyDelay -1
-SetBatchLines -1
 
 ; script version
 Version := "3.0"
@@ -33,12 +29,12 @@ LoopTime := 0
 DoLoop := 1
     
 ; Window Size
-AppW := 1280
-AppH := 720
+AppW := 1920
+AppH := 1080
 
 ; Window Position
-AppX := 139
-AppY := 80
+AppX := 0
+AppY := 0
 
 ; free resources collected
 FreeResCollected := 0
@@ -50,14 +46,24 @@ OtherResCollected := 0
 FrigatesAmount := 0
 FrigatesBuilt := 0
 
+
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
 
+
+	
 Loop
 {
-    /*
-    LaunchNova()
-	r := NovaFindClick("buttons\nova_icon_big.png", 30 , "n0", FoundX, FoundY)
     
+	
+    ;LaunchNova()
+	;WinActivate, BlueStacks
+    ;WinMove, BlueStacks,, AppX, AppY, AppW, AppH
+    ;WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, BlueStacks
+	;
+	;C := NovaFindClick("buttons\collect.png", 50, "w2000 n1")
+	
+	;C := ScanArea("MINERALS")
+	;CountMine := NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, 300, 170, 1600, 980)
     /*
     Loop
     {
@@ -75,7 +81,7 @@ Loop
          Sleep, 3000
     }
     */
-	*/
+	
 	
     ; Read Configureation
     Log("Reading Configuration...")
@@ -118,23 +124,23 @@ DoSequence()
             Goto TheEnd
         }
         Log("========= CollectResources End   =========")
-        
-        
-        Log("========= BuildFrigates Start =========")
-        if !BuildFrigates(FrigatesAmount)
-        {
-            Log ("ERROR : Failed to build frigates !")
-            Goto TheEnd
-        }
-        Log("========= BuildFrigates End   =========")
-        
-        Log("========= FarmPirate Start =========")
-        if !FarmPirate()
-        {
-            Log ("ERROR : Failed to farm pirates !")
-            Goto TheEnd
-        }
-        Log("========= FarmPirate End   =========")
+        ;
+        ;
+        ;Log("========= BuildFrigates Start =========")
+        ;if !BuildFrigates(FrigatesAmount)
+        ;{
+            ;Log ("ERROR : Failed to build frigates !")
+            ;Goto TheEnd
+        ;}
+        ;Log("========= BuildFrigates End   =========")
+        ;
+        ;Log("========= FarmPirate Start =========")
+        ;if !FarmPirate()
+        ;{
+            ;Log ("ERROR : Failed to farm pirates !")
+            ;Goto TheEnd
+        ;}
+        ;Log("========= FarmPirate End   =========")
         
         Log("SUMMUARY :")
         Log(" -Free resources collected    : " . FreeResCollected)
@@ -189,6 +195,14 @@ WriteConfig()
 LaunchNova()
 {
     global
+	
+	
+	SetTitleMatchMode 2
+	SetControlDelay 1
+	SetWinDelay 0
+	SetKeyDelay -1
+	SetBatchLines -1
+
     if (!WinExist("BlueStacks"))
     {
         Log("***** Launching BlueStacks...")
@@ -227,7 +241,7 @@ LaunchNova()
     ; click nova tab
     Log("***** Launching Nova Empire...")
     Log("Waiting for BlueStacks Nova tab ...")
-    if !NovaFindClick("buttons\nova_icon.png", 0, "w1000 n1")
+    if !NovaFindClick("buttons\nova_icon.png", 0, "w5000 n1")
     {
         Log("ERROR : Failed to find nova tab, exiting...")
         return 0
@@ -235,7 +249,7 @@ LaunchNova()
     
     ; check CEG button
     Log("Waiting for Nova Main screen ...")
-    if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0")
+    if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
     {
         ; we dont have CEG, we might have the start avatar
         Log("Waiting for Nova welcome screen ...")

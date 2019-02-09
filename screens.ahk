@@ -1,4 +1,4 @@
-#Include utils.ahk
+﻿#Include utils.ahk
 #include libs\FindClick.ahk
 
 ;*******************************************************************************
@@ -9,13 +9,13 @@ GetNovaScreen()
 {
     global
     
-	if NovaFindClick("screen_markers\daily_mission.png", 20, "w100 n0")
+	if NovaFindClick("screen_markers\daily_mission.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "STATION"
 	
-	if NovaFindClick("screen_markers\galaxy_qmark.png", 20, "w100 n0")
+	if NovaFindClick("screen_markers\galaxy_qmark.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "GALAXIE"
 	
-	if NovaFindClick("screen_markers\my_station.png", 20, "w100 n0")
+	if NovaFindClick("screen_markers\my_station.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "SYSTEME"
 	
     return "UNKNOWN"
@@ -83,12 +83,12 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "SYSTEME")
         {
-            NovaLeftMouseClick(923, 591)
+            NovaLeftMouseClick(1450, 910)
             WaitTargetScreen := 1
         }
         If (TargetScreen = "GALAXIE")
         {
-            NovaLeftMouseClick(1051, 591)
+            NovaLeftMouseClick(1660, 905)
             WaitTargetScreen := 1
         }
     }
@@ -98,12 +98,12 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "SYSTEME")
         {
-            NovaLeftMouseClick(919, 591)
+            NovaLeftMouseClick(1450, 910)
             WaitTargetScreen := 1
         }
         If (TargetScreen = "STATION")
         {
-            NovaLeftMouseClick(1058, 591)
+            NovaLeftMouseClick(1660, 905)
             WaitTargetScreen := 1
         }
     }
@@ -113,13 +113,13 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "GALAXIE")
         {
-            NovaLeftMouseClick(925, 595)
+             NovaLeftMouseClick(1450, 910)
             Sleep, 10
             WaitTargetScreen := 1
         }
         If (TargetScreen = "STATION")
         {
-            NovaLeftMouseClick(1051, 591)
+            NovaLeftMouseClick(1660, 905)
             Sleep, 10
             WaitTargetScreen := 1
         }

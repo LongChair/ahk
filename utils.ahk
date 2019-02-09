@@ -1,4 +1,4 @@
-#include libs\FindClick.ahk
+﻿#include libs\FindClick.ahk
 
 ;*******************************************************************************
 ; NovaMouseMove : Moves the mouse in screen Coords relative to Nova screen
@@ -27,8 +27,20 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 {
     global
 
-    MouseClickDrag, L, MainWinX + X, MainWinY + Y, MainWinX + X + SpanX, MainWinY + Y + SpanY, 10
-    sleep, 2000
+	XMargin := 100
+	YMargin := 100
+	
+	X := X - (SpanX / 2)
+	Y := Y - (SpanY / 2)
+
+		
+	MouseMove, X, Y
+	SendEvent {Click down}
+	Sleep, 200
+	MouseMove, X + SpanX, Y + SpanY, 5
+	Sleep, 500
+	SendEvent {click up}
+	Sleep, 200
 }
 
 ;*******************************************************************************
@@ -179,7 +191,7 @@ NovaGrab(X, Y, W, H)
     global
     local GrabPath, FullPath
     GrabPath =  %A_ScriptDir%\images\grab\%A_MM%-%A_DD%
-    FullPath =  %A_ScriptDir%\%A_Hour%-%A_Min%-%A_Sec%
+    FullPath =  %GrabPath%\%A_Hour%-%A_Min%-%A_Sec%
     
     ; create the directory if it doesn't exist
     if !FileExist(GrabPath)
@@ -206,7 +218,7 @@ NovaGrab(X, Y, W, H)
     Sleep, 1000
 	
 	; now send the full path to save to
-    SendRaw, %FullPath%
+    Send, %FullPath%
     Sleep, 1000
 	
 	; validate by pressing enter

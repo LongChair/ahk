@@ -1,4 +1,4 @@
-#include utils.ahk
+﻿#include utils.ahk
 
 ;*******************************************************************************
 ; CheckFreeResources : Checks and grabs free ressources
@@ -14,7 +14,7 @@ CheckFreeResources()
     }
 	
     ; Look daily mission icon 
-    if NovaFindClick("buttons\day_1.png", 80, "w1000 n1")
+    if NovaFindClick("buttons\day_1.png", 30, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {
         Log("Found Day 1 icon, and clicked.")
      
@@ -47,23 +47,32 @@ CheckFreeResources()
     }
  
     ; Try to collect the free resources
-    if NovaFindClick("buttons\free_ressources.png", 80, "w1000 n1")
+    if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {
         Log("Collecting resources ... YEAH!")
         MajorLog("Collecting resources ... YEAH!")
         
-        ; Grab a screenshot of the resource
-        NovaGrab(443, 244, 250, 230)
+		; Wait for the carte to show up
+		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0")
+		{
+			Log("ERROR : Failed to find the crate, exiting")
+            return 0
+		}
+        
+		; Grab a screenshot of the resource
+        NovaGrab(740, 350, 300, 365)
         Sleep, 1000
         
         ; look for the grab button
         Log("Clicking on grab button...")
-        if !NovaFindClick("buttons\recuperer.png", 80, "w1000 n1")
+        if !NovaFindClick("buttons\recuperer.png", 80, "w2000 n1", FoundX, FoundY, 500, 500, 1250, 880)
         {
             Log("ERROR : Failed to click the grab button for free resources, exiting")
             return 0
         }
         
+		FreeResCollected := FreeResCollected + 1
+		
         Log("Waiting for reward screen...")
         if !NovaFindClick("buttons\reward.png", 80, "w2000 n1")
         {
