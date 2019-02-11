@@ -315,7 +315,7 @@ FindRessources()
 
 ;*******************************************************************************
 ; HandleScan : Handle the collection of a single ressource
-; X, Y : Window coordinate of the location of the resource
+; ResX, ResY : Window coordinate of the location of the resource
 ;*******************************************************************************
 HandleScan(ResX, ResY)
 {
@@ -340,6 +340,7 @@ HandleScan(ResX, ResY)
 
 ;*******************************************************************************
 ; SortRessources : Removes the dupplicate ressources
+; ResList : List of resources to sort
 ;*******************************************************************************
 SortResList(Byref ResList)
 {
@@ -371,6 +372,7 @@ SortStart:
 
 ;*******************************************************************************
 ; CollectRessourcesByType : Collect a given type of ressource
+; ResType : type of resource , can be 3ALLIUM", "CRYSTALS" or "MINE"
 ;*******************************************************************************
 CollectRessourcesByType(ResType)
 {
