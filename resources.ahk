@@ -182,7 +182,7 @@ MapMoveToXY(X, Y)
 ; CollectResourcesNew : Parse current system and collect ressources if any
 ; by sending workers onto them
 ;*******************************************************************************
-CollectResourcesNew()
+CollectResources()
 {
     global Ressources, Mining
     global NumFreeMecas

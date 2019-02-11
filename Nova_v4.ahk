@@ -82,7 +82,7 @@ DoSequence()
         Log("========= BuildFrigates End   =========")
 		
         Log("========= CollectResources Start =========")
-		if !CollectResourcesNew()
+		if !CollectResources()
 		{
 			Log ("ERROR : Failed to collect resources !", 2)
 			Goto TheEnd
