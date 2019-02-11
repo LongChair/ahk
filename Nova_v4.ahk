@@ -49,7 +49,6 @@ DoSequence()
 {
     
     global FrigatesAmount, NumFreeMecas
-    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
     
     Log("------------------------------Starting Sequence in " .  A_ScriptDir . " ------------------------------")
 	
@@ -70,7 +69,7 @@ DoSequence()
             Log ("ERROR : Failed to get available mecas count !", 2)
             Goto TheEnd
         }
-		Log("We have " . NumFreeMecas . " mecas left, we will collect ressources.")
+		Log("We have " . NumFreeMecas . " mecas left")
 		
 		Log("========= getFreeMecas End =========")
     
@@ -100,15 +99,27 @@ DoSequence()
         }
         Log("========= FarmPirate End   =========")
         
-        Log("SUMMUARY :")
-        Log(" -Free resources collected    : " . FreeResCollected)
-        Log(" -Regular resources collected : " . OtherResCollected)
-        Log(" -Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount)
+        ; logs the summuary of the iteration
+        LogSummuary(1)
+        
     }
     
     TheEnd:
     StopNova()
     Log("------------------------------ Stopping Sequence ------------------------------")
+}
+
+;*******************************************************************************
+; LogSummuary : Logs the summuary
+;*******************************************************************************
+LogSummuary(Level :=0)
+{
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
+
+    Log("SUMMUARY :", Level)
+    Log(" -Free resources collected    : " . FreeResCollected, Level)
+    Log(" -Regular resources collected : " . OtherResCollected, Level)
+    Log(" -Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount, Level)    
 }
 
 ;*******************************************************************************

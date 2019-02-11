@@ -52,6 +52,10 @@ NovaEscapeClick()
 ;*******************************************************************************
 ; Log : Logs a string into the log file
 ; Text : text to log
+; Level :
+; 0 is default
+; 1 is major
+; 2 is error
 ;*******************************************************************************
 Log(Text, Level := 0)
 {
