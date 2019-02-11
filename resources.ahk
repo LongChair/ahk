@@ -1,65 +1,23 @@
-﻿#include utils.ahk
+﻿#include globals.ahk
+#include utils.ahk
 
-MapPosX := 0
-MapPosY := 0
+; Current pistion in pixels on the map
+global MapPosX := 0
+global MapPosY := 0
 
 ; scan area coordinates
-AreaX1 := 300
-AreaY1 := 170
-AreaX2 := 1600
-AreaY2 := 980
+global AreaX1 := 300
+global AreaY1 := 170
+global AreaX2 := 1600
+global AreaY2 := 980
 
 ; Current type of ressoures
-CurrentResType := ""
-RemainingMecas := 0
+global CurrentResType := ""
+global RemainingMecas := 0
 
+; different located ressources lists
 global Ressources := []
 global Mining := []
-
-
-
-;*******************************************************************************
-; ScanArea : Scan current map area for Restype ressource
-; Will return the number of ressources found and update teh ressources 
-; global info
-;*******************************************************************************
-ScanArea(ResType)
-{
-	global
-	CurrentResType := ResType
-	
-	If (ResType = "ALLIUM")
-	{
-		return NovaFindClick("resources\HD_Allium2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	}
-		
-	If (ResType = "CRYSTALS")
-	{
-		CountCrystals :=  NovaFindClick("resources\HD_Crystals2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
-		CountPlanet :=  NovaFindClick("resources\HD_Planet_Crystals.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
-		return (CountCrystals + CountPlanet)
-	}
-	
-	If (ResType = "MINERALS")
-	{
-		CountMine :=  NovaFindClick("resources\HD_Mine2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
-		CountPlanet :=  NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
-		return (CountMine + CountPlanet)
-	}
-	
-	If (ResType = "MINING")
-	{		
-		CountPlanet :=  NovaFindClick("resources\Planet_Mining.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
-		return (CountMine + CountPlanet)
-	}
-
-	return 0
-}
 
 
 ;*******************************************************************************
@@ -67,7 +25,7 @@ ScanArea(ResType)
 ;*******************************************************************************
 GetAvailableMecaCount(ByRef NumMecas)
 {
-	Local AtWork := 0
+	AtWork := 0
 	
 	; popup the main menu
     if !PopRightMenu(1, "FLEETS")
@@ -100,9 +58,9 @@ GetAvailableMecaCount(ByRef NumMecas)
 ;*******************************************************************************
 CountResByType(ResType)
 {
-	Global
 	CurrentRes := 1
 	Amount := 0
+    
 	Loop, % List.MaxIndex()
 	{
 		RefValues := StrSplit(List[CurrentRes], ",")
@@ -118,7 +76,6 @@ CountResByType(ResType)
 ;*******************************************************************************
 Toggle2DMode()
 {
-    global
     Log("Toggling 2D Mode ...")
     
     ; Look if pane is already openned
@@ -167,13 +124,15 @@ Toggle2DMode()
 ;*******************************************************************************
 MapMoveToXY(X, Y)
 {
-    global
-	StepX := 500
+    global MapPosX, MapPosY
+    global MainWinW, MainWinW
+	
+    StepX := 500
     StepY := 500
 	MoveX := 0
-	MoveY := 0
+    MoveY := 0
 	MoveXDir := 0
-	MoveYDir := 0
+    MoveYDir := 0
 	
 	Loop 
 	{
@@ -225,7 +184,9 @@ MapMoveToXY(X, Y)
 ;*******************************************************************************
 CollectResourcesNew()
 {
-    global
+    global Ressources, Mining
+    global NumFreeMecas
+    
     Log("Starting to collect resources ...")
     
     ; we need the system screen
@@ -285,23 +246,21 @@ CollectResourcesNew()
 }
 
 
-
 ;*******************************************************************************
 ; CollectResourcesByType : browse the map and collect a ressource from The
 ; given type
 ;*******************************************************************************
 ScanMap()
 {
-
-	global
-	CurrentX := -1500
-	CurrentY := 1500
-	MapStepX := 1000
-	MapStepY := 500
+    global Ressources
 	
+    CurrentX := -1500
+    CurrentY := 1500
+	MapStepX := 1000
+    MapStepY := 500
 	Dir := 1
 	
-	. Scan the ressources on the map and fill the ressources array
+	; Scan the ressources on the map and fill the ressources array
 	; Loop Y
 	Loop, 7
 	{
@@ -332,7 +291,9 @@ ScanMap()
 ;*******************************************************************************
 FindRessources()
 {
-	global
+	global CurrentResType
+    global AreaX1, AreaY1, AreaX2, AreaY2
+    
 	
 	CurrentResType := "ALLIUM"
 	NovaFindClick("resources\HD_Allium2.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
@@ -358,7 +319,10 @@ FindRessources()
 ;*******************************************************************************
 HandleScan(ResX, ResY)
 {
-	global
+	global MainWinX, MainWinY
+    global MainWinW, MainWinH
+    global Ressources, Mining
+    
 	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX
 	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
 
@@ -372,9 +336,6 @@ HandleScan(ResX, ResY)
 		Log("Found a resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Ressources.MaxIndex())
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
 	}
-		
-	
-	
 }
 
 ;*******************************************************************************
@@ -382,8 +343,7 @@ HandleScan(ResX, ResY)
 ;*******************************************************************************
 SortResList(Byref ResList)
 {
-	global
-	
+
 SortStart:
 	
 	CurrentRes := 1
@@ -414,7 +374,9 @@ SortStart:
 ;*******************************************************************************
 CollectRessourcesByType(ResType)
 {
-	global
+	global NumFreeMecas, OtherResCollected
+    global Ressources
+    global MainWinW, MainWinH
 	
 	if (NumFreeMecas = 0)
 	{

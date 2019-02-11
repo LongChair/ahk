@@ -1,4 +1,5 @@
-﻿#Include utils.ahk
+﻿#include globals.ahk
+#Include utils.ahk
 #include libs\FindClick.ahk
 
 ;*******************************************************************************
@@ -6,9 +7,7 @@
 ;				  "SYSTEME", "GALAXIE", "STATION", "UNKNOWN"
 ;*******************************************************************************
 GetNovaScreen()
-{
-    global
-    
+{   
 	if NovaFindClick("screen_markers\daily_mission.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "STATION"
 	
@@ -28,8 +27,8 @@ GetNovaScreen()
 ;*******************************************************************************
 WaitNovaScreen(Screen, Timeout)
 {
-    global
-    local Remaining := Timeout
+    Remaining := Timeout
+    
 	Log("Waiting For nova Screen " . Screen . " to show up...")
 	While (GetNovaScreen() != Screen) AND (Remaining > 0)
     {
@@ -55,9 +54,9 @@ WaitNovaScreen(Screen, Timeout)
 ;*******************************************************************************
 GotoScreen(TargetScreen, Timeout)
 {
-    global
-    local CurrentScreen := "UNKNOWN", WaitTargetScreen := 0
-    local Remaining := Timeout
+    CurrentScreen := "UNKNOWN"
+    WaitTargetScreen := 0
+    Remaining := Timeout
     
 	; Wait to have a known screen
 	Log("Identifying screen ...")

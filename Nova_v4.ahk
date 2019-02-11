@@ -2,6 +2,7 @@
 ; This script automates a few non fun tasks in Nova empire
 
 #Include  %A_ScriptDir% 
+#include globals.ahk
 #include libs\FindClick.ahk
 #Include utils.ahk
 #include screens.ahk
@@ -9,6 +10,7 @@
 #include pirates.ahk
 #include free_resources.ahk
 #include build_ships.ahk
+
 
 #NoEnv
 SetWorkingDir %A_ScriptDir%
@@ -18,83 +20,12 @@ CoordMode, Pixel, Screen
 SetTitleMatchMode 2
 #WinActivateForce
 
-; script version
-Version := "4.0"
-
-; Working directory
-BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
-
-; Loop time and activation
-LoopTime := 0
-DoLoop := 1
-    
-; Window Size
-AppW := 1920
-AppH := 1080
-
-; Window Position
-AppX := 0
-AppY := 0
-
-; free resources collected
-FreeResCollected := 0
-
-; regular free collected
-OtherResCollected := 0
-
-; Frigates amount to build
-FrigatesAmount := 0
-FrigatesBuilt := 0
-
-global NumFreeMecas := 0
 
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
 
-
 Loop
 {
-    
-	
     ;LaunchNova()
-	
-	
-	;WinActivate, BlueStacks
-    ;WinMove, BlueStacks,, AppX, AppY, AppW, AppH
-    ;WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, BlueStacks
-
-
-	;ScanMap()
-	;
-	;MapMoveToXY(626, 448)
-	;NovaLeftMouseClick(MainWinW /2, MainWinH /2)
-	;MapMoveToXY(277, 857)
-	;NovaLeftMouseClick(MainWinW /2, MainWinH /2)
-	;MapMoveToXY(199, 804)
-	;NovaLeftMouseClick(MainWinW /2, MainWinH /2)
-	;MapMoveToXY(0, 0)
-	
-	;C := NovaFindClick("buttons\collect.png", 50, "w2000 n1")
-	
-	;C := ScanArea("MINERALS")
-	;CountMine := NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleResource", FoundX, FoundY, 300, 170, 1600, 980)
-    /*
-    Loop
-    {
-        ;if (FindImage("pirates\pirate.png",  131, 186, 951, 556,  FoundX, FoundY, 100))
-        ;if (FindImage("pirates\resource.png",  131, 186, 951, 556,  FoundX, FoundY, 30))
-        if FindImage("buttons\free_slot.png", 540, 100, 976, 702, FoundX, FoundY, 70)
-        {   
-            Log("Image Found !")
-            NovaMouseMove(FoundX + 20,FoundY +20 )
-        }
-        else
-        {
-            Log("Image NOT Found !")
-        }
-         Sleep, 3000
-    }
-    */
-	
 	
     ; Read Configureation
     Log("Reading Configuration...")
@@ -109,14 +40,17 @@ Loop
     Log("Waiting...")
     Sleep, LoopTime
     
-} Until (not DoLoop)
+} 
 
 ;*******************************************************************************
 ; DoSequence : Main loop of the program
 ;*******************************************************************************
 DoSequence()
 {
-    global
+    
+    global FrigatesAmount, NumFreeMecas
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
+    
     Log("------------------------------Starting Sequence in " .  A_ScriptDir . " ------------------------------")
 	
     if LaunchNova()
@@ -156,17 +90,15 @@ DoSequence()
 		}
 		  
         Log("========= CollectResources End   =========")
+              
         
-        
-       
-        ;
-        ;Log("========= FarmPirate Start =========")
-        ;if !FarmPirate()
-        ;{
-            ;Log ("ERROR : Failed to farm pirates !")
-            ;Goto TheEnd
-        ;}
-        ;Log("========= FarmPirate End   =========")
+        Log("========= FarmPirate Start =========")
+        if !FarmPirate()
+        {
+            Log ("ERROR : Failed to farm pirates !")
+            Goto TheEnd
+        }
+        Log("========= FarmPirate End   =========")
         
         Log("SUMMUARY :")
         Log(" -Free resources collected    : " . FreeResCollected)
@@ -184,7 +116,7 @@ DoSequence()
 ;*******************************************************************************
 ReadConfig()
 {
-    global
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
     FullPath =  %A_ScriptDir%\Nova.ini
     
     ; Counters
@@ -202,7 +134,7 @@ ReadConfig()
 ;*******************************************************************************
 WriteConfig()
 {
-    global
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
     FullPath =  %A_ScriptDir%\Nova.ini
     
     ; Counters
@@ -220,8 +152,9 @@ WriteConfig()
 ;*******************************************************************************
 LaunchNova()
 {
-    global
-	
+    global AppX, AppY, AppW, AppH
+    global MainWinX, MainWinY, MainWinW, MainWinH
+    global BlueStacksPath
 	
 	SetTitleMatchMode 2
 	SetControlDelay 1
@@ -304,7 +237,6 @@ LaunchNova()
 ;*******************************************************************************
 StopNova()
 {
-    global
     
     ; Now Close BlueStacks
     Log("Closing BlueStacks...")

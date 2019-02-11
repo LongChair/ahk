@@ -1,4 +1,5 @@
-﻿#include utils.ahk
+﻿#include globals.ahk
+#include utils.ahk
 
 ;*******************************************************************************
 ; PopRightMenu : Will pop the main right menu
@@ -6,7 +7,6 @@
 ;*******************************************************************************
 PopRightMenu(Visible, TabPage := "ECONOMY")
 {
-    global
     
     if (Visible)
     {
@@ -14,9 +14,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         ; click the button to show up the menu
         NovaLeftMouseClick(1700, 510)
         Sleep, 500
-        
-		OffImage := 
-		
+        		
         ; wait for eventual unselected economy tab
         if NovaFindClick("buttons\" . TabPage . "_off.png", 30, "w1000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
         {
@@ -58,7 +56,8 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 ;*******************************************************************************
 HandleFreeSlot(X, Y)
 {
-	global
+    global FrigatesBuilt
+    
 	Log("Found a free slot at (" . X . "," . Y . ")")
 	
 	; open the slot
@@ -104,7 +103,8 @@ HandleFreeSlot(X, Y)
 ;*******************************************************************************
 BuildFrigates(Amount)
 {
-    global
+    global FrigatesBuilt
+    
     if (Amount <= FrigatesBuilt)
     {
         Log("We already have built " . FrigatesBuilt . ", skipping for now.")

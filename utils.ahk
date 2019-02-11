@@ -1,4 +1,5 @@
-﻿#include libs\FindClick.ahk
+﻿#include globals.ahk
+#include libs\FindClick.ahk
 
 ;*******************************************************************************
 ; NovaMouseMove : Moves the mouse in screen Coords relative to Nova screen
@@ -6,7 +7,7 @@
 ;*******************************************************************************
 NovaMouseMove(X,Y)
 {
-    global
+    global MainWinX, MainWinY
     MouseMove MainWinX + X, MainWinY + Y, 0
 }
 
@@ -16,7 +17,7 @@ NovaMouseMove(X,Y)
 ;*******************************************************************************
 NovaLeftMouseClick(X,Y)
 {
-    global
+    global MainWinX, MainWinY
     MouseClick L, MainWinX + X, MainWinY + Y
 }
 
@@ -25,14 +26,11 @@ NovaLeftMouseClick(X,Y)
 ;*******************************************************************************
 NovaDragMouse(X, Y, SpanX, SpanY)
 {
-    global
-
 	XMargin := 100
 	YMargin := 100
 	
 	X := X - (SpanX / 2)
 	Y := Y - (SpanY / 2)
-
 		
 	MouseMove, X, Y
 	SendEvent {Click down}
@@ -48,7 +46,6 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 ;*******************************************************************************
 NovaEscapeClick()
 {
-	global
 	NovaLeftMouseClick(452, 635)
 }
 
@@ -58,7 +55,6 @@ NovaEscapeClick()
 ;*******************************************************************************
 Log(Text)
 {
-    global
     FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\Log.txt
 }
 
@@ -68,7 +64,6 @@ Log(Text)
 ;*******************************************************************************
 MajorLog(Text)
 {
-    global
     FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\MajorLog.txt
 }
 
@@ -80,9 +75,7 @@ MajorLog(Text)
 ; FoundX, FoundY : Coordinates of the point found
 ;*******************************************************************************
 NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 0 , X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
-{
-    global
-    
+{   
     if (X2 = -1)
         X2 := MainWinW - 1
     if (Y2 = -1)
@@ -111,7 +104,8 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
 ;*******************************************************************************
 FindImage(FileName, X1, Y1, X2, Y2, ByRef FoundX :=0, ByRef FoundY :=0, Variation := 0)
 {
-    global
+    global MainWinX, MainWinY
+    
     CoordMode, Pixel, Screen
     Options := "*" . Variation . " *Trans0x000000 " .  A_ScriptDir . "\images\" . FileName
     ImageSearch, FoundX, FoundY, MainWinX + X1, MainWinY + Y1, MainWinX + X2, MainWinY + Y2,  %Options%
@@ -137,9 +131,7 @@ FindImage(FileName, X1, Y1, X2, Y2, ByRef FoundX :=0, ByRef FoundY :=0, Variatio
 ;*******************************************************************************
 WaitImage(FileName, X1, Y1, X2, Y2, Timeout, Byref FoundX, Byref FoundY, Variation)
 {
-    global
-	local found = 0
-    local Remaining := Timeout
+	found = 0
 	
 	While (not found) and (Remaining > 0)
 	{
@@ -166,9 +158,8 @@ WaitImage(FileName, X1, Y1, X2, Y2, Timeout, Byref FoundX, Byref FoundY, Variati
 ;*******************************************************************************
 WaitNoImage(FileName, X1, Y1, X2, Y2, Timeout, Variation)
 {
-    global
-	local found = 1
-    local Remaining := Timeout
+	found = 1
+    Remaining := Timeout
 	
 	While (found) and (Remaining > 0)
 	{
@@ -194,10 +185,10 @@ WaitNoImage(FileName, X1, Y1, X2, Y2, Timeout, Variation)
 ;*******************************************************************************
 NovaGrab(X, Y, W, H)
 {
-    global
-    local GrabPath, FullPath
-    GrabPath =  %A_ScriptDir%\images\grab\%A_MM%-%A_DD%
-    FullPath =  %GrabPath%\%A_Hour%-%A_Min%-%A_Sec%
+    global MainWinX, MainWinY
+    
+    GrabPath := A_ScriptDir . "\images\grab\" . A_MM . "-" . A_DD
+    FullPath := GrabPath . "\" . A_Hour . "-" . A_Min . "-" . A_Sec
     
     ; create the directory if it doesn't exist
     if !FileExist(GrabPath)

@@ -1,11 +1,13 @@
-﻿#include utils.ahk
+﻿#include globals.ahk
+#include utils.ahk
 
 ;*******************************************************************************
 ; CheckFreeResources : Checks and grabs free ressources
 ;*******************************************************************************
 CheckFreeResources()
 {   
-    global
+    global FreeResCollected
+    
     ; Go into space station screen 
     Log("Checking free resources ...")
     if !GotoScreen("STATION", 60)
