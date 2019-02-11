@@ -30,7 +30,7 @@ GetAvailableMecaCount(ByRef NumMecas)
 	; popup the main menu
     if !PopRightMenu(1, "FLEETS")
     {
-        Log("ERROR : failed to popup main menu for fleets. exiting")
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
         return 0
     }
 	
@@ -84,7 +84,7 @@ Toggle2DMode()
         Log("Unfolding 2D/3D menu")
         if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1", FoundX, FoundY, 1450, 640, 1760, 820)
         {
-            Log("ERROR : Failed to unfold thr right 2D/3D menu, stopping")
+            Log("ERROR : Failed to unfold thr right 2D/3D menu, stopping", 2)
             return 0
         }
     }
@@ -99,7 +99,7 @@ Toggle2DMode()
         Log("Switching to 2D")
         if !NovaFindClick("buttons\3D_dot.png", 20, "w5000 n1")
         {
-            Log("ERROR : Failed to find the 3D dot to click, stopping")
+            Log("ERROR : Failed to find the 3D dot to click, stopping", 2)
             return 0
         }
     }
@@ -198,7 +198,7 @@ CollectResourcesNew()
     ; then go in 2D Mode
     if !Toggle2DMode()
     {
-        Log("ERROR : Failed to toggle 2D mode, exiting.")
+        Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
         return 0
     }
 
@@ -397,7 +397,7 @@ CollectRessourcesByType(ResType)
 		if (RefValues[1] = ResType)
 		{
 			; go to the ressource position
-			Log("Going to collect " . ResType . " at (" . ResX . "," . ResY . ") ...")
+			Log("Going to collect " . ResType . " at (" . ResX . "," . ResY . ") ...", 1)
 			MapMoveToXY(ResX, ResY)
 
 			
@@ -408,7 +408,7 @@ CollectRessourcesByType(ResType)
 			Log("Collecting it ...")
 			if !NovaFindClick("buttons\collect.png", 70, "w2000 n1")
 			{
-				Log("ERROR : failed to find collect button, exiting.")
+				Log("ERROR : failed to find collect button, exiting.", 2)
 				return 0
 			}
 			

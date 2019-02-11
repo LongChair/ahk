@@ -59,7 +59,7 @@ DoSequence()
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
-            Log ("ERROR : Failed to collect free resources !")
+            Log ("ERROR : Failed to collect free resources !", 2)
             Goto TheEnd
         }
         Log("========= CheckFreeResources End   =========")
@@ -67,7 +67,7 @@ DoSequence()
 		Log("========= getFreeMecas Start =========")
 		if !GetAvailableMecaCount(NumFreeMecas)
         {
-            Log ("ERROR : Failed to get available mecas count !")
+            Log ("ERROR : Failed to get available mecas count !", 2)
             Goto TheEnd
         }
 		Log("We have " . NumFreeMecas . " mecas left, we will collect ressources.")
@@ -77,7 +77,7 @@ DoSequence()
 		Log("========= BuildFrigates Start =========")
         if !BuildFrigates(FrigatesAmount)
         {
-            Log ("ERROR : Failed to build frigates !")
+            Log ("ERROR : Failed to build frigates !", 2)
             Goto TheEnd
         }
         Log("========= BuildFrigates End   =========")
@@ -85,7 +85,7 @@ DoSequence()
         Log("========= CollectResources Start =========")
 		if !CollectResourcesNew()
 		{
-			Log ("ERROR : Failed to collect resources !")
+			Log ("ERROR : Failed to collect resources !", 2)
 			Goto TheEnd
 		}
 		  
@@ -95,7 +95,7 @@ DoSequence()
         Log("========= FarmPirate Start =========")
         if !FarmPirate()
         {
-            Log ("ERROR : Failed to farm pirates !")
+            Log ("ERROR : Failed to farm pirates !", 2)
             Goto TheEnd
         }
         Log("========= FarmPirate End   =========")
@@ -185,7 +185,7 @@ LaunchNova()
     Log("Waiting for BlueStacks home tab ...")
     if !NovaFindClick("buttons\bs_home.png", 0, "w60000 n1")
     {
-        Log("ERROR : Failed to select home screen, exiting...")
+        Log("ERROR : Failed to select home screen, exiting...", 2)
         return 0
     }
     
@@ -194,14 +194,14 @@ LaunchNova()
     Log("Waiting for BlueStacks Nova icon ...")
     if !NovaFindClick("buttons\nova_icon_big.png", 0, "w60000 n0")
     {
-        Log("ERROR : Failed to find nova app icon, exiting...")
+        Log("ERROR : Failed to find nova app icon, exiting...", 2)
         return 0
     }
 	
 	sleep, 1000
     if !NovaFindClick("buttons\nova_icon_big.png", 0, "w1000 n1")
     {
-        Log("ERROR : Failed to start nova app icon, exiting...")
+        Log("ERROR : Failed to start nova app icon, exiting...", 2)
         return 0
     }
 
@@ -211,7 +211,7 @@ LaunchNova()
     Log("Waiting for BlueStacks Nova tab ...")
     if !NovaFindClick("buttons\nova_icon.png", 20, "w5000 n1")
     {
-        Log("ERROR : Failed to find nova tab, exiting...")
+        Log("ERROR : Failed to find nova tab, exiting...", 2)
         return 0
     }
     
@@ -223,7 +223,7 @@ LaunchNova()
         Log("Waiting for Nova welcome screen ...")
         if !NovaFindClick("buttons\cross.png", 0, " w60000 n1")
         {
-            Log("ERROR : Could not identify properly the start screen, exiting...")
+            Log("ERROR : Could not identify properly the start screen, exiting...", 2)
             return 0
         }
     }
@@ -246,7 +246,7 @@ StopNova()
     ; Click on the confirm button
     if !NovaFindClick("buttons\yes.png", 0, "w1000 n1")
     {
-        Log("ERROR : Could not find exit confirm button, exiting...")
+        Log("ERROR : Could not find exit confirm button, exiting...", 2)
     }
     
     ; Wait for it to close

@@ -53,18 +53,17 @@ NovaEscapeClick()
 ; Log : Logs a string into the log file
 ; Text : text to log
 ;*******************************************************************************
-Log(Text)
+Log(Text, Level := 0)
 {
+    ; Major Log
+    if (Level & 0x1)
+        FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\MajorLog.txt
+        
+    ; Error Log
+    if (Level & 0x2)
+        FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\ErrorLog.txt
+        
     FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\Log.txt
-}
-
-;*******************************************************************************
-; MajorLog : Logs a string into the major log file
-; Text : text to log
-;*******************************************************************************
-MajorLog(Text)
-{
-    FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\MajorLog.txt
 }
 
 ;*******************************************************************************

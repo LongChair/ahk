@@ -23,7 +23,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         
         if !NovaFindClick("buttons\" . TabPage . "_on.png", 30, "w1000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
         {
-            Log("ERROR : Could not find the " . TabPage . " button, exiting.")
+            Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
             return 0
         }
         
@@ -42,7 +42,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         ; For this we check if we find the CEG icon which is behind
         if !NovaFindClick("buttons\ceg.png", 30, "w10000 n0")
         {
-            Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.")
+            Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.", 2)
             return 0
         }
         
@@ -114,7 +114,7 @@ BuildFrigates(Amount)
     ; popup the main menu
     if !PopRightMenu(1, "ECONOMY")
     {
-        Log("ERROR : failed to popup main menu. exiting")
+        Log("ERROR : failed to popup main menu. exiting", 2)
         return 0
     }
     
@@ -138,7 +138,7 @@ BuildFrigates(Amount)
     ; Discard the main menu
     if !PopRightMenu(0)
     {
-        Log("ERROR : failed to discard main menu. exiting")
+        Log("ERROR : failed to discard main menu. exiting", 2)
         return 0
     }
     

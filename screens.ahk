@@ -43,7 +43,7 @@ WaitNovaScreen(Screen, Timeout)
     }
     else
     {
-        Log("ERROR : Timeout while waiting screen " . Screen . " Exceeded " . Timeout . " seconds")
+        Log("ERROR : Timeout while waiting screen " . Screen . " Exceeded " . Timeout . " seconds", 2)
         return 0
     }
 }
@@ -71,7 +71,7 @@ GotoScreen(TargetScreen, Timeout)
     
     if (Remaining <= 0)
     {
-        LOG("ERROR : Timeout while trying to identify screen for move to " . TargetScreen . " after " . Timeout . " seconds")
+        LOG("ERROR : Timeout while trying to identify screen for move to " . TargetScreen . " after " . Timeout . " seconds", 2)
         return 0
     }
 	

@@ -23,7 +23,7 @@ CheckFreeResources()
 		 ; look for the reward screen
         if !NovaFindClick("buttons\reward.png", 30, "w5000 n1")
         {
-            Log("ERROR : Failed to find the reward screen for daily mission, exiting")
+            Log("ERROR : Failed to find the reward screen for daily mission, exiting", 2)
             return 0
         }
 	 
@@ -33,7 +33,7 @@ CheckFreeResources()
         ; Now click on the return button
         if !NovaFindClick("buttons\back.png", 80, "w1000 n1")
         {
-            Log("ERROR : Failed to click the back button for daily mission, exiting")
+            Log("ERROR : Failed to click the back button for daily mission, exiting", 2)
             return 0
         }
         
@@ -51,13 +51,12 @@ CheckFreeResources()
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {
-        Log("Collecting resources ... YEAH!")
-        MajorLog("Collecting resources ... YEAH!")
+        Log("Collecting resources ... YEAH!", 1)
         
 		; Wait for the carte to show up
 		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 650, 300, 1150, 650)
 		{
-			Log("ERROR : Failed to find the crate, exiting")
+			Log("ERROR : Failed to find the crate, exiting", 2)
             return 0
 		}
         
@@ -69,7 +68,7 @@ CheckFreeResources()
         Log("Clicking on grab button...")
         if !NovaFindClick("buttons\recuperer.png", 80, "w5000 n1", FoundX, FoundY, 500, 500, 1250, 880)
         {
-            Log("ERROR : Failed to click the grab button for free resources, exiting")
+            Log("ERROR : Failed to click the grab button for free resources, exiting", 2)
             return 0
         }
         
@@ -78,7 +77,7 @@ CheckFreeResources()
         Log("Waiting for reward screen...")
         if !NovaFindClick("buttons\reward.png", 80, "w5000 n1")
         {
-            Log("ERROR : Failed to click the grab button for free resources, exiting")
+            Log("ERROR : Failed to click the grab button for free resources, exiting", 2)
             return 0
         }
         
@@ -94,7 +93,7 @@ CheckFreeResources()
         
         if LoopCount > 5 
         {
-            Log("ERROR : Timeout waiting for station screen, stopping")
+            Log("ERROR : Timeout waiting for station screen, stopping", 2)
             return 0
         }
     }
