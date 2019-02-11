@@ -296,15 +296,15 @@ FindRessources()
     
 	
 	CurrentResType := "ALLIUM"
-	NovaFindClick("resources\HD_Allium2.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
+	NovaFindClick("resources\HD_Allium.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
 	NovaFindClick("resources\HD_Planet_Allium.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	
 	CurrentResType := "CRYSTALS"
-	NovaFindClick("resources\HD_Crystals2.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("resources\HD_Crystals.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\HD_Planet_Crystals.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	
 	CurrentResType := "MINE"
-	NovaFindClick("resources\HD_Mine2.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("resources\HD_Mine.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	
 	CurrentResType := "MINING"
