@@ -125,7 +125,7 @@ Toggle2DMode()
 MapMoveToXY(X, Y)
 {
     global MapPosX, MapPosY
-    global MainWinW, MainWinW
+    global MainWinW, MainWinH
 	
     StepX := 500
     StepY := 500
