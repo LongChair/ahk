@@ -18,20 +18,20 @@ CheckFreeResources()
     {
         Log("Found Day 1 icon, and clicked.")
      
-        ; look for the grab button
-        if !NovaFindClick("buttons\recuperer.png", 80, "w1000 n1")
+		 ; look for the reward screen
+        if !NovaFindClick("buttons\reward.png", 30, "w5000 n1")
         {
-            Log("ERROR : Failed to click the grab button for daily mission, exiting")
+            Log("ERROR : Failed to find the reward screen for daily mission, exiting")
             return 0
         }
-        
+	 
         ; reset free resources counter
         FreeResCollected := 0
-        
+        Sleep, 2000
         ; Now click on the return button
         if !NovaFindClick("buttons\back.png", 80, "w1000 n1")
         {
-            Log("ERROR : Failed to click the back button, exiting")
+            Log("ERROR : Failed to click the back button for daily mission, exiting")
             return 0
         }
         
@@ -53,7 +53,7 @@ CheckFreeResources()
         MajorLog("Collecting resources ... YEAH!")
         
 		; Wait for the carte to show up
-		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0")
+		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 650, 300, 1150, 650)
 		{
 			Log("ERROR : Failed to find the crate, exiting")
             return 0
@@ -65,7 +65,7 @@ CheckFreeResources()
         
         ; look for the grab button
         Log("Clicking on grab button...")
-        if !NovaFindClick("buttons\recuperer.png", 80, "w2000 n1", FoundX, FoundY, 500, 500, 1250, 880)
+        if !NovaFindClick("buttons\recuperer.png", 80, "w5000 n1", FoundX, FoundY, 500, 500, 1250, 880)
         {
             Log("ERROR : Failed to click the grab button for free resources, exiting")
             return 0
@@ -74,7 +74,7 @@ CheckFreeResources()
 		FreeResCollected := FreeResCollected + 1
 		
         Log("Waiting for reward screen...")
-        if !NovaFindClick("buttons\reward.png", 80, "w2000 n1")
+        if !NovaFindClick("buttons\reward.png", 80, "w5000 n1")
         {
             Log("ERROR : Failed to click the grab button for free resources, exiting")
             return 0

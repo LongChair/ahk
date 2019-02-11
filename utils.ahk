@@ -94,7 +94,13 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
 	Opts := "rBlueStacks oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
-	return FindClick(FullPath, Opts, FoundX, FoundY)
+	C := FindClick(FullPath, Opts, FoundX, FoundY)
+	
+	; in case we clicked, wait a bit 
+	if (C)
+		Sleep, 500
+		
+	return C
 }
 
 ;*******************************************************************************

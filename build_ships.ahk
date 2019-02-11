@@ -1,10 +1,10 @@
-#include utils.ahk
+﻿#include utils.ahk
 
 ;*******************************************************************************
 ; PopRightMenu : Will pop the main right menu
 ; Visible : 1 = Show it, 0 = Close it
 ;*******************************************************************************
-PopRightMenu(Visible)
+PopRightMenu(Visible, TabPage := "ECONOMY")
 {
     global
     
@@ -12,18 +12,20 @@ PopRightMenu(Visible)
     {
         Log("Showing Main right menu ...")
         ; click the button to show up the menu
-        NovaLeftMouseClick(1083, 339)
+        NovaLeftMouseClick(1700, 510)
         Sleep, 500
         
+		OffImage := 
+		
         ; wait for eventual unselected economy tab
-        if NovaFindClick("buttons\economy_off.png", 30, "w1000 n1")
+        if NovaFindClick("buttons\" . TabPage . "_off.png", 30, "w1000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
         {
-            Log("Selected economy tab in right menu")
+            Log("Selected " . TabPage . " tab in right menu")
         }
         
-        if !NovaFindClick("buttons\economy_on.png", 30, "w1000 n0")
+        if !NovaFindClick("buttons\" . TabPage . "_on.png", 30, "w1000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
         {
-            Log("ERROR : Could not ind the economy button, exiting.")
+            Log("ERROR : Could not find the " . TabPage . " button, exiting.")
             return 0
         }
         
@@ -56,6 +58,7 @@ PopRightMenu(Visible)
 ;*******************************************************************************
 HandleFreeSlot(X, Y)
 {
+	global
 	Log("Found a free slot at (" . X . "," . Y . ")")
 	
 	; open the slot
@@ -63,38 +66,36 @@ HandleFreeSlot(X, Y)
 	Sleep, 500
 	
 	; make sure frigates are selected on that shipyard
-	if !NovaFindClick("buttons\frigate.png", 0, "w1000 n0")
+	if !NovaFindClick("buttons\frigate.png", 30, "w1000 n0")
 	{
 		Log("Could not find frigates as current ship, exiting.")
-		return 0
+		return
 	}
 	
 	; then click on build button
-	if !NovaFindClick("buttons\build.png", 0, "w1000 n1")
+	if !NovaFindClick("buttons\build.png", 30, "w1000 n1")
 	{
 		Log("Could not find build button, exiting.")
-		return 0
+		return
 	}
 	
 	; Add one more build to the counter
 	FrigatesBuilt := FrigatesBuilt + 1
 	
 	; then click on back button               
-	if !NovaFindClick("buttons\back.png", 0, "w1000 n1")
+	if !NovaFindClick("buttons\back_ships.png", 30, "w1000 n1")
 	{
 		Log("Could not find back button, exiting.")
-		return 0
+		return
 	}
 	
 	; wait to come back to main screen with economy button highlighted
-	if !NovaFindClick("buttons\economy_on.png", 0, "w3000 n")
+	if !NovaFindClick("buttons\economy_on.png", 30, "w3000 n")
 	{
 		Log("Could not find economy tab, while getting back to main screen, exiting.")
-		return 0
+		return
 	}
 	
-	
-	return 1
 }
 
 ;*******************************************************************************
@@ -111,7 +112,7 @@ BuildFrigates(Amount)
     }
     
     ; popup the main menu
-    if !PopRightMenu(1)
+    if !PopRightMenu(1, "ECONOMY")
     {
         Log("ERROR : failed to popup main menu. exiting")
         return 0
@@ -121,12 +122,13 @@ BuildFrigates(Amount)
 	Loop, 3
 	{
 		Log("Checking available shipyards slots ...")
-		ResCount := NovaFindClick("buttons\free_slot.png", 80, "e n0 w1000 FuncHandleResource")
-		
-		Log("Found " . ResCount . " free slots, Scrolling down ...")
-		
+		while NovaFindClick("buttons\free_slot.png", 80, "e n0 w1000 FuncHandleFreeSlot")
+		{
+			sleep, 2000
+		}
+				
 		; move mouse on top of shipyards
-		NovaMouseMove(680, 305)
+		NovaMouseMove(1050, 470)
 		sleep, 500
 
 		MouseClick, WheelDown,,, 1
