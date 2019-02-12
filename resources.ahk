@@ -56,16 +56,18 @@ GetAvailableMecaCount(ByRef NumMecas)
 ;*******************************************************************************
 ; CountResByType : Returns the amount of scanned ressources with a given type
 ;*******************************************************************************
-CountResByType(ResType)
+CountResByType(ResList, ResType)
 {
 	CurrentRes := 1
 	Amount := 0
     
-	Loop, % List.MaxIndex()
+	Loop, % ResList.MaxIndex()
 	{
-		RefValues := StrSplit(List[CurrentRes], ",")
+		RefValues := StrSplit(ResList[CurrentRes], ",")
 		if (RefValues[1] = ResType)
 			Amount := Amount + 1
+			
+		CurrentRes := CurrentRes +1
 	}
 	
 	return Amount
@@ -218,14 +220,17 @@ CollectResources()
 	SortResList(Mining)
 	Log("We have " . Mining.MaxIndex() . " meca mining minerals left after sorting")
 
-
-	AvailAllium := CountResByType("ALLIUM")
-	AvailCrystals := CountResByType("CRYSTALS")
-	MiningMecas := CountResByType("MINING")
+	
+	AvailMine := CountResByType(Ressources, "MINE")
+	AvailAllium := CountResByType(Ressources, "ALLIUM")
+	AvailCrystals := CountResByType(Ressources, "CRYSTALS")
+	MiningMecas := CountResByType(Mining, "MINING")
 	
 	Log("Scan reported :")
+	Log(" - Mine     : " . AvailMine)
 	Log(" - Allium   : " . AvailAllium)
 	Log(" - Crystals : " . AvailCrystals)
+	Log(" - Mining M.: " . MiningMecas)
 	
 	; now try to grab the ressource
 	if (NumFreeMecas = 0) 
@@ -308,7 +313,7 @@ FindRessources()
 	NovaFindClick("resources\HD_Planet2.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	
 	CurrentResType := "MINING"
-	;NovaFindClick("resources\HD_Mine2.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("resources\HD_Mining.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\Planet_Mining.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	return 0
 }
