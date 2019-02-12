@@ -61,7 +61,7 @@ CountResByType(ResList, ResType)
 	CurrentRes := 1
 	Amount := 0
     
-	Loop, % ResList.MaxIndex()
+	Loop, % ResList.Length()
 	{
 		RefValues := StrSplit(ResList[CurrentRes], ",")
 		if (RefValues[1] = ResType)
@@ -214,11 +214,11 @@ CollectResources()
 	; remove duplicate ressources
 	Log("Sorting ressources ...")
 	SortResList(Ressources)
-	Log("We have " . Ressources.MaxIndex() . " ressources left after sorting")
+	Log("We have " . Ressources.Length() . " ressources left after sorting")
 	
 	Log("Sorting mining mecas ...")
 	SortResList(Mining)
-	Log("We have " . Mining.MaxIndex() . " meca mining minerals left after sorting")
+	Log("We have " . Mining.Length() . " meca mining minerals left after sorting")
 
 	
 	AvailMine := CountResByType(Ressources, "MINE")
@@ -285,7 +285,7 @@ ScanMap()
 		CurrentY := CurrentY - MapStepY
 	}
 	
-	Log("ScanMap found " . Ressources.MaxIndex() . " Ressources")
+	Log("ScanMap found " . Ressources.Length() . " Ressources")
 	
 }
 
@@ -334,11 +334,11 @@ HandleScan(ResX, ResY)
 	if (CurrentResType = "MINING")
 	{
 		Mining.Insert(CurrentResType . "," . ResX . "," . ResY)
-		Log("Found a mined resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Mining.MaxIndex())
+		Log("Found a mined resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Mining.Length())
 	}
 	else
 	{
-		Log("Found a resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Ressources.MaxIndex())
+		Log("Found a resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Ressources.Length())
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
 	}
 }
@@ -353,12 +353,12 @@ SortResList(Byref ResList)
 SortStart:
 	
 	CurrentRes := 1
-	Loop, % ResList.MaxIndex()
+	Loop, % ResList.Length()
 	{
 		RefValues := StrSplit(ResList[CurrentRes], ",")
 		
 		CompareRes := CurrentRes + 1
-		Loop, % ResList.MaxIndex() - CurrentRes
+		Loop, % ResList.Length() - CurrentRes
 		{
 			CompareValues := StrSplit(ResList[CompareRes], ",")
 			
@@ -394,7 +394,7 @@ CollectRessourcesByType(ResType)
 		
 	Log("Collecting ressources found for " . ResType)
 	CurrentRes := 1
-	Loop, % Ressources.MaxIndex()
+	Loop, % Ressources.Length()
 	{
 		RefValues := StrSplit(Ressources[CurrentRes], ",")
 		ResX := RefValues[2]
