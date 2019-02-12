@@ -26,3 +26,4 @@ global FrigatesAmount := 0
 global FrigatesBuilt := 0
 
 global NumFreeMecas := 0
+global StartFreeMecas := 0

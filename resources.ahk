@@ -181,6 +181,55 @@ MapMoveToXY(X, Y)
 }
 
 ;*******************************************************************************
+; RecallMecas : Will recall mecas mining the given ressource in the given list
+; Amount : amount of mecas to recall
+; returns the amount recalled
+;*******************************************************************************
+RecallMecas(ByRef ResList, ResType, Amount)
+{
+	CurrentRes := 1
+	Recalled := 0
+    
+	Loop, % ResList.MaxIndex()
+	{
+		; if we have recalled enough, just exit
+		if (Recalled = Amount)
+			Return Recalled
+		
+		; if we have a meca mining right type of resource
+		RefValues := StrSplit(ResList[CurrentRes], ",")
+		MecaX := RefValues[2]
+		MecaY := RefValues[3]
+		
+		if (RefValues[1] = ResType)
+		{
+				; go to the ressource position
+			Log("Recalling meca collecting " . ResType . " at (" . ResX . "," . ResY . ") ...", 1)
+			MapMoveToXY(ResX, ResY)
+
+
+			; Click on the ressource
+			NovaLeftMouseClick(MainWinW / 2, MainWinH / 2)
+			
+			; click collect button
+			Log("recalling it ...")
+			if !NovaFindClick("buttons\rappeler.png", 70, "w2000 n1")
+			{
+				Log("ERROR : failed to find recall button, exiting.", 2)
+				return 0
+			}
+			
+			Recalled := Recalled + 1
+		}
+			
+		CurrentRes := CurrentRes + 1
+	}
+	
+	return Recalled
+}
+
+
+;*******************************************************************************
 ; CollectResourcesNew : Parse current system and collect ressources if any
 ; by sending workers onto them
 ;*******************************************************************************
@@ -236,7 +285,13 @@ CollectResources()
 	if (NumFreeMecas = 0) 
 	{
 		if (MiningMecas AND (AvailAllium OR AvailCrystals))
-			Log("We have " . MiningMecas . " mining mecas, and " . AvailAllium . " allium, " . AvailCrystals . " crystals, we could have swapped...")
+		{
+			ToRecall := AvailAllium + AvailCrystals
+			Log("We need to recall " . ToRecall . ", we have " . MiningMecas . " that can be.", 1)
+			
+			Recalled := RecallMecas(Mining, "MINING", ToRecall)
+			Log("We recalled " . Recalled . " mecas.", 1)
+		}
 	}
 	Else
 	{

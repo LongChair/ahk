@@ -70,6 +70,7 @@ DoSequence()
             Goto TheEnd
         }
 		Log("We have " . NumFreeMecas . " mecas left")
+		StartFreeMecas := NumFreeMecas
 		
 		Log("========= getFreeMecas End =========")
     
@@ -115,8 +116,11 @@ DoSequence()
 LogSummuary(Level :=0)
 {
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
+	global NumFreeMecas, StartFreeMecas
 
     Log("SUMMUARY :", Level)
+	Log(" -Free mecas at start         : " . StartFreeMecas, Level)
+	Log(" -Free mecas at end           : " . NumFreeMecas, Level)
     Log(" -Free resources collected    : " . FreeResCollected, Level)
     Log(" -Regular resources collected : " . OtherResCollected, Level)
     Log(" -Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount, Level)    

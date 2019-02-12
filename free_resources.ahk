@@ -1,6 +1,23 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
+
+;*******************************************************************************
+; IdentifyFreeResource : Grabs the name of the free resoure on screen
+;*******************************************************************************
+IdentifyFreeResource()
+{
+	PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent" ]
+	
+	for index, element in PossibleRes
+	{
+		if NovaFindClick("free_res\" . element . ".png", 30, "n0", FoundX, FoundY, 740, 350, 1040, 750)
+			return element
+	}
+	
+	return "UNKNOWN"
+}
+
 ;*******************************************************************************
 ; CheckFreeResources : Checks and grabs free ressources
 ;*******************************************************************************
@@ -51,7 +68,7 @@ CheckFreeResources()
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {
-        Log("Collecting resources ... YEAH!", 1)
+        Log("Collecting free resources ... YEAH!")
         
 		; Wait for the carte to show up
 		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 650, 300, 1150, 650)
@@ -60,6 +77,10 @@ CheckFreeResources()
             return 0
 		}
         
+		; indentify what we got
+		ResDescription := IdentifyFreeResource()
+		Log("Collecting free resources ... got '" . ResDescription . "', YEAH!", 1)
+		
 		; Grab a screenshot of the resource
         NovaGrab(740, 350, 300, 365)
         Sleep, 1000
