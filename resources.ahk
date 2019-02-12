@@ -334,11 +334,11 @@ HandleScan(ResX, ResY)
 	if (CurrentResType = "MINING")
 	{
 		Mining.Insert(CurrentResType . "," . ResX . "," . ResY)
-		Log("Found a mined resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Mining.Length())
+		Log(Format("Found a mined resource at ({1:0},{2:0}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Mining.Length()))
 	}
 	else
 	{
-		Log("Found a resource at (" . ResX . "," . ResY . "), with type " . CurrentResType . " Total=" . Ressources.Length())
+        Log(Format("Found a resource at ({1:0},{2:0}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
 	}
 }
@@ -404,7 +404,7 @@ CollectRessourcesByType(ResType)
 		if (RefValues[1] = ResType)
 		{
 			; go to the ressource position
-			Log("Going to collect " . ResType . " at (" . ResX . "," . ResY . ") ...", 1)
+			Log(Format("Going to collect {1} at ({2:0}, {3:0} ...", ResType, ResX, ResY), 1)
 			MapMoveToXY(ResX, ResY)
 
 			
