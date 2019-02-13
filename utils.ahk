@@ -35,7 +35,7 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 	MouseMove, X, Y
 	SendEvent {Click down}
 	Sleep, 200
-	MouseMove, X + SpanX, Y + SpanY, 5
+	MouseMove, X + SpanX, Y + SpanY, 10
 	Sleep, 500
 	SendEvent {click up}
 	Sleep, 200
@@ -68,6 +68,8 @@ Log(Text, Level := 0)
         FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\ErrorLog.txt
         
     FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\Log.txt
+	Sleep, 20
+	
 }
 
 ;*******************************************************************************

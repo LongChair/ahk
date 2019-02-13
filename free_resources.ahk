@@ -1,21 +1,45 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
+global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent" ]
+global FreeResCount := []
 
 ;*******************************************************************************
 ; IdentifyFreeResource : Grabs the name of the free resoure on screen
 ;*******************************************************************************
-IdentifyFreeResource()
+IdentifyFreeResource(ByRef description, Byref index)
 {
-	PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent" ]
+	global PossibleRes
 	
-	for index, element in PossibleRes
+	for i, element in PossibleRes
 	{
 		if NovaFindClick("free_res\" . element . ".png", 30, "n0", FoundX, FoundY, 740, 350, 1040, 750)
-			return element
+		{
+			description := element
+			index := i
+			return 1
+		}
+			
 	}
 	
-	return "UNKNOWN"
+	return 0
+}
+
+;*******************************************************************************
+; ResetStats : Resets the global stats variable
+;*******************************************************************************
+ResetStats()
+{
+	global FreeResCollected, OtherResCollected
+	global FreeResCount, PossibleRes
+
+	FreeResCollected := 0
+	OtherResCollected := 0
+	for i, res in PossibleRes
+	{
+		FreeResCount[i] := 0
+	}
+		
 }
 
 ;*******************************************************************************
@@ -44,9 +68,10 @@ CheckFreeResources()
             return 0
         }
 	 
-        ; reset free resources counter
-        FreeResCollected := 0
+        ; reset all stats counters
+        ResetStats()
         Sleep, 2000
+		
         ; Now click on the return button
         if !NovaFindClick("buttons\back.png", 80, "w1000 n1")
         {
@@ -78,7 +103,14 @@ CheckFreeResources()
 		}
         
 		; indentify what we got
-		ResDescription := IdentifyFreeResource()
+		if !IdentifyFreeResource(ResDescription, ResIndex)
+		{
+			Log("ERROR : Could not retrieve free ressource information. exiting", 2)
+			return 0
+		}
+		
+		FreeResCount[ResIndex] := FreeResCount[ResIndex] + 1
+		
 		Log("Collecting free resources ... got '" . ResDescription . "', YEAH!", 1)
 		
 		; Grab a screenshot of the resource

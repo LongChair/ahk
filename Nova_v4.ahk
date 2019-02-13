@@ -117,13 +117,28 @@ LogSummuary(Level :=0)
 {
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
 	global NumFreeMecas, StartFreeMecas
+	global FreeResCount, PossibleRes
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
 
-    Log("SUMMUARY :", Level)
-	Log(" -Free mecas at start         : " . StartFreeMecas, Level)
-	Log(" -Free mecas at end           : " . NumFreeMecas, Level)
-    Log(" -Free resources collected    : " . FreeResCollected, Level)
-    Log(" -Regular resources collected : " . OtherResCollected, Level)
-    Log(" -Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount, Level)    
+    Log("-==================== SUMMUARY ====================-", Level)
+	LOG(" - ITERATION :")
+	Log("   * Free mecas at start         : " . StartFreeMecas, Level)
+	Log("   * Free mecas at end           : " . NumFreeMecas, Level)
+	Log("   * Available Mine              : " . ScanAvailMine, Level)
+	Log("   * Available Allium            : " . ScanAvailAllium, Level)
+	Log("   * Available Crystals          : " . ScanAvailCrystals, Level)
+	Log("   * Available Mining Mecas      : " . ScanMiningMecas, Level)
+	LOG(" - GLOBAL STATS :")
+	Log(" 	* Free resources collected    : " . FreeResCollected, Level)
+    Log(" 	* Regular resources collected : " . OtherResCollected, Level)
+    Log(" 	* Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount, Level)    
+	LOG(" - FREE RESOURCES :")
+	
+	for i, res in PossibleRes
+	{
+		Log(" 	* " . FreeResCount[i] . " x " . PossibleRes[i], Level)    
+	}
+	
 }
 
 ;*******************************************************************************
@@ -131,6 +146,7 @@ LogSummuary(Level :=0)
 ;*******************************************************************************
 ReadConfig()
 {
+	global FreeResCount, PossibleRes
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
     FullPath =  %A_ScriptDir%\Nova.ini
     
@@ -141,6 +157,14 @@ ReadConfig()
     
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
+	
+	; Free resource counters
+	for i, res in PossibleRes
+	{
+		Key := "FreeRes" . i
+		IniRead, Value, %FullPath%, FREE_RES, %Key%, 0
+		FreeResCount[i] := Value
+	}
     
 }
 
@@ -159,6 +183,16 @@ WriteConfig()
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
+	
+	
+	; Free resource counters
+	for i, res in PossibleRes
+	{
+		Value := FreeResCount[i]
+		Key := "FreeRes" . i
+		IniWrite, %Value%, %FullPath%, FREE_RES, %Key%
+	}
+
 }
 
 ;*******************************************************************************

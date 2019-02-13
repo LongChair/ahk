@@ -19,6 +19,11 @@ global RemainingMecas := 0
 global Ressources := []
 global Mining := []
 
+; ressources counters
+global ScanAvailMine := 0
+global ScanAvailAllium := 0
+global ScanAvailCrystals := 0
+global ScanMiningMecas := 0
 
 ;*******************************************************************************
 ; GetAvailableMecaCount : Checks how many free mecas we have
@@ -96,10 +101,10 @@ Toggle2DMode()
     }
 
     ; switch to 2D
-    if NovaFindClick("buttons\2D.png", 20, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
+    if NovaFindClick("buttons\2D.png", 30, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Switching to 2D")
-        if !NovaFindClick("buttons\3D_dot.png", 20, "w5000 n1")
+        if !NovaFindClick("buttons\3D_dot.png", 50, "w10000 n1")
         {
             Log("ERROR : Failed to find the 3D dot to click, stopping", 2)
             return 0
@@ -187,6 +192,7 @@ MapMoveToXY(X, Y)
 ;*******************************************************************************
 RecallMecas(ByRef ResList, ResType, Amount)
 {
+	global MainWinW, MainWinH
 	CurrentRes := 1
 	Recalled := 0
     
@@ -204,11 +210,13 @@ RecallMecas(ByRef ResList, ResType, Amount)
 		if (RefValues[1] = ResType)
 		{
 				; go to the ressource position
-			Log("Recalling meca collecting " . ResType . " at (" . ResX . "," . ResY . ") ...", 1)
-			MapMoveToXY(ResX, ResY)
+			Log(Format("Recalling meca collecting {1} at ({2:i}, {3:i} ...", ResType, MecaX, MecaY), 1)
+			MapMoveToXY(MecaX, MecaY)
 
 
 			; Click on the ressource
+			NovaMouseMove(MainWinW / 2, MainWinH / 2)
+			
 			NovaLeftMouseClick(MainWinW / 2, MainWinH / 2)
 			
 			; click collect button
@@ -237,6 +245,7 @@ CollectResources()
 {
     global Ressources, Mining
     global NumFreeMecas
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
     
     Log("Starting to collect resources ...")
     
@@ -270,24 +279,24 @@ CollectResources()
 	Log("We have " . Mining.Length() . " meca mining minerals left after sorting")
 
 	
-	AvailMine := CountResByType(Ressources, "MINE")
-	AvailAllium := CountResByType(Ressources, "ALLIUM")
-	AvailCrystals := CountResByType(Ressources, "CRYSTALS")
-	MiningMecas := CountResByType(Mining, "MINING")
+	ScanAvailMine := CountResByType(Ressources, "MINE")
+	ScanAvailAllium := CountResByType(Ressources, "ALLIUM")
+	ScanAvailCrystals := CountResByType(Ressources, "CRYSTALS")
+	ScanMiningMecas := CountResByType(Mining, "MINING")
 	
 	Log("Scan reported :")
-	Log(" - Mine     : " . AvailMine)
-	Log(" - Allium   : " . AvailAllium)
-	Log(" - Crystals : " . AvailCrystals)
-	Log(" - Mining M.: " . MiningMecas)
+	Log(" - Mine     : " . ScanAvailMine)
+	Log(" - Allium   : " . ScanAvailAllium)
+	Log(" - Crystals : " . ScanAvailCrystals)
+	Log(" - Mining M.: " . ScanMiningMecas)
 	
 	; now try to grab the ressource
 	if (NumFreeMecas = 0) 
 	{
-		if (MiningMecas AND (AvailAllium OR AvailCrystals))
+		if (ScanMiningMecas AND (ScanAvailAllium OR ScanAvailCrystals))
 		{
-			ToRecall := AvailAllium + AvailCrystals
-			Log("We need to recall " . ToRecall . ", we have " . MiningMecas . " that can be.", 1)
+			ToRecall := ScanAvailAllium + ScanAvailCrystals
+			Log("We need to recall " . ToRecall . ", we have " . ScanMiningMecas . " that can be.", 1)
 			
 			Recalled := RecallMecas(Mining, "MINING", ToRecall)
 			Log("We recalled " . Recalled . " mecas.", 1)
@@ -389,11 +398,11 @@ HandleScan(ResX, ResY)
 	if (CurrentResType = "MINING")
 	{
 		Mining.Insert(CurrentResType . "," . ResX . "," . ResY)
-		Log(Format("Found a mined resource at ({1:0},{2:0}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Mining.Length()))
+		Log(Format("Found a mined resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Mining.Length()))
 	}
 	else
 	{
-        Log(Format("Found a resource at ({1:0},{2:0}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
+        Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
 	}
 }
@@ -459,7 +468,7 @@ CollectRessourcesByType(ResType)
 		if (RefValues[1] = ResType)
 		{
 			; go to the ressource position
-			Log(Format("Going to collect {1} at ({2:0}, {3:0} ...", ResType, ResX, ResY), 1)
+			Log(Format("Going to collect {1} at ({2:i}, {3:i} ...", ResType, ResX, ResY), 1)
 			MapMoveToXY(ResX, ResY)
 
 			
