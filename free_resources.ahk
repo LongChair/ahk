@@ -1,7 +1,7 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
-global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent" ]
+global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent", "Accel 100 percent" ]
 global FreeResCount := []
 
 ;*******************************************************************************
@@ -106,7 +106,6 @@ CheckFreeResources()
 		if !IdentifyFreeResource(ResDescription, ResIndex)
 		{
 			Log("ERROR : Could not retrieve free ressource information. exiting", 2)
-			return 0
 		}
 		
 		FreeResCount[ResIndex] := FreeResCount[ResIndex] + 1
@@ -130,8 +129,7 @@ CheckFreeResources()
         Log("Waiting for reward screen...")
         if !NovaFindClick("buttons\reward.png", 80, "w5000 n1")
         {
-            Log("ERROR : Failed to click the grab button for free resources, exiting", 2)
-            return 0
+            Log("ERROR : Failed to click the reward button for free resources, could be that we got them all ?", 2)
         }
         
         ; click below the popup to make it vanish

@@ -22,7 +22,7 @@ SetTitleMatchMode 2
 
 
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
-
+ 
 Loop
 {
     ;LaunchNova()

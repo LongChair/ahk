@@ -59,17 +59,38 @@ NovaEscapeClick()
 ;*******************************************************************************
 Log(Text, Level := 0)
 {
+	FileName := ""
+	
     ; Major Log
     if (Level & 0x1)
-        FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\MajorLog.txt
+		FileLog(Text, A_ScriptDir . "\MajorLog.txt")
         
     ; Error Log
     if (Level & 0x2)
-        FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\ErrorLog.txt
-        
-    FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %A_ScriptDir%\Log.txt
-	Sleep, 20
-	
+		FileLog(Text, A_ScriptDir . "\ErrorLog.txt")
+
+
+	FileLog(Text, A_ScriptDir . "\Log.txt")	
+}
+
+;*******************************************************************************
+; Log : Logs a string into the log file
+; Text : text to log
+; Level :
+; 0 is default
+; 1 is major
+; 2 is error
+;*******************************************************************************
+FileLog(Text, Filename)
+{
+DoLog:
+    FileAppend, %A_Hour%:%A_Min%:%A_Sec% - %Text%`r`n,  %FileName%
+	if (ErrorLevel = 1)
+	{
+		Err := A_LastError
+		Sleep, 30
+		Goto DoLog
+	}
 }
 
 ;*******************************************************************************

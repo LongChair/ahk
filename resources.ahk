@@ -326,7 +326,7 @@ ScanMap()
     CurrentX := -1500
     CurrentY := 1500
 	MapStepX := 1000
-    MapStepY := 500
+    MapStepY := 450
 	Dir := 1
 	
 	; Scan the ressources on the map and fill the ressources array
