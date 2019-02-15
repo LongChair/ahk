@@ -246,6 +246,7 @@ CollectResources()
     global Ressources, Mining
     global NumFreeMecas
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
+	global MapPosX, MapPosY
     
     Log("Starting to collect resources ...")
     
@@ -264,7 +265,9 @@ CollectResources()
 
 	Ressources := []
 	Mining := []
-		
+	MapPosX := 0
+	MapPosY := 0
+	
 	; Scan the map for ressources
 	Log("Scanning map for ressources ...")
 	ScanMap()
@@ -326,7 +329,7 @@ ScanMap()
     CurrentX := -1500
     CurrentY := 1500
 	MapStepX := 1000
-    MapStepY := 450
+    MapStepY := 500
 	Dir := 1
 	
 	; Scan the ressources on the map and fill the ressources array
