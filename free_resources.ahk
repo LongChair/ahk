@@ -90,6 +90,13 @@ CheckFreeResources()
         Log("No Day 1 button found, checking free resources")
     }
  
+ 	; check if we have collected all the 32 free resources
+	if (FreeResCollected >= 32)
+	{
+		Log(Format("All free ressources have been collected ({1}), skipping ...", FreeResCollected))
+		return 1
+	}
+
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {
