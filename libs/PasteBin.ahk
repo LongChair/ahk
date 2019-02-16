@@ -11,12 +11,12 @@ class pasteBin
 {
 	__New(username="", password=""){ 		; dev_key is nothing special and can be made public
 		
-		this.dev_key := "aa6139270874cb90939752086c35727c" , this.username := username , this.password := password
+		this.dev_key := "a5570948bfe060e3df15b9ac02d8b93f" , this.username := username , this.password := password
 		this.http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 		; done - 
 		if ( username != "" ) && ( Password != "" ) 		;return if invalid data
 		{
-			f := "api_dev_key=" dev_key "&api_user_name=" this._UrlEncode(username) "&api_user_password=" this._UrlEncode(password)
+			f := "api_dev_key=" this.dev_key "&api_user_name=" this._UrlEncode(this.username) "&api_user_password=" this._UrlEncode(this.password)
 			this._openRequest("http://pastebin.com/api/api_login.php")
 			this.http.Send(f)
 			this.userkey := this._return(this.http.ResponseText) 		; return 0 if key is wrong invalid
