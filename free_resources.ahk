@@ -47,7 +47,7 @@ ResetStats()
 ;*******************************************************************************
 CheckFreeResources()
 {   
-    global FreeResCollected
+    global FreeResCollected, MaxFreeRes
     
     ; Go into space station screen 
     Log("Checking free resources ...")
@@ -91,9 +91,9 @@ CheckFreeResources()
     }
  
  	; check if we have collected all the 32 free resources
-	if (FreeResCollected >= 32)
+	if (FreeResCollected >= MaxFreeRes)
 	{
-		Log(Format("All free ressources have been collected ({1}), skipping ...", FreeResCollected))
+		Log(Format("All free ressources have been collected ({1}/{2}}), skipping ...", FreeResCollected, MaxFreeRes))
 		return 1
 	}
 

@@ -4,6 +4,7 @@
 #Include  %A_ScriptDir% 
 #include globals.ahk
 #include libs\FindClick.ahk
+#include libs\PasteBin.ahk
 #Include utils.ahk
 #include screens.ahk
 #include resources.ahk
@@ -22,7 +23,7 @@ SetTitleMatchMode 2
 
 
 Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
- 
+
 Loop
 {
     ;LaunchNova()
@@ -101,7 +102,12 @@ DoSequence()
         Log("========= FarmPirate End   =========")
         
         ; logs the summuary of the iteration
-        LogSummuary(1)
+		Summuary := GetSummuary()
+        Log(Format("`r`n{1}", Summuary), 1)
+		
+		; paste it to pastebin
+		pbin := new pastebin(PasteBinUser, PasteBinPassword)
+		pbin.paste(Summuary, Format("Nova at {1}:{2}", A_Hour, A_Min), "autohotkey", "1H", 2)
         
     }
     
@@ -111,36 +117,41 @@ DoSequence()
 }
 
 ;*******************************************************************************
-; LogSummuary : Logs the summuary
+; GetSummuary : Gets the Summuary string
 ;*******************************************************************************
-LogSummuary(Level :=0)
+GetSummuary()
 {
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
 	global NumFreeMecas, StartFreeMecas
-	global FreeResCount, PossibleRes
+	global FreeResCount, PossibleRes, MaxFreeRes
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
-
-    Log("-==================== SUMMUARY ====================-", Level)
-	LOG(" - ITERATION :")
-	Log("   * Free mecas at start         : " . StartFreeMecas, Level)
-	Log("   * Free mecas at end           : " . NumFreeMecas, Level)
-	Log("   * Available Mine              : " . ScanAvailMine, Level)
-	Log("   * Available Allium            : " . ScanAvailAllium, Level)
-	Log("   * Available Crystals          : " . ScanAvailCrystals, Level)
-	Log("   * Available Mining Mecas      : " . ScanMiningMecas, Level)
-	LOG(" - GLOBAL STATS :")
-	Log(" 	* Free resources collected    : " . FreeResCollected, Level)
-    Log(" 	* Regular resources collected : " . OtherResCollected, Level)
-    Log(" 	* Frigates built              : " . FrigatesBuilt . " / " . FrigatesAmount, Level)    
-	LOG(" - FREE RESOURCES :")
+	
+	Summurary := ""
+	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ====================-`r`n", A_Hour, A_Min)  
+	Summuary := Summuary . Format(" - MECAS :`r`n")
+	Summuary := Summuary . Format("   * Free mecas at start         : {1}`r`n", StartFreeMecas)
+	Summuary := Summuary . Format("   * Free mecas at end           : {1}`r`n", NumFreeMecas)
+	Summuary := Summuary . Format("`r`n")
+    Summuary := Summuary . Format(" - SCAN :`r`n")
+	Summuary := Summuary . Format("   * Available Mine              : {1}`r`n", ScanAvailMine)
+	Summuary := Summuary . Format("   * Available Allium            : {1}`r`n", ScanAvailAllium)
+	Summuary := Summuary . Format("   * Available Crystals          : {1}`r`n", ScanAvailCrystals)
+	Summuary := Summuary . Format("   * Available Mining Mecas      : {1}`r`n", ScanMiningMecas)
+	Summuary := Summuary . Format("`r`n")
+	Summuary := Summuary . Format(" - GLOBAL STATS :`r`n")
+	Summuary := Summuary . Format("   * Free resources collected    : {1}/{2}`r`n", FreeResCollected, MaxFreeRes)
+	Summuary := Summuary . Format("   * Regular resources collected : {1}`r`n", OtherResCollected)
+	Summuary := Summuary . Format("   * Frigates built              : {1}/{2}`r`n", FrigatesBuilt, FrigatesAmount)
+	Summuary := Summuary . Format("`r`n")
+	Summuary := Summuary . Format(" - FREE RESSOURCES :`r`n")
 	
 	for i, res in PossibleRes
 	{
-		Log(" 	* " . FreeResCount[i] . " x " . PossibleRes[i], Level)    
+		Summuary := Summuary . Format(" 	* {1} x {2}`r`n", FreeResCount[i], PossibleRes[i])
 	}
 	
+	return Summuary
 }
-
 ;*******************************************************************************
 ; ReadConfig : Reads the configuration file
 ;*******************************************************************************
@@ -157,6 +168,9 @@ ReadConfig()
     
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
+	
+    IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
+    IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -184,6 +198,8 @@ WriteConfig()
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
 	
+	IniWrite, %PasteBinUser%, %FullPath%, PASTEBIN, PasteBinUser
+    IniWrite, %PasteBinPassword%, %FullPath%, PASTEBIN, PasteBinPassword
 	
 	; Free resource counters
 	for i, res in PossibleRes

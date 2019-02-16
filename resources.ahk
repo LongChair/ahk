@@ -134,7 +134,7 @@ MapMoveToXY(X, Y)
     global MapPosX, MapPosY
     global MainWinW, MainWinH
 	
-    StepX := 500
+    StepX := 1000
     StepY := 500
 	MoveX := 0
     MoveY := 0
@@ -303,6 +303,10 @@ CollectResources()
 			
 			Recalled := RecallMecas(Mining, "MINING", ToRecall)
 			Log("We recalled " . Recalled . " mecas.", 1)
+		}
+		else
+		{
+			Log("No free meca, and no important ressource requiring recall, ending.")
 		}
 	}
 	Else
