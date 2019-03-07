@@ -59,18 +59,20 @@ NovaEscapeClick()
 ;*******************************************************************************
 Log(Text, Level := 0)
 {
+	global PlayerName
+	
 	FileName := ""
 	
     ; Major Log
     if (Level & 0x1)
-		FileLog(Text, A_ScriptDir . "\MajorLog.txt")
+		FileLog(Text, A_ScriptDir . "\" . PlayerName . "-MajorLog.txt")
         
     ; Error Log
     if (Level & 0x2)
-		FileLog(Text, A_ScriptDir . "\ErrorLog.txt")
+		FileLog(Text, A_ScriptDir . "\" . PlayerName . "-ErrorLog.txt")
 
 
-	FileLog(Text, A_ScriptDir . "\Log.txt")	
+	FileLog(Text, A_ScriptDir . "\" . PlayerName . "-Log.txt")	
 }
 
 ;*******************************************************************************
@@ -102,6 +104,9 @@ DoLog:
 ;*******************************************************************************
 NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 0 , X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
 {   
+	global WindowName, Window_ID
+	global MainWinW, MainWinH
+	
     if (X2 = -1)
         X2 := MainWinW - 1
     if (Y2 = -1)
@@ -110,7 +115,8 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
     W := X2 - X1 + 1
     H := Y2 - Y1 + 1
     
-	Opts := "rBlueStacks oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	;Opts := "r""" . WindowName . """ oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	Opts := "r" . Window_ID . " oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
 	C := FindClick(FullPath, Opts, FoundX, FoundY)
@@ -212,9 +218,10 @@ WaitNoImage(FileName, X1, Y1, X2, Y2, Timeout, Variation)
 NovaGrab(X, Y, W, H)
 {
     global MainWinX, MainWinY
+	global PlayerName
     
-    GrabPath := A_ScriptDir . "\images\grab\" . A_MM . "-" . A_DD
-    FullPath := GrabPath . "\" . A_Hour . "-" . A_Min . "-" . A_Sec
+    GrabPath := A_ScriptDir . "\images\grab\" . PlayerName . "\" . A_MM . "-" . A_DD
+    FullPath := GrabPath . "\" . A_Hour . "-" . A_Min . "-" . A_Sec . ".png"
     
     ; create the directory if it doesn't exist
     if !FileExist(GrabPath)

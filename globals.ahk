@@ -17,7 +17,7 @@ global AppY := 0
 
 ; free resources collected
 global FreeResCollected := 0
-global MaxFreeRes := 32
+global MaxFreeRes := 30
 
 ; regular free collected
 global OtherResCollected := 0
@@ -32,3 +32,11 @@ global StartFreeMecas := 0
 ; Pastebin credentials
 global PasteBinUser := ""
 global PasteBinPassword := ""
+
+;General information
+global PlayerName := ""
+global CommandLine := ""
+global WindowName := ""
+global MaxPlayerMecas := 6
+
+global Window_ID := 0

@@ -30,6 +30,8 @@ global ScanMiningMecas := 0
 ;*******************************************************************************
 GetAvailableMecaCount(ByRef NumMecas)
 {
+	global MaxPlayerMecas
+	
 	AtWork := 0
 	
 	; popup the main menu
@@ -52,7 +54,7 @@ GetAvailableMecaCount(ByRef NumMecas)
 	
 	PopRightMenu(0)	
 	
-	NumMecas := 6 - AtWork
+	NumMecas := MaxPlayerMecas - AtWork
 	
 	return 1
 }

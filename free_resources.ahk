@@ -1,7 +1,7 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
-global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent", "Accel 100 percent" ]
+global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent", "Accel 100 percent", "10k energy", "500 allium", "10k minerals", "Turbo 1h", "1k Crystals"]
 global FreeResCount := []
 
 ;*******************************************************************************

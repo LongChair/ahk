@@ -22,13 +22,42 @@ SetTitleMatchMode 2
 #WinActivateForce
 
 
-Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
-
 Loop
 {
-    ;LaunchNova()
+	; global Nova config file
+    FullPath =  %A_ScriptDir%\Nova.ini
+    
+    ; Read Player Count
+    IniRead, PlayerCount, %FullPath%, GENERAL, PlayerCount, 0
 	
-    ; Read Configureation
+	; Loops players
+	PlayerIndex := 1
+	Loop, %PlayerCount%
+	{
+		Key := "Player" . PlayerIndex
+		IniRead, Player, %FullPath%, PLAYERS, %Key%, 0
+		
+		DoAccount(Player)
+		
+		PlayerIndex := PlayerIndex + 1
+	}
+} 
+
+
+;*******************************************************************************
+; DoAccount : Does the whole program for given account
+;*******************************************************************************
+DoAccount(Account)
+{
+	global PlayerName
+	
+	PlayerName := Account
+	
+	Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
+
+
+	
+	; Read Configureation
     Log("Reading Configuration...")
     ReadConfig()
 
@@ -40,18 +69,17 @@ Loop
     
     Log("Waiting...")
     Sleep, LoopTime
-    
-} 
-
+}
 ;*******************************************************************************
 ; DoSequence : Main loop of the program
 ;*******************************************************************************
 DoSequence()
 {
     
-    global FrigatesAmount, NumFreeMecas
+    global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
+	global PlayerName
     
-    Log("------------------------------Starting Sequence in " .  A_ScriptDir . " ------------------------------")
+    Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
     {
@@ -70,7 +98,7 @@ DoSequence()
             Log ("ERROR : Failed to get available mecas count !", 2)
             Goto TheEnd
         }
-		Log("We have " . NumFreeMecas . " mecas left")
+		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
 		StartFreeMecas := NumFreeMecas
 		
 		Log("========= getFreeMecas End =========")
@@ -107,13 +135,13 @@ DoSequence()
 		
 		; paste it to pastebin
 		pbin := new pastebin(PasteBinUser, PasteBinPassword)
-		pbin.paste(Summuary, Format("Nova at {1}:{2}", A_Hour, A_Min), "autohotkey", "1H", 2)
+		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
         
     }
     
     TheEnd:
     StopNova()
-    Log("------------------------------ Stopping Sequence ------------------------------")
+    Log("------------------------------ Stopping Sequence for " . PlayerName . " ------------------------------")
 }
 
 ;*******************************************************************************
@@ -159,7 +187,9 @@ ReadConfig()
 {
 	global FreeResCount, PossibleRes
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
-    FullPath =  %A_ScriptDir%\Nova.ini
+	global PlayerName
+	
+    FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
     ; Counters
     IniRead, FreeResCollected, %FullPath%, COUNTERS, FreeResCollected, 0
@@ -179,6 +209,11 @@ ReadConfig()
 		IniRead, Value, %FullPath%, FREE_RES, %Key%, 0
 		FreeResCount[i] := Value
 	}
+	
+	; General info
+	IniRead, CommandLine, %FullPath%, GENERAL, CommandLine, ""
+	IniRead, WindowName, %FullPath%, GENERAL, WindowName, ""
+	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
     
 }
 
@@ -187,8 +222,10 @@ ReadConfig()
 ;*******************************************************************************
 WriteConfig()
 {
-    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
-    FullPath =  %A_ScriptDir%\Nova.ini
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
+	global PlayerName
+	
+    FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
     ; Counters
     IniWrite, %FreeResCollected%, %FullPath%, COUNTERS, FreeResCollected
@@ -208,7 +245,7 @@ WriteConfig()
 		Key := "FreeRes" . i
 		IniWrite, %Value%, %FullPath%, FREE_RES, %Key%
 	}
-
+	
 }
 
 ;*******************************************************************************
@@ -219,20 +256,21 @@ LaunchNova()
 {
     global AppX, AppY, AppW, AppH
     global MainWinX, MainWinY, MainWinW, MainWinH
-    global BlueStacksPath
+    global CommandLine, WindowName
+	global Window_ID
 	
 	SetTitleMatchMode 2
 	SetControlDelay 1
 	SetWinDelay 0
 	SetKeyDelay -1
 	SetBatchLines -1
-
-    if (!WinExist("BlueStacks"))
+	
+    if (!WinExist(WindowName))
     {
         Log("***** Launching BlueStacks...")
-        Run, %BlueStacksPath%
+        Run, %CommandLine%
         sleep, 1000
-        WinWait, BlueStacks,, 100
+        WinWait, %WindowName%,, 100
     
         Log("Waiting for BlueStacks to be fully started...")
     }
@@ -242,13 +280,14 @@ LaunchNova()
     }
     
     ; Activate BlueStacks Window
-    WinActivate, BlueStacks
-    WinMove, BlueStacks,, AppX, AppY, AppW, AppH
-    WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, BlueStacks
+	Window_ID := WinExist(WindowName)
+    WinActivate, ahk_id %Window_ID%
+    WinMove, ahk_id %Window_ID%,, AppX, AppY, AppW, AppH
+    WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, ahk_id %Window_ID%
    
     ; click home tab
     Log("Waiting for BlueStacks home tab ...")
-    if !NovaFindClick("buttons\bs_home.png", 0, "w60000 n1")
+    if !NovaFindClick("buttons\bs_home.png", 60, "w60000 n1")
     {
         Log("ERROR : Failed to select home screen, exiting...", 2)
         return 0
@@ -257,14 +296,14 @@ LaunchNova()
     ; click nova app
 	
     Log("Waiting for BlueStacks Nova icon ...")
-    if !NovaFindClick("buttons\nova_icon_big.png", 0, "w60000 n0")
+    if !NovaFindClick("buttons\nova_icon_big.png", 60, "w60000 n0")
     {
         Log("ERROR : Failed to find nova app icon, exiting...", 2)
         return 0
     }
 	
 	sleep, 1000
-    if !NovaFindClick("buttons\nova_icon_big.png", 0, "w1000 n1")
+    if !NovaFindClick("buttons\nova_icon_big.png", 60, "w1000 n1")
     {
         Log("ERROR : Failed to start nova app icon, exiting...", 2)
         return 0
@@ -274,7 +313,7 @@ LaunchNova()
     ; click nova tab
     Log("***** Launching Nova Empire...")
     Log("Waiting for BlueStacks Nova tab ...")
-    if !NovaFindClick("buttons\nova_icon.png", 20, "w5000 n1")
+    if !NovaFindClick("buttons\nova_icon.png", 60, "w5000 n1")
     {
         Log("ERROR : Failed to find nova tab, exiting...", 2)
         return 0
@@ -302,10 +341,11 @@ LaunchNova()
 ;*******************************************************************************
 StopNova()
 {
+	global Window_ID, WindowName 
     
     ; Now Close BlueStacks
     Log("Closing BlueStacks...")
-    WinClose, BlueStacks
+    WinClose, %WindowName%
     sleep, 2000
     
     ; Click on the confirm button
@@ -316,7 +356,7 @@ StopNova()
     
     ; Wait for it to close
     Log("Waiting for BlueStacks to close...")    
-    while WinExist("BlueStacks")
+    while WinExist(WindowName)
     {
         sleep, 1000
     }
