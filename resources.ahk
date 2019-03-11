@@ -17,13 +17,15 @@ global RemainingMecas := 0
 
 ; different located ressources lists
 global Ressources := []
-global Mining := []
+global Collecting := []
 
 ; ressources counters
 global ScanAvailMine := 0
 global ScanAvailAllium := 0
 global ScanAvailCrystals := 0
 global ScanMiningMecas := 0
+global ScanCrystalingMecas := 0
+global ScanAlliumingMecas := 0
 
 ;*******************************************************************************
 ; GetAvailableMecaCount : Checks how many free mecas we have
@@ -245,9 +247,9 @@ RecallMecas(ByRef ResList, ResType, Amount)
 ;*******************************************************************************
 CollectResources()
 {
-    global Ressources, Mining
+    global Ressources, Collecting
     global NumFreeMecas
-	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
 	global MapPosX, MapPosY
     
     Log("Starting to collect resources ...")
@@ -266,7 +268,7 @@ CollectResources()
     }
 
 	Ressources := []
-	Mining := []
+	Collecting := []
 	MapPosX := 0
 	MapPosY := 0
 	
@@ -279,45 +281,54 @@ CollectResources()
 	SortResList(Ressources)
 	Log("We have " . Ressources.Length() . " ressources left after sorting")
 	
-	Log("Sorting mining mecas ...")
-	SortResList(Mining)
-	Log("We have " . Mining.Length() . " meca mining minerals left after sorting")
+	Log("Sorting collecting mecas ...")
+	SortResList(Collecting)
+	Log("We have " . ScanMiningMecas.Length() . " meca Collecting left after sorting")
 
 	
 	ScanAvailMine := CountResByType(Ressources, "MINE")
 	ScanAvailAllium := CountResByType(Ressources, "ALLIUM")
 	ScanAvailCrystals := CountResByType(Ressources, "CRYSTALS")
-	ScanMiningMecas := CountResByType(Mining, "MINING")
+	ScanMiningMecas := CountResByType(Collecting, "MINING")
+	ScanCrystalingMecas := CountResByType(Collecting, "CRYSTALING")
+	ScanAlliumingMecas := CountResByType(Collecting, "ALLIUMING")
 	
 	Log("Scan reported :")
-	Log(" - Mine     : " . ScanAvailMine)
-	Log(" - Allium   : " . ScanAvailAllium)
-	Log(" - Crystals : " . ScanAvailCrystals)
-	Log(" - Mining M.: " . ScanMiningMecas)
+	Log(" - Mine         : " . ScanAvailMine)
+	Log(" - Allium       : " . ScanAvailAllium)
+	Log(" - Crystals     : " . ScanAvailCrystals)
+	Log(" - Mining M.    : " . ScanMiningMecas)
+	Log(" - Crystaling M.: " . ScanCrystalingMecas)
+	Log(" - Alliuming M. : " . ScanAlliumingMecas)
+	
 	
 	; now try to grab the ressource
-	if (NumFreeMecas = 0) 
-	{
-		if (ScanMiningMecas AND (ScanAvailAllium OR ScanAvailCrystals))
-		{
-			ToRecall := ScanAvailAllium + ScanAvailCrystals
-			Log("We need to recall " . ToRecall . ", we have " . ScanMiningMecas . " that can be.", 1)
-			
-			Recalled := RecallMecas(Mining, "MINING", ToRecall)
-			Log("We recalled " . Recalled . " mecas.", 1)
-		}
-		else
-		{
-			Log("No free meca, and no important ressource requiring recall, ending.")
-		}
-	}
-	Else
-	{
-		if CollectRessourcesByType("ALLIUM")
-			if CollectRessourcesByType("CRYSTALS")
-				CollectRessourcesByType("MINE")
-	}
+	;if (NumFreeMecas = 0) 
+	;{
+	;	if (ScanMiningMecas AND (ScanAvailAllium OR ScanAvailCrystals))
+	;	{
+	;		ToRecall := ScanAvailAllium + ScanAvailCrystals
+	;		Log("We need to recall " . ToRecall . ", we have " . ScanMiningMecas . " that can be.", 1)
+	;		
+	;		Recalled := RecallMecas(Collecting, "MINING", ToRecall)
+	;		Log("We recalled " . Recalled . " mecas.", 1)
+	;	}
+	;	else
+	;	{
+	;		Log("No free meca, and no important ressource requiring recall, ending.")
+	;	}
+	;}
+	;Else
+	;{
+	;	if CollectRessourcesByType("ALLIUM")
+	;		if CollectRessourcesByType("CRYSTALS")
+	;			CollectRessourcesByType("MINE")
+	;}
 	
+	if CollectRessourcesByType("MINE")
+		if CollectRessourcesByType("CRYSTALS")
+			CollectRessourcesByType("ALLIUM")
+			
     Log("End of resources collection.")
 	
     return 1
@@ -388,6 +399,14 @@ FindRessources()
 	CurrentResType := "MINING"
 	NovaFindClick("resources\HD_Mining.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\Planet_Mining.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	
+	CurrentResType := "CRYSTALING"
+	NovaFindClick("resources\HD_Crystaling.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("resources\Planet_Crystaling.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	
+	CurrentResType := "ALLIUMING"
+	NovaFindClick("resources\HD_Alliuming.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("resources\Planet_Alliuming.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	return 0
 }
 
@@ -399,15 +418,15 @@ HandleScan(ResX, ResY)
 {
 	global MainWinX, MainWinY
     global MainWinW, MainWinH
-    global Ressources, Mining
+    global Ressources, Collecting
     
 	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX
 	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
 
-	if (CurrentResType = "MINING")
+	if (CurrentResType = "MINING") OR (CurrentResType = "CRYSTALING") OR (CurrentResType = "ALLIUMING")
 	{
-		Mining.Insert(CurrentResType . "," . ResX . "," . ResY)
-		Log(Format("Found a mined resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Mining.Length()))
+		Collecting.Insert(CurrentResType . "," . ResX . "," . ResY)
+		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
 	}
 	else
 	{

@@ -135,7 +135,7 @@ DoSequence()
 		
 		; paste it to pastebin
 		pbin := new pastebin(PasteBinUser, PasteBinPassword)
-		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
+		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "10M", 2)
         
     }
     
@@ -152,7 +152,7 @@ GetSummuary()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount
 	global NumFreeMecas, StartFreeMecas
 	global FreeResCount, PossibleRes, MaxFreeRes
-	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
 	
 	Summurary := ""
 	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ====================-`r`n", A_Hour, A_Min)  
@@ -164,7 +164,9 @@ GetSummuary()
 	Summuary := Summuary . Format("   * Available Mine              : {1}`r`n", ScanAvailMine)
 	Summuary := Summuary . Format("   * Available Allium            : {1}`r`n", ScanAvailAllium)
 	Summuary := Summuary . Format("   * Available Crystals          : {1}`r`n", ScanAvailCrystals)
-	Summuary := Summuary . Format("   * Available Mining Mecas      : {1}`r`n", ScanMiningMecas)
+	Summuary := Summuary . Format("   * Mining Mecas                : {1}`r`n", ScanMiningMecas)
+	Summuary := Summuary . Format("   * Crystaling Mecas            : {1}`r`n", ScanCrystalingMecas)
+	Summuary := Summuary . Format("   * Alliuming Mecas             : {1}`r`n", ScanAlliumingMecas)
 	Summuary := Summuary . Format("`r`n")
 	Summuary := Summuary . Format(" - GLOBAL STATS :`r`n")
 	Summuary := Summuary . Format("   * Free resources collected    : {1}/{2}`r`n", FreeResCollected, MaxFreeRes)
