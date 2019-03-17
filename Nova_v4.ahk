@@ -153,12 +153,16 @@ GetSummuary()
 	global NumFreeMecas, StartFreeMecas
 	global FreeResCount, PossibleRes, MaxFreeRes
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
+	global ResPriority1, ResPriority2, ResPriority3
 	
 	Summurary := ""
 	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ====================-`r`n", A_Hour, A_Min)  
 	Summuary := Summuary . Format(" - MECAS :`r`n")
 	Summuary := Summuary . Format("   * Free mecas at start         : {1}`r`n", StartFreeMecas)
 	Summuary := Summuary . Format("   * Free mecas at end           : {1}`r`n", NumFreeMecas)
+	Summuary := Summuary . Format("   * Resource with Priority #1   : {1}`r`n", ResPriority1)
+	Summuary := Summuary . Format("   * Resource with Priority #2   : {1}`r`n", ResPriority2)
+	Summuary := Summuary . Format("   * Resource with Priority #3   : {1}`r`n", ResPriority3)
 	Summuary := Summuary . Format("`r`n")
     Summuary := Summuary . Format(" - SCAN :`r`n")
 	Summuary := Summuary . Format("   * Available Mine              : {1}`r`n", ScanAvailMine)
@@ -216,6 +220,12 @@ ReadConfig()
 	IniRead, CommandLine, %FullPath%, GENERAL, CommandLine, ""
 	IniRead, WindowName, %FullPath%, GENERAL, WindowName, ""
 	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
+	
+	; ressources Priority
+	IniRead, ResPriority1, %FullPath%, PRIORITIES, ResPriority1, "MINE"
+	IniRead, ResPriority2, %FullPath%, PRIORITIES, ResPriority2, "CRYSTALS"
+	IniRead, ResPriority3, %FullPath%, PRIORITIES, ResPriority3, "ALLIUM"
+	
     
 }
 
@@ -247,6 +257,11 @@ WriteConfig()
 		Key := "FreeRes" . i
 		IniWrite, %Value%, %FullPath%, FREE_RES, %Key%
 	}
+	
+	; ressources Priority
+	IniWrite, %ResPriority1%, %FullPath%, PRIORITIES, ResPriority1
+	IniWrite, %ResPriority2%, %FullPath%, PRIORITIES, ResPriority2
+	IniWrite, %ResPriority3%, %FullPath%, PRIORITIES, ResPriority3
 	
 }
 
@@ -321,17 +336,24 @@ LaunchNova()
         return 0
     }
     
+	Log("Waiting for Nova welcome screen ...")
+	if !NovaFindClick("buttons\cross.png", 0, " w60000 n1")
+	{
+		Log("ERROR : Could not identify properly the welcome screen, exiting...", 2)
+		return 0
+	}
+
     ; check CEG button
-    Log("Waiting for Nova Main screen ...")
+    Log("Waiting for Nova Main screen ...")   
     if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
     {
-        ; we dont have CEG, we might have the start avatar
-        Log("Waiting for Nova welcome screen ...")
-        if !NovaFindClick("buttons\cross.png", 0, " w60000 n1")
-        {
-            Log("ERROR : Could not identify properly the start screen, exiting...", 2)
-            return 0
-        }
+		; or we can have news
+		Log("Waiting for Nova news screen ...")
+		if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
+		{
+			Log("ERROR : Could not identify properly the start screen, exiting...", 2)
+			return 0
+		}
     }
     
     Log("***** Nova is up and running.")
@@ -351,7 +373,7 @@ StopNova()
     sleep, 2000
     
     ; Click on the confirm button
-    if !NovaFindClick("buttons\yes.png", 0, "w1000 n1")
+    if !NovaFindClick("buttons\yes.png", 0, "w10000 n1")
     {
         Log("ERROR : Could not find exit confirm button, exiting...", 2)
     }

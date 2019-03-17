@@ -251,6 +251,7 @@ CollectResources()
     global NumFreeMecas
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
 	global MapPosX, MapPosY
+	global ResPriority1, ResPriority2, ResPriority3
     
     Log("Starting to collect resources ...")
     
@@ -325,9 +326,9 @@ CollectResources()
 	;			CollectRessourcesByType("MINE")
 	;}
 	
-	if CollectRessourcesByType("MINE")
-		if CollectRessourcesByType("CRYSTALS")
-			CollectRessourcesByType("ALLIUM")
+	if CollectRessourcesByType(ResPriority1)
+		if CollectRessourcesByType(ResPriority2)
+			CollectRessourcesByType(ResPriority3)
 			
     Log("End of resources collection.")
 	

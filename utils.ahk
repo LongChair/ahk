@@ -245,7 +245,7 @@ NovaGrab(X, Y, W, H)
     SaveX := X2 - 45
     SaveY := Y2 + 20
     NovaLeftMouseClick(SaveX, SaveY)
-    Sleep, 1000
+    Sleep, 3000
 	
 	; now send the full path to save to
     Send, %FullPath%

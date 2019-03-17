@@ -40,3 +40,7 @@ global WindowName := ""
 global MaxPlayerMecas := 6
 
 global Window_ID := 0
+
+global ResPriority1 := ""
+global ResPriority2 := ""
+global ResPriority3 := ""
