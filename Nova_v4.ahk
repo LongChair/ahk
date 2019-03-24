@@ -53,12 +53,13 @@ Loop
 		
 		if PlayerEnable
 		{
-		   LOG("Player " %Player% " is enabled, proceeding.")
+		   LOG(Format("Player {1} is enabled, proceeding.", Player))
 		   DoAccount(Player)
 		}
 		Else
 		{
-			LOG("Player " %Player% " is disabled, skipping.")
+  		   LOG(Format("Player {1} is disabled, skipping.", Player))
+		   Sleep, 60000
 		}
 		
 		PlayerIndex := PlayerIndex + 1
