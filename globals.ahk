@@ -32,6 +32,7 @@ global StartFreeMecas := 0
 ; Pastebin credentials
 global PasteBinUser := ""
 global PasteBinPassword := ""
+global PasteBinConfig := ""
 
 ;General information
 global PlayerName := ""

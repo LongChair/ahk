@@ -108,7 +108,7 @@ Toggle2DMode()
     if NovaFindClick("buttons\2D.png", 30, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Switching to 2D")
-        if !NovaFindClick("buttons\3D_dot.png", 50, "w10000 n1")
+        if !NovaFindClick("buttons\3D_dot.png", 50, "w5000 n1", FoundX, FoundY, 1475,645, 1760, 800)
         {
             Log("ERROR : Failed to find the 3D dot to click, stopping", 2)
             return 0

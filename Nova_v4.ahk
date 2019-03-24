@@ -26,22 +26,69 @@ Loop
 {
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
+	IniPath =  %A_ScriptDir%\PasteBin.ini
     
     ; Read Player Count
     IniRead, PlayerCount, %FullPath%, GENERAL, PlayerCount, 0
+	IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
+	
+	; get pasteBinconfig
+	if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
+	{
+		LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
+		return
+	}
+	
 	
 	; Loops players
 	PlayerIndex := 1
 	Loop, %PlayerCount%
 	{
+		; Get player name
 		Key := "Player" . PlayerIndex
 		IniRead, Player, %FullPath%, PLAYERS, %Key%, 0
 		
-		DoAccount(Player)
+		; check if player name is Active
+		IniRead, PlayerEnable, %IniPath%, ENABLE, %Player%, -1
+		
+		if PlayerEnable
+		{
+		   LOG("Player " %Player% " is enabled, proceeding.")
+		   DoAccount(Player)
+		}
+		Else
+		{
+			LOG("Player " %Player% " is disabled, skipping.")
+		}
 		
 		PlayerIndex := PlayerIndex + 1
 	}
 } 
+
+;*******************************************************************************
+; StorePasteBinConfig : Store the provided pastebin configuration Link to a file
+; Link : pastebin Link
+; File : output file
+;*******************************************************************************
+StorePasteBinConfig(Link, FileName)
+{
+	global PasteBinUser, PasteBinPassword
+	
+	pbin := new pastebin(PasteBinUser, PasteBinPassword)
+	PasteBinConfig := pbin.getPastedata(Link)
+	
+	file := FileOpen(FileName, "w")
+	if !IsObject(file)
+	{
+		Log("ERROR : Can't open " %FileName% " for writing.", 2 )
+		return 0
+	}
+	
+	file.Write(PasteBinConfig)
+	file.Close()
+	
+	return 1
+}
 
 
 ;*******************************************************************************
@@ -205,9 +252,6 @@ ReadConfig()
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
 	
-    IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
-    IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
-	
 	; Free resource counters
 	for i, res in PossibleRes
 	{
@@ -339,21 +383,21 @@ LaunchNova()
 	Log("Waiting for Nova welcome screen ...")
 	if !NovaFindClick("buttons\cross.png", 0, " w60000 n1")
 	{
-		Log("ERROR : Could not identify properly the welcome screen, exiting...", 2)
-		return 0
+		Log("No welcome screen found.")
 	}
 
+	Log("Waiting for Nova news screen ...")
+	if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
+	{
+		Log(" No news screen found.")
+	}
+		
     ; check CEG button
     Log("Waiting for Nova Main screen ...")   
     if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
     {
-		; or we can have news
-		Log("Waiting for Nova news screen ...")
-		if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
-		{
-			Log("ERROR : Could not identify properly the start screen, exiting...", 2)
-			return 0
-		}
+		Log("ERROR : Couldn't find CEG on start screen...", 2)
+        return 0
     }
     
     Log("***** Nova is up and running.")
