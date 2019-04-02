@@ -1,54 +1,7 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
-;*******************************************************************************
-; PopRightMenu : Will pop the main right menu
-; Visible : 1 = Show it, 0 = Close it
-;*******************************************************************************
-PopRightMenu(Visible, TabPage := "ECONOMY")
-{
-    
-    if (Visible)
-    {
-        Log("Showing Main right menu ...")
-        ; click the button to show up the menu
-        NovaLeftMouseClick(1700, 510)
-        Sleep, 500
-        		
-        ; wait for eventual unselected economy tab
-        if NovaFindClick("buttons\" . TabPage . "_off.png", 30, "w1000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
-        {
-            Log("Selected " . TabPage . " tab in right menu")
-        }
-        
-        if !NovaFindClick("buttons\" . TabPage . "_on.png", 30, "w1000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
-        {
-            Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
-            return 0
-        }
-        
-        ; we found button, that's done
-        return 1
-        
-    }
-    else
-    {
-        Log("Hiding Main right menu ...")
-        
-        ; click to close teh menu
-        NovaEscapeClick()
-        
-        ; make sure we don't have the menu bar again
-        ; For this we check if we find the CEG icon which is behind
-        if !NovaFindClick("buttons\ceg.png", 30, "w10000 n0")
-        {
-            Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.", 2)
-            return 0
-        }
-        
-        return 1
-    }
-}
+
 
 ;*******************************************************************************
 ; HandleFreeSlot : Handle the Filling of a free shipyard slot

@@ -136,43 +136,43 @@ DoSequence()
     if LaunchNova()
     {
         
-        Log("========= CheckFreeResources Start =========")
-        if !CheckFreeResources()
-        {
-            Log ("ERROR : Failed to collect free resources !", 2)
-            Goto TheEnd
-        }
-        Log("========= CheckFreeResources End   =========")
-	
-		Log("========= getFreeMecas Start =========")
-		if !GetAvailableMecaCount(NumFreeMecas)
-        {
-            Log ("ERROR : Failed to get available mecas count !", 2)
-            Goto TheEnd
-        }
-		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
+        ;Log("========= CheckFreeResources Start =========")
+        ;if !CheckFreeResources()
+        ;{
+            ;Log ("ERROR : Failed to collect free resources !", 2)
+            ;Goto TheEnd
+        ;}
+        ;Log("========= CheckFreeResources End   =========")
+	;
+		;Log("========= getFreeMecas Start =========")
+		;if !GetAvailableMecaCount(NumFreeMecas)
+        ;{
+            ;Log ("ERROR : Failed to get available mecas count !", 2)
+            ;Goto TheEnd
+        ;}
+		;Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
 		StartFreeMecas := NumFreeMecas
-		
-		Log("========= getFreeMecas End =========")
-    
-		Log("========= BuildFrigates Start =========")
-        if !BuildFrigates(FrigatesAmount)
-        {
-            Log ("ERROR : Failed to build frigates !", 2)
-            Goto TheEnd
-        }
-        Log("========= BuildFrigates End   =========")
-		
-        Log("========= CollectResources Start =========")
-		if !CollectResources()
-		{
-			Log ("ERROR : Failed to collect resources !", 2)
-			Goto TheEnd
-		}
+		;
+		;Log("========= getFreeMecas End =========")
+    ;
+		;Log("========= BuildFrigates Start =========")
+        ;if !BuildFrigates(FrigatesAmount)
+        ;{
+            ;Log ("ERROR : Failed to build frigates !", 2)
+            ;Goto TheEnd
+        ;}
+        ;Log("========= BuildFrigates End   =========")
+		;
+        ;Log("========= CollectResources Start =========")
+		;if !CollectResources()
+		;{
+			;Log ("ERROR : Failed to collect resources !", 2)
+			;Goto TheEnd
+		;}
 		  
-        Log("========= CollectResources End   =========")
+        ;Log("========= CollectResources End   =========")
               
-        
+        ;
         Log("========= FarmPirate Start =========")
         if !FarmPirates(3)
         {
@@ -343,7 +343,6 @@ LaunchNova()
     }
     
     ; Activate BlueStacks Window
-	Sleep, 5000
 	Window_ID := WinExist(WindowName)
     WinActivate, ahk_id %Window_ID%
     WinMove, ahk_id %Window_ID%,, AppX, AppY, AppW, AppH
@@ -383,25 +382,31 @@ LaunchNova()
         return 0
     }
     
-	Log("Waiting for Nova welcome screen ...")
-	if !NovaFindClick("buttons\cross.png", 60, " w60000 n1")
-	{
-		Log("No welcome screen found.")
-	}
-
-	Log("Waiting for Nova news screen ...")
-	if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
-	{
-		Log(" No news screen found.")
-	}
-		
-    ; check CEG button
+	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
     if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
     {
-		Log("ERROR : Couldn't find CEG on start screen...", 2)
-        return 0
-    }
+		
+		Log("Waiting for Nova welcome screen ...")
+		if !NovaFindClick("buttons\cross.png", 60, " w60000 n1")
+		{
+			Log("No welcome screen found.")
+		}
+
+		Log("Waiting for Nova news screen ...")
+		if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
+		{
+			Log(" No news screen found.")
+		}
+			
+		; check CEG button
+		Log("Waiting for Nova Main screen ...")   
+		if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
+		{
+			Log("ERROR : Couldn't find CEG on start screen...", 2)
+			return 0
+		}
+	}
     
     Log("***** Nova is up and running.")
     return 1

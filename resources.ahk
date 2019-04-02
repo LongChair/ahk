@@ -371,7 +371,7 @@ FindRessources()
 	NovaFindClick("resources\Planet_Alliuming.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
     
     CurrentResType := "PIRATE"
-    NovaFindClick("pirates\pirate.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+    NovaFindClick("pirates\pirate.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	return 0
 }
 

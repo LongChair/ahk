@@ -376,9 +376,8 @@ GotoSystem(SystemName)
         return 0
     }
 
-    Sleep, 5000
 
-    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w5000 n1"))
+    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w10000 n1"))
     {
         
         if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
@@ -402,7 +401,7 @@ GotoSystem(SystemName)
     }
     Else
     {
-        LOG("ERROR : Failed to find" . SystemName . " in the galaxy")
+        LOG("ERROR : Failed to find " . SystemName . " in the galaxy")
         return 0
     }
     
@@ -434,16 +433,17 @@ RecallSomeMecas(Amount)
     while (Count <= Amount)
     {
         ; click a meca
-        if (NovaFindClick("buttons\recuperation.png", 80, "w1000 n1", FoundX, FoundY, 750, 220, 1340, 960))
+        if (NovaFindClick("buttons\recuperation.png", 50, "w2000 n1", FoundX, FoundY, 750, 220, 1340, 960))
         {            
             LOG("Recalling one meca...")
-            if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
+            if (!NovaFindClick("buttons\meca_Rappeler.png", 30, "w6000 n1"))
             {
                 LOG("ERROR : Could not fidn recall button while trying to recall meca")
                 return 0
             }
             
             Count := Count + 1
+			Sleep, 1000
 
         }
         Else
@@ -490,7 +490,7 @@ RecallAllFleets()
 	
 	; look how many mecas are at work
     Count := 0
-    while (NovaFindClick("buttons\EnAttente.png", 80, "w1000 n1", FoundX, FoundY, 750, 220, 1340, 960))
+    while (NovaFindClick("buttons\EnAttente.png", 80, "w1000 n1", FoundX, FoundY, 750, 180, 1200, 860))
     {
         LOG("Recalling one fleet...")
         if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
@@ -525,9 +525,21 @@ WaitForFleetsIdle()
     TimeOut := 300
     Loop, 300
     {
-        Idle := NovaFindClick("buttons\EnAttente.png", 80, "e w1000 n0", FoundX, FoundY, 750, 220, 1340, 960)
+		IdleFleets := 0
+		FleetCount := 0
+		
+		Loop, % MaxPlayerFleets
+		{
+			Offset := FleetCount * 110
+			if NovaFindClick("buttons\EnAttente.png", 80, "w1000 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
+			{
+				IdleFleets := IdleFleets + 1
+			}
+			FleetCount := FleetCount + 1
+		}
+		       
             
-        if (Idle = MaxPlayerFleets)
+        if (IdleFleets = MaxPlayerFleets)
             break
             
         Sleep, 1000
@@ -546,4 +558,53 @@ WaitForFleetsIdle()
     return 1  
 }
 
+
+;*******************************************************************************
+; PopRightMenu : Will pop the main right menu
+; Visible : 1 = Show it, 0 = Close it
+;*******************************************************************************
+PopRightMenu(Visible, TabPage := "ECONOMY")
+{
+    
+    if (Visible)
+    {
+        Log("Showing Main right menu ...")
+        ; click the button to show up the menu
+        NovaLeftMouseClick(1700, 510)
+        Sleep, 500
+        		
+        ; wait for eventual unselected economy tab
+        if NovaFindClick("buttons\" . TabPage . "_off.png", 30, "w3000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
+        {
+            Log("Selected " . TabPage . " tab in right menu")
+        }
+        
+        if !NovaFindClick("buttons\" . TabPage . "_on.png", 30, "w3000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
+        {
+            Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
+            return 0
+        }
+        
+        ; we found button, that's done
+        return 1
+        
+    }
+    else
+    {
+        Log("Hiding Main right menu ...")
+        
+        ; click to close teh menu
+        NovaEscapeClick()
+        
+        ; make sure we don't have the menu bar again
+        ; For this we check if we find the CEG icon which is behind
+        if !NovaFindClick("buttons\ceg.png", 30, "w10000 n0")
+        {
+            Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.", 2)
+            return 0
+        }
+        
+        return 1
+    }
+}
 

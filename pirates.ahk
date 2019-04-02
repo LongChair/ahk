@@ -8,8 +8,8 @@ FarmPirates(PirateCount)
 {
     global Pirates
 
-    Log("Not Yet Implemented")
-    return 1
+    ;Log("Not Yet Implemented")
+    ;return 1
     
     ; Go to current system
     if !GotoSystem("")
@@ -25,8 +25,8 @@ FarmPirates(PirateCount)
     }
     
     ; cap the amount of pirates to kill
-    if (Pirates.Length() < PirateCount)
-        PirateCount := Pirates.Length()
+    ;if (Pirates.Length() < PirateCount)
+        ;PirateCount := Pirates.Length()
      
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
@@ -47,7 +47,8 @@ FarmPirates(PirateCount)
         RefValues := StrSplit(Pirates[CurrentPirate], ",")
 		ResX := RefValues[2]
 		ResY := RefValues[3]
-        
+        ResX := 1441
+		ResY := 895
         
         if (!KillPirate(ResX, ResY))
         {
@@ -88,32 +89,50 @@ KillPirate(X,Y)
     MapMoveToXY(X, Y)
 
     ; Send Fleets there
-    OffsetClickX := -100
-    OffsetClickY := -100
-    NovaLeftMouseClick(MainWinW / 2 - OffsetClickX, MainWinH / 2 - OffsetClickY)
-    
-    ; click group move
-    if !NovaFindClick("buttons\GroupeMove.png", 70, "w2000 n1")
-    {
-        Log("ERROR : failed to find Send fleets, exiting.", 2)
-        return 0
-    }
+    OffsetClick := 30
+    Count := 0
+	Loop
+	{
+		NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 + OffsetClick)
+		Sleep, 1000
+		
+		; click group move
+		if !NovaFindClick("buttons\GroupMove.png", 50, "w2000 n1")
+		{
+			if (OffsetClick > 0)
+			{
+				OffsetClick := -OffsetClick
+				NovaEscapeClick()
+				Sleep, 1000
+			}
+			Else
+			{
+				Log("ERROR : failed to select group move on fleets, exiting.", 2)
+				return 0
+			}
+		}
+		Else
+		{
+			break
+		}
+	}
     
     ; Select All Fleets
-    if !NovaFindClick("buttons\AllFleets.png", 70, "w2000 n1")
+    if !NovaFindClick("buttons\AllFleets.png", 50, "w2000 n1")
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
-    
+	
     ; Click Ok 
-    if !NovaFindClick("buttons\OKFleets.png", 70, "w2000 n1")
+    if !NovaFindClick("buttons\OKFleets.png", 50, "w2000 n1")
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
     
     ; now Wait for all fleets to be there
+	Sleep, 1000
     Log("Waiting for fleets to complete move...")
     if (!WaitForFleetsIdle())
     {
@@ -135,7 +154,7 @@ KillPirate(X,Y)
     ; click attack button
     Log("Selecting Tank...")
     ScrollCount := 0
-    while (!NovaFindClick("buttons\Tank.png", 70, "w2000 n1"))
+    while (!NovaFindClick("buttons\Tank.png", 70, "w1000 n1"))
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
