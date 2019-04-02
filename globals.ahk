@@ -39,6 +39,7 @@ global PlayerName := ""
 global CommandLine := ""
 global WindowName := ""
 global MaxPlayerMecas := 6
+global MaxPlayerFleets := 6
 
 global Window_ID := 0
 

@@ -174,7 +174,7 @@ DoSequence()
               
         
         Log("========= FarmPirate Start =========")
-        if !FarmPirate()
+        if !FarmPirates(3)
         {
             Log ("ERROR : Failed to farm pirates !", 2)
             Goto TheEnd

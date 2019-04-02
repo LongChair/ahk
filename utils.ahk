@@ -255,3 +255,295 @@ NovaGrab(X, Y, W, H)
 	; validate by pressing enter
     Send, {Enter}
 }
+
+;*******************************************************************************
+; MapMoveToXY : Move to a position on the map, using mouse scrolls
+; Will return maintain MapPosX and MapPosY
+;*******************************************************************************
+MapMoveToXY(X, Y)
+{
+    global MapPosX, MapPosY
+    global MainWinW, MainWinH
+	
+    StepX := 1000
+    StepY := 500
+	MoveX := 0
+    MoveY := 0
+	MoveXDir := 0
+    MoveYDir := 0
+	
+	Loop 
+	{
+		if (X >= MapPosX)
+		{
+			MoveX := X - MapPosX
+			MoveXDir := -1
+		}
+		else if (X < MapPosX)
+		{
+			MoveX := MapPosX - X
+			MoveXDir := 1
+		}
+		
+		if (Y >= MapPosY)
+		{
+			MoveY := Y - MapPosY
+			MoveYDir := 1
+		}
+		else if (Y < MapPosY)
+		{
+			MoveY := MapPosY - Y
+			MoveYDir := -1
+		}
+		
+		; cap move to Step
+		if (MoveX > StepX)
+			DragX := StepX * MoveXDir
+		Else
+			DragX := MoveX * MoveXDir
+
+		if (MoveY > StepY)
+			DragY := StepY * MoveYDir
+		Else
+			DragY := MoveY  * MoveYDir
+
+		NovaDragMouse(MainWinW /2, MainWinH /2, DragX, DragY)
+			
+		MapPosX := MapPosX - DragX
+		MapPosY := MapPosY + DragY
+		
+	} Until (MapPosX = X AND MapPosY = Y)
+		
+}
+
+
+;*******************************************************************************
+; GetAvailableMecaCount : Checks how many free mecas we have
+;*******************************************************************************
+GetAvailableMecaCount(ByRef NumMecas)
+{
+	global MaxPlayerMecas
+	
+	AtWork := 0
+	
+	; popup the main menu
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+	
+	; scroll down to mecas list
+	Loop, 2
+	{
+		NovaMouseMove(1050, 470)
+		MouseClick, WheelDown,,, 2
+		Sleep 2000
+	}
+	
+	; look how many mecas are at work
+	AtWork := NovaFindClick("buttons\recuperation.png", 80, "e w1000 n0", FoundX, FoundY, 750, 220, 1340, 960)
+	
+	PopRightMenu(0)	
+	
+	NumMecas := MaxPlayerMecas - AtWork
+	
+	return 1
+}
+
+
+;*******************************************************************************
+; GotoSystem : Navigate to the given system
+; SystemName : System to go to or empty for current
+;*******************************************************************************
+GotoSystem(SystemName)
+{
+    global PlayerName
+    
+    FullPath =  %A_ScriptDir%\%PlayerName%.ini
+ 
+	; Get the current system we are in
+	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
+    
+    ; default to current system if unspecified
+    if (SystemName = "")
+        SystemName := CurrentSystem
+    
+    ; we need the system screen
+    LOG("Going to galaxy screen ...")
+    if !GotoScreen("GALAXIE", 60)
+    {
+        return 0
+    }
+
+    Sleep, 5000
+
+    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w5000 n1"))
+    {
+        
+        if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
+        {
+            
+            Sleep, 5000
+            
+            ; make sure we reached the system
+            if !GotoScreen("SYSTEME", 60)
+            {
+                return 0
+            }
+            
+            return 1
+        }
+        Else
+        {
+            LOG("ERROR : Failed to find system join button for " . SystemName . ", exiting ...")
+            Return 0
+        }
+    }
+    Else
+    {
+        LOG("ERROR : Failed to find" . SystemName . " in the galaxy")
+        return 0
+    }
+    
+}
+
+;*******************************************************************************
+; RecallAllMecas : Brings back mecas to station
+;*******************************************************************************
+RecallSomeMecas(Amount)
+{
+    LOG("Recalling mecas...")
+	; popup the main menu
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+	
+	; scroll down to mecas list
+	Loop, 2
+	{
+		NovaMouseMove(1050, 470)
+		MouseClick, WheelDown,,, 2
+		Sleep 2000
+	}
+	
+	; look how many mecas are at work
+    Count := 0
+    while (Count <= Amount)
+    {
+        ; click a meca
+        if (NovaFindClick("buttons\recuperation.png", 80, "w1000 n1", FoundX, FoundY, 750, 220, 1340, 960))
+        {            
+            LOG("Recalling one meca...")
+            if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
+            {
+                LOG("ERROR : Could not fidn recall button while trying to recall meca")
+                return 0
+            }
+            
+            Count := Count + 1
+
+        }
+        Else
+        {
+            Log("No more mecas to recall.")
+            break
+        }
+    }
+    
+    ; now wait for them to be back to station
+    LOG(Format("We recalled {1} mecas.", Count))
+    LOG("Waiting for mecas to be back to station...")
+    while (NovaFindClick("buttons\mecatelier.png", 80, "w1000 n0", FoundX, FoundY, 750, 220, 1340, 960))
+    {
+        Sleep, 1000
+    }
+	
+	PopRightMenu(0)	
+
+	return 1    
+}
+
+
+;*******************************************************************************
+; RecallAllFleets : Brings fleets back to station
+;*******************************************************************************
+RecallAllFleets()
+{
+    LOG("Recalling fleets...")
+	; popup the main menu
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+	
+	; scroll down to mecas list
+	Loop, 2
+	{
+		NovaMouseMove(1050, 470)
+		MouseClick, WheelDown,,, 2
+		Sleep 2000
+	}
+	
+	; look how many mecas are at work
+    Count := 0
+    while (NovaFindClick("buttons\EnAttente.png", 80, "w1000 n1", FoundX, FoundY, 750, 220, 1340, 960))
+    {
+        LOG("Recalling one fleet...")
+        if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
+        {
+            LOG("ERROR : Could not fidn recall button while trying to recall fleet")
+            return 0
+        }
+        Count := Count + 1
+    }
+    
+    ; now wait for them to be back to station
+    LOG(Format("We recalled {1} fleet.", Count))
+    
+	PopRightMenu(0)	
+
+	return 1    
+}
+
+;*******************************************************************************
+; WaitForFleetsIdle : wait for all fleets to be idle
+;*******************************************************************************
+WaitForFleetsIdle()
+{
+    ; Open the fleets tab
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+    
+    ; wait for all fleets to be idle
+    TimeOut := 300
+    Loop, 300
+    {
+        Idle := NovaFindClick("buttons\EnAttente.png", 80, "e w1000 n0", FoundX, FoundY, 750, 220, 1340, 960)
+            
+        if (Idle = MaxPlayerFleets)
+            break
+            
+        Sleep, 1000
+        TimeOut := TimeOut - 1
+        
+        if (TimeOut <= 0)
+        {
+            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be idle. exiting", TimeOut), 2)
+            return 0
+        }
+    }
+	
+    ; fold again right menu
+	PopRightMenu(0)	
+    
+    return 1  
+}
+
+

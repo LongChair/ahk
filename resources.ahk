@@ -18,6 +18,7 @@ global RemainingMecas := 0
 ; different located ressources lists
 global Ressources := []
 global Collecting := []
+global Pirates := []
 
 ; ressources counters
 global ScanAvailMine := 0
@@ -26,40 +27,7 @@ global ScanAvailCrystals := 0
 global ScanMiningMecas := 0
 global ScanCrystalingMecas := 0
 global ScanAlliumingMecas := 0
-
-;*******************************************************************************
-; GetAvailableMecaCount : Checks how many free mecas we have
-;*******************************************************************************
-GetAvailableMecaCount(ByRef NumMecas)
-{
-	global MaxPlayerMecas
-	
-	AtWork := 0
-	
-	; popup the main menu
-    if !PopRightMenu(1, "FLEETS")
-    {
-        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
-        return 0
-    }
-	
-	; scroll down to mecas list
-	Loop, 2
-	{
-		NovaMouseMove(1050, 470)
-		MouseClick, WheelDown,,, 2
-		Sleep 2000
-	}
-	
-	; look how many mecas are at work
-	AtWork := NovaFindClick("buttons\recuperation.png", 80, "e w1000 n0", FoundX, FoundY, 750, 220, 1340, 960)
-	
-	PopRightMenu(0)	
-	
-	NumMecas := MaxPlayerMecas - AtWork
-	
-	return 1
-}
+global ScanPirates := 0
 
 
 ;*******************************************************************************
@@ -128,67 +96,6 @@ Toggle2DMode()
     return 1
 }
 
-
-;*******************************************************************************
-; MapMoveToXY : Move to a position on the map, using mouse scrolls
-; Will return maintain MapPosX and MapPosY
-;*******************************************************************************
-MapMoveToXY(X, Y)
-{
-    global MapPosX, MapPosY
-    global MainWinW, MainWinH
-	
-    StepX := 1000
-    StepY := 500
-	MoveX := 0
-    MoveY := 0
-	MoveXDir := 0
-    MoveYDir := 0
-	
-	Loop 
-	{
-		if (X >= MapPosX)
-		{
-			MoveX := X - MapPosX
-			MoveXDir := -1
-		}
-		else if (X < MapPosX)
-		{
-			MoveX := MapPosX - X
-			MoveXDir := 1
-		}
-		
-		if (Y >= MapPosY)
-		{
-			MoveY := Y - MapPosY
-			MoveYDir := 1
-		}
-		else if (Y < MapPosY)
-		{
-			MoveY := MapPosY - Y
-			MoveYDir := -1
-		}
-		
-		; cap move to Step
-		if (MoveX > StepX)
-			DragX := StepX * MoveXDir
-		Else
-			DragX := MoveX * MoveXDir
-
-		if (MoveY > StepY)
-			DragY := StepY * MoveYDir
-		Else
-			DragY := MoveY  * MoveYDir
-
-		NovaDragMouse(MainWinW /2, MainWinH /2, DragX, DragY)
-			
-		MapPosX := MapPosX - DragX
-		MapPosY := MapPosY + DragY
-		
-	} Until (MapPosX = X AND MapPosY = Y)
-		
-}
-
 ;*******************************************************************************
 ; RecallMecas : Will recall mecas mining the given ressource in the given list
 ; Amount : amount of mecas to recall
@@ -250,10 +157,7 @@ CollectResources()
 	global PlayerName, NumFreeMecas
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
-    
-	; Get the current system we are in
-	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
-	
+    	
 	SystemIndex := 1
 	Loop
 	{
@@ -272,33 +176,16 @@ CollectResources()
 		if (SystemName = "")
 			break
 
-		; we need the system screen
-		LOG("Going to galaxy screen ...")
-		if !GotoScreen("GALAXIE", 60)
-		{
-			return 0
-		}
-		
-		Sleep, 5000
-		
-		if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w5000 n1"))
-		{
-			
-			if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
-			{
-				LOG("Collecting ressources in" . SystemName . "...")
-				CollectResourcesInSystem(SystemName)
-			}
-			Else
-			{
-				LOG("ERROR : Failed to find system join button for " . SystemName . ", exiting ...")
-				Return 0
-			}
-		}
-		Else
-		{
-			LOG("ERROR : Failed to find" . SystemName . " in the galaxy")
-		}
+        ; go to system
+        if (!GotoSystem(SystemName))
+        {
+            LOG("ERROR : Failed to got to system " . SystemName . ", exiting ...")
+            return 0
+        }
+        
+        ; collect ressources
+        LOG("Collecting ressources in" . SystemName . "...")
+        CollectResourcesInSystem(SystemName)
 			
 		SystemIndex := SystemIndex + 1
 	}
@@ -312,9 +199,9 @@ CollectResources()
 ;*******************************************************************************
 CollectResourcesInSystem(system)
 {
-    global Ressources, Collecting
+    global Ressources, Collecting, Pirates
     global NumFreeMecas
-	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas, ScanPirates
 	global MapPosX, MapPosY
 	global ResPriority1, ResPriority2, ResPriority3
     
@@ -335,6 +222,7 @@ CollectResourcesInSystem(system)
 
 	Ressources := []
 	Collecting := []
+    Pirates    := []
 	MapPosX := 0
 	MapPosY := 0
 	
@@ -351,6 +239,10 @@ CollectResourcesInSystem(system)
 	SortResList(Collecting)
 	Log("We have " . ScanMiningMecas.Length() . " meca Collecting left after sorting")
 
+	Log("Sorting pirates ...")
+	SortResList(Pirates)
+	Log("We have " . Pirates.Length() . " pirates left after sorting")
+
 	
 	ScanAvailMine := CountResByType(Ressources, "MINE")
 	ScanAvailAllium := CountResByType(Ressources, "ALLIUM")
@@ -358,6 +250,9 @@ CollectResourcesInSystem(system)
 	ScanMiningMecas := CountResByType(Collecting, "MINING")
 	ScanCrystalingMecas := CountResByType(Collecting, "CRYSTALING")
 	ScanAlliumingMecas := CountResByType(Collecting, "ALLIUMING")
+    ScanAlliumingMecas := CountResByType(Collecting, "ALLIUMING")
+    ScanPirates := CountResByType(Pirates, "PIRATE")
+    
 	
 	Log("Scan reported :")
 	Log(" - Mine         : " . ScanAvailMine)
@@ -366,6 +261,7 @@ CollectResourcesInSystem(system)
 	Log(" - Mining M.    : " . ScanMiningMecas)
 	Log(" - Crystaling M.: " . ScanCrystalingMecas)
 	Log(" - Alliuming M. : " . ScanAlliumingMecas)
+    Log(" - Pirates      : " . ScanPirates)
 	
 	
 	; now try to grab the ressource
@@ -473,6 +369,9 @@ FindRessources()
 	CurrentResType := "ALLIUMING"
 	NovaFindClick("resources\HD_Alliuming.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\Planet_Alliuming.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+    
+    CurrentResType := "PIRATE"
+    NovaFindClick("pirates\pirate.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	return 0
 }
 
@@ -494,7 +393,12 @@ HandleScan(ResX, ResY)
 		Collecting.Insert(CurrentResType . "," . ResX . "," . ResY)
 		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
 	}
-	else
+	else if (CurrentResType = "PIRATE")
+    {
+        Log(Format("Found a pirate at ({1:i},{2:i}) Total={4}", ResX, ResY, Ressources.Length()))
+		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
+    }
+    else
 	{
         Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
