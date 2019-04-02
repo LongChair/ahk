@@ -242,10 +242,75 @@ RecallMecas(ByRef ResList, ResType, Amount)
 
 
 ;*******************************************************************************
-; CollectResourcesNew : Parse current system and collect ressources if any
+; CollectResources : Parse configured system and collect ressources if any
 ; by sending workers onto them
 ;*******************************************************************************
 CollectResources()
+{
+	global PlayerName, NumFreeMecas
+	
+    FullPath =  %A_ScriptDir%\%PlayerName%.ini
+    
+	; Get the current system we are in
+	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
+	
+	SystemIndex := 1
+	Loop
+	{
+		; check if we have free mecas
+		if (NumFreeMecas <= 0)
+		{
+			LOG("No More Mecas, Exiting ressource collection ...")
+			return 1
+		}
+		
+		; Get player name
+		Key := "System" . SystemIndex
+		
+		; Read System
+		IniRead, SystemName, %FullPath%, SYSTEMS, %Key%, %A_Space%
+		if (SystemName = "")
+			break
+
+		; we need the system screen
+		LOG("Going to galaxy screen ...")
+		if !GotoScreen("GALAXIE", 60)
+		{
+			return 0
+		}
+		
+		Sleep, 5000
+		
+		if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w5000 n1"))
+		{
+			
+			if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
+			{
+				LOG("Collecting ressources in" . SystemName . "...")
+				CollectResourcesInSystem(SystemName)
+			}
+			Else
+			{
+				LOG("ERROR : Failed to find system join button for " . SystemName . ", exiting ...")
+				Return 0
+			}
+		}
+		Else
+		{
+			LOG("ERROR : Failed to find" . SystemName . " in the galaxy")
+		}
+			
+		SystemIndex := SystemIndex + 1
+	}
+	
+	return 1
+}
+
+;*******************************************************************************
+; CollectResourcesInSystem : Parse given system and collect ressources if any
+; by sending workers onto them
+;*******************************************************************************
+CollectResourcesInSystem(system)
 {
     global Ressources, Collecting
     global NumFreeMecas

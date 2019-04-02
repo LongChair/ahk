@@ -24,6 +24,8 @@ SetTitleMatchMode 2
 
 Loop
 {
+	global PasteBinUser, PasteBinPassword
+	
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
 	IniPath =  %A_ScriptDir%\PasteBin.ini
@@ -31,6 +33,8 @@ Loop
     ; Read Player Count
     IniRead, PlayerCount, %FullPath%, GENERAL, PlayerCount, 0
 	IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
+	IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
+    IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
 	
 	; get pasteBinconfig
 	if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
@@ -292,9 +296,6 @@ WriteConfig()
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
 	
-	IniWrite, %PasteBinUser%, %FullPath%, PASTEBIN, PasteBinUser
-    IniWrite, %PasteBinPassword%, %FullPath%, PASTEBIN, PasteBinPassword
-	
 	; Free resource counters
 	for i, res in PossibleRes
 	{
@@ -342,6 +343,7 @@ LaunchNova()
     }
     
     ; Activate BlueStacks Window
+	Sleep, 5000
 	Window_ID := WinExist(WindowName)
     WinActivate, ahk_id %Window_ID%
     WinMove, ahk_id %Window_ID%,, AppX, AppY, AppW, AppH
@@ -382,7 +384,7 @@ LaunchNova()
     }
     
 	Log("Waiting for Nova welcome screen ...")
-	if !NovaFindClick("buttons\cross.png", 0, " w60000 n1")
+	if !NovaFindClick("buttons\cross.png", 60, " w60000 n1")
 	{
 		Log("No welcome screen found.")
 	}
