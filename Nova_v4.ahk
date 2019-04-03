@@ -136,13 +136,13 @@ DoSequence()
 	
     if LaunchNova()
     {       
-        ;Log("========= CheckFreeResources Start =========")
-        ;if !CheckFreeResources()
-        ;{
-            ;Log ("ERROR : Failed to collect free resources !", 2)
-            ;Goto TheEnd
-        ;}
-        ;Log("========= CheckFreeResources End   =========")
+        Log("========= CheckFreeResources Start =========")
+        if !CheckFreeResources()
+        {
+            Log ("ERROR : Failed to collect free resources !", 2)
+            Goto TheEnd
+        }
+        Log("========= CheckFreeResources End   =========")
 	
 		Log("========= getFreeMecas Start =========")
 		if !GetAvailableMecaCount(NumFreeMecas)
@@ -155,43 +155,57 @@ DoSequence()
 		
 		Log("========= getFreeMecas End =========")
     
-		;Log("========= BuildFrigates Start =========")
-        ;if !BuildFrigates(FrigatesAmount)
-        ;{
-            ;Log ("ERROR : Failed to build frigates !", 2)
-            ;Goto TheEnd
-        ;}
-        ;Log("========= BuildFrigates End   =========")
-		;
-        ;Log("========= CollectResources Start =========")
-		;if !CollectResources()
-		;{
-			;Log ("ERROR : Failed to collect resources !", 2)
-			;Goto TheEnd
-		;}
-		  
-        ;Log("========= CollectResources End   =========")
-              
-		if (!ScanResourcesInSystem(""))
-		{
-			Log ("ERROR : Failed to scan system ressources !", 2)
-            Goto TheEnd
-		}
-		
-        if (!CollectRessourcesByType("PIRATERES"))
-		{
-			Log ("ERROR : Failed to collect pirates ressources !", 2)
-            Goto TheEnd
-		}
-		
-        Log("========= FarmPirate Start =========")
-        if (!FarmPirates(3))
+		Log("========= BuildFrigates Start =========")
+        if !BuildFrigates(FrigatesAmount)
         {
-            Log ("ERROR : Failed to farm pirates !", 2)
+            Log ("ERROR : Failed to build frigates !", 2)
             Goto TheEnd
         }
-        Log("========= FarmPirate End   =========")
+        Log("========= BuildFrigates End   =========")
         
+        
+        DoScan := 1
+        
+        if (DoScan())
+        {
+            if (!ScanResourcesInSystem(""))
+            {
+                Log ("ERROR : Failed to scan system ressources !", 2)
+                Goto TheEnd
+            }		
+        }
+        Else
+        {
+            LoadRessourcesLists()
+        }
+		
+        Farming := 1
+        
+        if (Farming)
+        {
+            ; collect pirate resource and farm them
+            if (!CollectRessourcesByType("PIRATERES"))
+            {
+                Log ("ERROR : Failed to collect pirates ressources !", 2)
+                Goto TheEnd
+            }
+            
+            Log("========= FarmPirate Start =========")
+            if (!FarmPirates(3))
+            {
+                Log ("ERROR : Failed to farm pirates !", 2)
+                Goto TheEnd
+            }
+            Log("========= FarmPirate End   =========")
+        }
+        Else
+        {
+            ; do the normal ressource collection
+        	if CollectRessourcesByType(ResPriority1)
+                if CollectRessourcesByType(ResPriority2)
+                    CollectRessourcesByType(ResPriority3)
+        }
+            
         ; logs the summuary of the iteration
 		Summuary := GetSummuary()
         Log(Format("`r`n{1}", Summuary), 1)

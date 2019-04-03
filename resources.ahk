@@ -19,7 +19,6 @@ global RemainingMecas := 0
 global Ressources := []
 global Collecting := []
 global Pirates := []
-global PiratesRes := []
 
 ; ressources counters
 global ScanAvailMine := 0
@@ -225,7 +224,6 @@ ScanResourcesInSystem(system)
 	Ressources := []
 	Collecting := []
     Pirates    := []
-	PiratesRes := []
 	MapPosX := 0
 	MapPosY := 0
 	
@@ -267,6 +265,8 @@ ScanResourcesInSystem(system)
     Log(" - Pirates      : " . ScanPirates)
 	Log(" - Pirate Res   : " . ScanPiratesRes)
 	
+    
+    SaveRessourcesLists()
 	
 	; now try to grab the ressource
 	;if (NumFreeMecas = 0) 
@@ -518,4 +518,51 @@ CollectRessourcesByType(ResType)
 	return 1
 }
 
+;*******************************************************************************
+; SaveRessourcesLists : Saves the ressources to files
+;*******************************************************************************
+SaveRessourcesLists()
+{
+    SaveListToFile(Ressources, "Ressources.txt")
+    SaveListToFile(Collecting, "Collecting.txt")
+    SaveListToFile(Pirates, "Pirates.txt")
+}
+
+;*******************************************************************************
+; SaveListToFile : Saves the ressource list to a given file
+;*******************************************************************************
+SaveListToFile(ByRef ResList, OutputFile)
+{
+    FileDelete %OutputFile%
+    
+    CurrentRes := 1
+	Loop, % ResList.Length()
+	{
+        Text := ResList[CurrentRes]
+        FileAppend %Text%, %OutputFile%
+		CurrentRes := CurrentRes + 1
+	}
+    
+}
+
+;*******************************************************************************
+; LoadRessourcesLists : Load the ressources lists
+;*******************************************************************************
+LoadRessourcesLists()
+{
+    LoadListsFromFile(Ressources, "Ressources.txt")
+    LoadListsFromFile(Collecting, "Collecting.txt")
+    LoadListsFromFile(Pirates, "Pirates.txt")
+}
+
+;*******************************************************************************
+; LoadListsFromFile : Load the ressource list from a given file
+;*******************************************************************************
+LoadListsFromFile(ByRef ResList, InputFile)
+{
+    Loop, read, %InputFile%
+    {
+        ResList.Insert(A_LoopReadLine)
+    }
+}
 
