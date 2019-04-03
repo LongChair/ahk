@@ -7,7 +7,8 @@
 FarmPirates(PirateCount)
 {
     global Pirates
-
+    global KilledCount
+    
     Ret := 0
     
     ; Go to current system
@@ -57,9 +58,11 @@ FarmPirates(PirateCount)
         if (Killed)
         {
             KilledPirate := KilledPirate + 1
+            KilledCount  := KilledCount + 1
+            
             if (KilledPirate >= PirateCount)
             {
-                LOG(Format("Done with killing {1} pirates", PirateCount))
+                LOG(Format("Done with killing {1} pirates, Total={2}]", PirateCount, KilledCount))
                 Ret := 1
                 Goto FarmPirates_End
             }

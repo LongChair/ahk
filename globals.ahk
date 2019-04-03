@@ -40,6 +40,7 @@ global CommandLine := ""
 global WindowName := ""
 global MaxPlayerMecas := 6
 global MaxPlayerFleets := 6
+global KilledCount := 0
 
 global Window_ID := 0
 

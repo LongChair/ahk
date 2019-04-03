@@ -257,7 +257,8 @@ ReadConfig()
 	global FreeResCount, PossibleRes
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
 	global PlayerName
-	
+	global KilledCount
+    
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
     ; Counters
@@ -286,6 +287,8 @@ ReadConfig()
 	IniRead, ResPriority2, %FullPath%, PRIORITIES, ResPriority2, "CRYSTALS"
 	IniRead, ResPriority3, %FullPath%, PRIORITIES, ResPriority3, "ALLIUM"
 	
+    ; stats
+    IniRead, KilledCount, %FullPath%, STATS, KilledCount, 0
     
 }
 
@@ -296,6 +299,7 @@ WriteConfig()
 {
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
 	global PlayerName
+    global KilledCount
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -319,7 +323,9 @@ WriteConfig()
 	IniWrite, %ResPriority1%, %FullPath%, PRIORITIES, ResPriority1
 	IniWrite, %ResPriority2%, %FullPath%, PRIORITIES, ResPriority2
 	IniWrite, %ResPriority3%, %FullPath%, PRIORITIES, ResPriority3
-	
+    
+    ; stats
+	IniWrite, %KilledCount%, %FullPath%, STATS, KilledCount
 }
 
 ;*******************************************************************************
