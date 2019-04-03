@@ -31,12 +31,12 @@ FarmPirates(PirateCount)
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
     ; Recall all mecas
-    if (!RecallSomeMecas(MaxPlayerMecas))
-    {
-        Log("ERROR : Failed to recall all mecas, exiting.", 2)
-        return 0
-    }
-     
+    ;if (!RecallSomeMecas(MaxPlayerMecas))
+    ;{
+        ;Log("ERROR : Failed to recall all mecas, exiting.", 2)
+        ;return 0
+    ;}
+     ;
     MapPosX := 0
 	MapPosY := 0
     
@@ -47,8 +47,8 @@ FarmPirates(PirateCount)
         RefValues := StrSplit(Pirates[CurrentPirate], ",")
 		ResX := RefValues[2]
 		ResY := RefValues[3]
-        ResX := 1441
-		ResY := 895
+        ;ResX := 1441
+		;ResY := 895
         
         if (!KillPirate(ResX, ResY))
         {
@@ -56,12 +56,12 @@ FarmPirates(PirateCount)
             return 0
         }
         
-        if (!CollectPirateRessource(MainWinW / 2 ,  MainWinH / 2))
-        {
-        
-            Log(Format("ERROR : failed to collect pirates ressource at ({1}, {2}).",  MainWinW / 2,  MainWinH / 2), 2)
-            return 0
-        }
+        ;if (!CollectPirateRessource(MainWinW / 2 ,  MainWinH / 2))
+        ;{
+        ;
+            ;Log(Format("ERROR : failed to collect pirates ressource at ({1}, {2}).",  MainWinW / 2,  MainWinH / 2), 2)
+            ;return 0
+        ;}
         
         CurrentPirate := CurrentPirate + 1
     }
@@ -89,23 +89,34 @@ KillPirate(X,Y)
     MapMoveToXY(X, Y)
 
     ; Send Fleets there
-    OffsetClick := 30
+    OffsetClick := 40
     Count := 0
 	Loop
 	{
-		NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 + OffsetClick)
+		if (Count = 0)
+			NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 + OffsetClick)
+			
+		if (Count = 1)
+			NovaLeftMouseClick(MainWinW / 2 - OffsetClick, MainWinH / 2 + OffsetClick)
+			
+		if (Count = 2)
+			NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 - OffsetClick)
+			
+		if (Count = 3)
+			NovaLeftMouseClick(MainWinW / 2 - OffsetClick, MainWinH / 2 - OffsetClick)
+			
+			
 		Sleep, 1000
 		
 		; click group move
 		if !NovaFindClick("buttons\GroupMove.png", 50, "w2000 n1")
 		{
-			if (OffsetClick > 0)
-			{
-				OffsetClick := -OffsetClick
-				NovaEscapeClick()
-				Sleep, 1000
-			}
-			Else
+			NovaEscapeClick()
+			Sleep, 1000
+			
+			Count := Count + 1
+			
+			if (Count = 4)	
 			{
 				Log("ERROR : failed to select group move on fleets, exiting.", 2)
 				return 0

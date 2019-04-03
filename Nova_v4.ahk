@@ -143,18 +143,18 @@ DoSequence()
             ;Goto TheEnd
         ;}
         ;Log("========= CheckFreeResources End   =========")
-	;
-		;Log("========= getFreeMecas Start =========")
-		;if !GetAvailableMecaCount(NumFreeMecas)
-        ;{
-            ;Log ("ERROR : Failed to get available mecas count !", 2)
-            ;Goto TheEnd
-        ;}
-		;Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
+	
+		Log("========= getFreeMecas Start =========")
+		if !GetAvailableMecaCount(NumFreeMecas)
+        {
+            Log ("ERROR : Failed to get available mecas count !", 2)
+            Goto TheEnd
+        }
+		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
 		StartFreeMecas := NumFreeMecas
-		;
-		;Log("========= getFreeMecas End =========")
-    ;
+		
+		Log("========= getFreeMecas End =========")
+    
 		;Log("========= BuildFrigates Start =========")
         ;if !BuildFrigates(FrigatesAmount)
         ;{
@@ -172,9 +172,20 @@ DoSequence()
 		  
         ;Log("========= CollectResources End   =========")
               
-        ;
+		if (!ScanResourcesInSystem(""))
+		{
+			Log ("ERROR : Failed to scan system ressources !", 2)
+            Goto TheEnd
+		}
+		
+        if (!CollectRessourcesByType("PIRATERES"))
+		{
+			Log ("ERROR : Failed to collect pirates ressources !", 2)
+            Goto TheEnd
+		}
+		
         Log("========= FarmPirate Start =========")
-        if !FarmPirates(3)
+        if (!FarmPirates(3))
         {
             Log ("ERROR : Failed to farm pirates !", 2)
             Goto TheEnd

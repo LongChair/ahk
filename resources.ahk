@@ -19,6 +19,7 @@ global RemainingMecas := 0
 global Ressources := []
 global Collecting := []
 global Pirates := []
+global PiratesRes := []
 
 ; ressources counters
 global ScanAvailMine := 0
@@ -28,6 +29,7 @@ global ScanMiningMecas := 0
 global ScanCrystalingMecas := 0
 global ScanAlliumingMecas := 0
 global ScanPirates := 0
+global ScanPiratesRes := 0
 
 
 ;*******************************************************************************
@@ -185,7 +187,7 @@ CollectResources()
         
         ; collect ressources
         LOG("Collecting ressources in" . SystemName . "...")
-        CollectResourcesInSystem(SystemName)
+        ScanResourcesInSystem(SystemName)
 			
 		SystemIndex := SystemIndex + 1
 	}
@@ -197,18 +199,18 @@ CollectResources()
 ; CollectResourcesInSystem : Parse given system and collect ressources if any
 ; by sending workers onto them
 ;*******************************************************************************
-CollectResourcesInSystem(system)
+ScanResourcesInSystem(system)
 {
     global Ressources, Collecting, Pirates
     global NumFreeMecas
-	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas, ScanPirates
+	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas, ScanPirates, ScanPiratesRes
 	global MapPosX, MapPosY
 	global ResPriority1, ResPriority2, ResPriority3
     
-    Log("Starting to collect resources ...")
+    Log("Starting to scan map...")
     
     ; we need the system screen
-    if !GotoScreen("SYSTEME", 60)
+    if !GotoSystem(system)
     {
         return 0
     }
@@ -223,11 +225,11 @@ CollectResourcesInSystem(system)
 	Ressources := []
 	Collecting := []
     Pirates    := []
+	PiratesRes := []
 	MapPosX := 0
 	MapPosY := 0
 	
 	; Scan the map for ressources
-	Log("Scanning map for ressources ...")
 	ScanMap()
 	
 	; remove duplicate ressources
@@ -247,12 +249,13 @@ CollectResourcesInSystem(system)
 	ScanAvailMine := CountResByType(Ressources, "MINE")
 	ScanAvailAllium := CountResByType(Ressources, "ALLIUM")
 	ScanAvailCrystals := CountResByType(Ressources, "CRYSTALS")
+    ScanPiratesRes := CountResByType(Ressources, "PIRATERES")
 	ScanMiningMecas := CountResByType(Collecting, "MINING")
 	ScanCrystalingMecas := CountResByType(Collecting, "CRYSTALING")
 	ScanAlliumingMecas := CountResByType(Collecting, "ALLIUMING")
     ScanAlliumingMecas := CountResByType(Collecting, "ALLIUMING")
     ScanPirates := CountResByType(Pirates, "PIRATE")
-    
+
 	
 	Log("Scan reported :")
 	Log(" - Mine         : " . ScanAvailMine)
@@ -262,6 +265,7 @@ CollectResourcesInSystem(system)
 	Log(" - Crystaling M.: " . ScanCrystalingMecas)
 	Log(" - Alliuming M. : " . ScanAlliumingMecas)
     Log(" - Pirates      : " . ScanPirates)
+	Log(" - Pirate Res   : " . ScanPiratesRes)
 	
 	
 	; now try to grab the ressource
@@ -287,11 +291,11 @@ CollectResourcesInSystem(system)
 	;			CollectRessourcesByType("MINE")
 	;}
 	
-	if CollectRessourcesByType(ResPriority1)
-		if CollectRessourcesByType(ResPriority2)
-			CollectRessourcesByType(ResPriority3)
+	;if CollectRessourcesByType(ResPriority1)
+		;if CollectRessourcesByType(ResPriority2)
+			;CollectRessourcesByType(ResPriority3)
 			
-    Log("End of resources collection.")
+    Log("End of map scan.")
 	
     return 1
 }
@@ -372,6 +376,9 @@ FindRessources()
     
     CurrentResType := "PIRATE"
     NovaFindClick("pirates\pirate.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	
+	CurrentResType := "PIRATERES"
+    NovaFindClick("resources\pirate.png", 30, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	return 0
 }
 
@@ -388,21 +395,24 @@ HandleScan(ResX, ResY)
 	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX
 	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
 
-	if (CurrentResType = "MINING") OR (CurrentResType = "CRYSTALING") OR (CurrentResType = "ALLIUMING")
-	{
-		Collecting.Insert(CurrentResType . "," . ResX . "," . ResY)
-		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
-	}
-	else if (CurrentResType = "PIRATE")
-    {
-        Log(Format("Found a pirate at ({1:i},{2:i}) Total={4}", ResX, ResY, Ressources.Length()))
-		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
-    }
-    else
+	if CurrentResType in ALLIUM,MINE,CRYSTALS,PIRATERES
 	{
         Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
 		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
 	}
+
+	if CurrentResType in  MINING,CRYSTALING,ALLIUMING
+	{
+		Collecting.Insert(CurrentResType . "," . ResX . "," . ResY)
+		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
+	}
+	
+	if CurrentResType in PIRATE
+    {
+        Log(Format("Found a pirate at ({1:i},{2:i}) Total={4}", ResX, ResY, Pirates.Length()))
+		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
+    }
+	
 }
 
 ;*******************************************************************************
@@ -496,7 +506,7 @@ CollectRessourcesByType(ResType)
 				if (NumFreeMecas = 0)
 				{
 					Log("Looks like we have no more free mecas, exiting")
-					return 0
+					return 1
 				}
 			}
 			
