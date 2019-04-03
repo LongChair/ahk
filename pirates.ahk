@@ -98,7 +98,7 @@ KillPirate(X,Y, ByRef Killed)
     MapMoveToXY(X, Y)
 
     ; validate if pirate is to be killed
-    if (!ValidatePirate(X,Y, Valid))
+    if (!ValidatePirate(MainWinW / 2, MainWinH / 2, Valid))
     {
         LOG("ERROR :Pirate Validation failed, exiting", 2)
         return 0
@@ -111,7 +111,7 @@ KillPirate(X,Y, ByRef Killed)
     }
     
     ; Send Fleets there
-    OffsetClick := 40
+    OffsetClick := 30
     Count := 0
 	Loop
 	{
@@ -153,6 +153,7 @@ KillPirate(X,Y, ByRef Killed)
             ; Now recenter on pirate and close popup
             NovaLeftMouseClick(MainWinW / 2 - DeltaX, MainWinH / 2 - DeltaY)
             NovaEscapeClick()
+			Sleep, 500
                         
 			Count := Count + 1
 			
@@ -209,7 +210,7 @@ KillPirate(X,Y, ByRef Killed)
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
-        Sleep 2000
+        Sleep 1000
     
         ScrollCount := ScrollCount + 1
         
@@ -251,10 +252,14 @@ ValidatePirate(X, Y, ByRef Valid)
         return 0
         
     ; we check if it's know to be valid
-    Loop Files, %A_ScriptDir%\images\pirates\valid\valid*.png", R
+    Loop, Files, %A_ScriptDir%\images\pirates\valid\pirate_*.png"
     {
-        if NovaFindClick(Format("pirates\valid\{1}", %A_LoopFileName%), 50, "w2000 n0")
+		FileName := "pirates\valid\" . A_LoopFileName
+        if NovaFindClick(FileName, 50, "w100 n0")
+		{
+			Log(Format("Validated a pirate matching {1}", A_LoopFileName))
             goto ValidatePirate_End
+		}
     }
     
     ; if we come here, then we haven't found any valid

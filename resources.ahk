@@ -362,17 +362,17 @@ FindRessources()
 	NovaFindClick("resources\HD_Mine.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	NovaFindClick("resources\HD_Planet.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 	
-	CurrentResType := "MINING"
-	NovaFindClick("resources\HD_Mining.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	NovaFindClick("resources\Planet_Mining.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	
-	CurrentResType := "CRYSTALING"
-	NovaFindClick("resources\HD_Crystaling.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	NovaFindClick("resources\Planet_Crystaling.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	
-	CurrentResType := "ALLIUMING"
-	NovaFindClick("resources\HD_Alliuming.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-	NovaFindClick("resources\Planet_Alliuming.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;CurrentResType := "MINING"
+	;NovaFindClick("resources\HD_Mining.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;NovaFindClick("resources\Planet_Mining.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;
+	;CurrentResType := "CRYSTALING"
+	;NovaFindClick("resources\HD_Crystaling.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;NovaFindClick("resources\Planet_Crystaling.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;
+	;CurrentResType := "ALLIUMING"
+	;NovaFindClick("resources\HD_Alliuming.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	;NovaFindClick("resources\Planet_Alliuming.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
     
     CurrentResType := "PIRATE"
     NovaFindClick("pirates\pirate.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)

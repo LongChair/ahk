@@ -25,6 +25,7 @@ SetTitleMatchMode 2
 Loop
 {
 	global PasteBinUser, PasteBinPassword
+
 	
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
@@ -134,8 +135,7 @@ DoSequence()
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
-    {
-        
+    {       
         ;Log("========= CheckFreeResources Start =========")
         ;if !CheckFreeResources()
         ;{

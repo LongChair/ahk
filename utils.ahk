@@ -531,7 +531,7 @@ WaitForFleetsIdle()
 		Loop, % MaxPlayerFleets
 		{
 			Offset := FleetCount * 110
-			if NovaFindClick("buttons\EnAttente.png", 80, "w1000 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
+			if NovaFindClick("buttons\EnAttente.png", 80, "w100 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
 			{
 				IdleFleets := IdleFleets + 1
 			}
