@@ -8,8 +8,7 @@ FarmPirates(PirateCount)
 {
     global Pirates
 
-    ;Log("Not Yet Implemented")
-    ;return 1
+    Ret := 0
     
     ; Go to current system
     if !GotoSystem("")
@@ -23,49 +22,54 @@ FarmPirates(PirateCount)
         Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
         return 0
     }
-    
-    ; cap the amount of pirates to kill
-    ;if (Pirates.Length() < PirateCount)
-        ;PirateCount := Pirates.Length()
-     
+        
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
-    ; Recall all mecas
-    ;if (!RecallSomeMecas(MaxPlayerMecas))
-    ;{
-        ;Log("ERROR : Failed to recall all mecas, exiting.", 2)
-        ;return 0
-    ;}
-     ;
     MapPosX := 0
 	MapPosY := 0
     
     CurrentPirate := 1
-    Loop, % PirateCount
+    KilledPirate := 0
+    Loop
 	{
-        Log(Format("Processing pirate #{1}/{2}...", CurrentPirate, PirateCount))
+        ; we reached the end of the pirates list, then exit
+        if (CurrentPirate >= Pirates.Length())
+        {
+            LOG("No more pirates to kill, exiting...")
+            Ret := 1
+            Goto FarmPirates_End
+        }
+        
+        ; get the pirate coordinates
+        Log(Format("Processing pirate #{1}/{2}...", KilledPirate + 1 , PirateCount))
         RefValues := StrSplit(Pirates[CurrentPirate], ",")
 		ResX := RefValues[2]
 		ResY := RefValues[3]
-        ;ResX := 1441
-		;ResY := 895
-        
-        if (!KillPirate(ResX, ResY))
+
+        ; try to kill pirate
+        if (!KillPirate(ResX, ResY, Killed))
         {
             Log(Format("ERROR : failed to kill pirates at ({1}, {2}).", ResX, ResY), 2)
-            return 0
+            Goto FarmPirates_End
         }
         
-        ;if (!CollectPirateRessource(MainWinW / 2 ,  MainWinH / 2))
-        ;{
-        ;
-            ;Log(Format("ERROR : failed to collect pirates ressource at ({1}, {2}).",  MainWinW / 2,  MainWinH / 2), 2)
-            ;return 0
-        ;}
+        ; check if it's been killed
+        if (Killed)
+        {
+            KilledPirate := KilledPirate + 1
+            if (KilledPirate >= PirateCount)
+            {
+                LOG(Format("Done with killing {1} pirates", PirateCount))
+                Ret := 1
+                Goto FarmPirates_End
+            }
+        }
         
         CurrentPirate := CurrentPirate + 1
+        
     }
     
+FarmPirates_End:
     ; Recall fleets to station
     if (!RecallAllFleets())
     {
@@ -73,47 +77,80 @@ FarmPirates(PirateCount)
         return 0
     }
         
-    return 1
+    return Ret
 }
 
 ;*******************************************************************************
 ; FarmPirate : Will try to find a pirate, kill it and collect resource
 ; Function assumes we're in the system center in 2D as startpoint
 ;*******************************************************************************
-KillPirate(X,Y)
+KillPirate(X,Y, ByRef Killed)
 {
     global MainWinW, MainWinH
+    
+    Killed := 0
     
      ; go to the ressource position
     Log(Format("Going to kill pirate at ({1:i}, {2:i} ...", X, Y), 1)
     MapMoveToXY(X, Y)
 
+    ; validate if pirate is to be killed
+    if (!ValidatePirate(X,Y, Valid))
+    {
+        LOG("ERROR :Pirate Validation failed, exiting", 2)
+        return 0
+    }
+    
+    if (!Valid)
+    {
+        LOG("Pirate is not valid, skipping")
+        return 1
+    }
+    
     ; Send Fleets there
     OffsetClick := 40
     Count := 0
 	Loop
 	{
 		if (Count = 0)
-			NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 + OffsetClick)
+        {
+            DeltaX := OffsetClick
+            DeltaY := OffsetClick
+        }
 			
 		if (Count = 1)
-			NovaLeftMouseClick(MainWinW / 2 - OffsetClick, MainWinH / 2 + OffsetClick)
+        {
+            DeltaX := -OffsetClick
+            DeltaY := OffsetClick
+        }
 			
-		if (Count = 2)
-			NovaLeftMouseClick(MainWinW / 2 + OffsetClick, MainWinH / 2 - OffsetClick)
+		if (Count = 2)        
+        {
+            DeltaX := OffsetClick
+            DeltaY := -OffsetClick
+        }
 			
 		if (Count = 3)
-			NovaLeftMouseClick(MainWinW / 2 - OffsetClick, MainWinH / 2 - OffsetClick)
-			
+        {
+            DeltaX := -OffsetClick
+            DeltaY := -OffsetClick
+        }
+
+        NovaLeftMouseClick(MainWinW / 2 + DeltaX, MainWinH / 2 + DeltaY)
 			
 		Sleep, 1000
 		
 		; click group move
 		if !NovaFindClick("buttons\GroupMove.png", 50, "w2000 n1")
 		{
+            ; we clicked on something else, make sure there is no popup
 			NovaEscapeClick()
 			Sleep, 1000
-			
+            
+            ; Now recenter on pirate and close popup
+            NovaLeftMouseClick(MainWinW / 2 - DeltaX, MainWinH / 2 - DeltaY)
+            NovaEscapeClick()
+                        
 			Count := Count + 1
 			
 			if (Count = 4)	
@@ -189,61 +226,41 @@ KillPirate(X,Y)
         return 0
     }
     
+    Killed := 1
     return 1
 }
 
 ;*******************************************************************************
-; CollectPirateRessource : Collects a ressource around X, Y area
+; ValidatePirate : Validate if the pirate is to be killed
+; return 1 if pirate is valid, 0 otherwise
 ;*******************************************************************************
-CollectPirateRessource(X, Y)
+ValidatePirate(X, Y, ByRef Valid)
 {
-    MarginX := 200
-    MarginY := 200
+    Valid := 0
     
-    Loop 
+     ; Click on the pirate
+    NovaLeftMouseClick(X, Y)
+    
+    ; now check if it's valid 
+    
+    ; we check if it's a pirate
+    if !NovaFindClick("pirates\valid\Pirate.png", 50, "w2000 n0")
+        return 0
+        
+    ; we check if it's know to be valid
+    Loop Files, %A_ScriptDir%\images\pirates\valid\valid*.png", R
     {
-        ; wait to have a free meca
-        Log("Waiting for a free meca ...")
-        Loop
-        {
-            GetAvailableMecaCount(NumMecas)
-            
-            if (NumMecas)
-            {
-                break
-            }
-            Else
-            {
-                Sleep, 5000
-            }
-        }
-        
-        ; look for ressource
-        Log("Looking for ressource...")
-        if NovaFindClick("resources\pirate.png", 70, "w2000 n1", FoundX, FoundY, X - MarginX,  Y - MarginY, X + MarginX,  Y + MarginY)
-        {
-           ; click collect button
-			Log("Collecting it ...")
-			if !NovaFindClick("buttons\collect.png", 70, "w2000 n1")
-			{
-				Log("ERROR : failed to find collect button, exiting.", 2)
-				return 0
-			}
-			
-			; eventually click on the OK button if we had no more mecas
-			if NovaFindClick("buttons\Ok.png", 50, "w2000 n1")
-			{
-				Log("Obviosuly no more mecas, but we should not have been here ...")
-				return 0
-			}
-            
-        }
-        Else
-        {
-            Log("Looks like there is nothing left to collect, exiting collection ...")
-            return 1
-        }
-        
+        if NovaFindClick(Format("pirates\valid\{1}", %A_LoopFileName%), 50, "w2000 n0")
+            goto ValidatePirate_End
     }
-
+    
+    ; if we come here, then we haven't found any valid
+    return 0
+    
+    ; close the popup
+ValidatePirate_End:
+    NovaEscapeClick()
+    Valid := 1
+    
+    return 1
 }
