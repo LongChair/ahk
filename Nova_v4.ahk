@@ -239,6 +239,7 @@ GetSummuary()
 	Summuary := Summuary . Format("   * Free resources collected    : {1}/{2}`r`n", FreeResCollected, MaxFreeRes)
 	Summuary := Summuary . Format("   * Regular resources collected : {1}`r`n", OtherResCollected)
 	Summuary := Summuary . Format("   * Frigates built              : {1}/{2}`r`n", FrigatesBuilt, FrigatesAmount)
+    Summuary := Summuary . Format("   * Killed pirates              : {1}`r`n", KilledCount)
 	Summuary := Summuary . Format("`r`n")
 	Summuary := Summuary . Format(" - FREE RESSOURCES :`r`n")
 	

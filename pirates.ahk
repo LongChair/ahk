@@ -153,7 +153,7 @@ KillPirate(X,Y, ByRef Killed)
             ; Now recenter on pirate and close popup
             NovaLeftMouseClick(MainWinW / 2 - DeltaX, MainWinH / 2 - DeltaY)
             NovaEscapeClick()
-			Sleep, 500
+			Sleep, 1000
                         
 			Count := Count + 1
 			

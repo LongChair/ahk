@@ -472,6 +472,8 @@ RecallSomeMecas(Amount)
 ;*******************************************************************************
 RecallAllFleets()
 {
+    global MaxPlayerFleets
+    
     LOG("Recalling fleets...")
 	; popup the main menu
     if !PopRightMenu(1, "FLEETS")
@@ -479,30 +481,28 @@ RecallAllFleets()
         Log("ERROR : failed to popup main menu for fleets. exiting", 2)
         return 0
     }
-	
-	; scroll down to mecas list
-	Loop, 2
-	{
-		NovaMouseMove(1050, 470)
-		MouseClick, WheelDown,,, 2
-		Sleep 2000
-	}
-	
-	; look how many mecas are at work
-    Count := 0
-    while (NovaFindClick("buttons\EnAttente.png", 80, "w1000 n1", FoundX, FoundY, 750, 180, 1200, 860))
+		
+	FleetIndex := 0
+    Loop, % MaxPlayerFleets
     {
+        Offset := FleetIndex * 110
+        
+        ; click on fleet
+        NovaLeftMouseClick(1000, 230 + Offset)
+        
+        
         LOG("Recalling one fleet...")
         if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
         {
-            LOG("ERROR : Could not fidn recall button while trying to recall fleet")
+            LOG("ERROR : Could not find recall button while trying to recall fleet")
             return 0
         }
-        Count := Count + 1
+        
+        FleetIndex := FleetIndex + 1
     }
     
     ; now wait for them to be back to station
-    LOG(Format("We recalled {1} fleet.", Count))
+    LOG(Format("We recalled {1} fleet.", FleetIndex ))
     
 	PopRightMenu(0)	
 
@@ -514,6 +514,16 @@ RecallAllFleets()
 ;*******************************************************************************
 WaitForFleetsIdle()
 {
+    return WaitForFleetsState("buttons\EnAttente.png", 300)
+}
+
+;*******************************************************************************
+; WaitForFleetsState : wait for all fleets to be in the given image state
+;*******************************************************************************
+WaitForFleetsState(ImageState, TimeOut)
+{
+    global MaxPlayerFleets
+    
     ; Open the fleets tab
     if !PopRightMenu(1, "FLEETS")
     {
@@ -522,24 +532,24 @@ WaitForFleetsIdle()
     }
     
     ; wait for all fleets to be idle
-    TimeOut := 300
-    Loop, 300
+    LoopCount := TimeOut
+    Loop, % LoopCount
     {
-		IdleFleets := 0
+		CountFleets := 0
 		FleetCount := 0
 		
 		Loop, % MaxPlayerFleets
 		{
 			Offset := FleetCount * 110
-			if NovaFindClick("buttons\EnAttente.png", 80, "w100 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
+			if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
 			{
-				IdleFleets := IdleFleets + 1
+				CountFleets := CountFleets + 1
 			}
 			FleetCount := FleetCount + 1
 		}
 		       
             
-        if (IdleFleets = MaxPlayerFleets)
+        if (CountFleets = MaxPlayerFleets)
             break
             
         Sleep, 1000
@@ -547,7 +557,7 @@ WaitForFleetsIdle()
         
         if (TimeOut <= 0)
         {
-            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be idle. exiting", TimeOut), 2)
+            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
             return 0
         }
     }
