@@ -36,7 +36,6 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 	SendEvent {Click down}
 	Sleep, 200
 	MouseMove, X + SpanX, Y + SpanY, 10
-	Sleep, 500
 	SendEvent {click up}
 	Sleep, 200
 }
@@ -436,7 +435,7 @@ RecallSomeMecas(Amount)
         if (NovaFindClick("buttons\recuperation.png", 50, "w2000 n1", FoundX, FoundY, 750, 220, 1340, 960))
         {            
             LOG("Recalling one meca...")
-            if (!NovaFindClick("buttons\meca_Rappeler.png", 30, "w6000 n1"))
+            if (!NovaFindClick("buttons\fleet_rappeler.png", 30, "w6000 n1"))
             {
                 LOG("ERROR : Could not fidn recall button while trying to recall meca")
                 return 0
@@ -492,7 +491,7 @@ RecallAllFleets()
         
         
         LOG("Recalling one fleet...")
-        if (!NovaFindClick("buttons\Rappeller.png", 80, "w3000 n1"))
+        if (!NovaFindClick("buttons\fleet_rappeler.png", 80, "w3000 n1"))
         {
             LOG("ERROR : Could not find recall button while trying to recall fleet")
             return 0
@@ -584,12 +583,12 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         Sleep, 500
         		
         ; wait for eventual unselected economy tab
-        if NovaFindClick("buttons\" . TabPage . "_off.png", 30, "w3000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
+        if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w3000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
         {
             Log("Selected " . TabPage . " tab in right menu")
         }
         
-        if !NovaFindClick("buttons\" . TabPage . "_on.png", 30, "w3000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
+        if !NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w3000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
         {
             Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
             return 0

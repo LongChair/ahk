@@ -8,13 +8,13 @@
 ;*******************************************************************************
 GetNovaScreen()
 {   
-	if NovaFindClick("screen_markers\daily_mission.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
+	if NovaFindClick("screen_markers\daily_mission.png", 30, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "STATION"
 	
-	if NovaFindClick("screen_markers\galaxy_qmark.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
+	if NovaFindClick("screen_markers\galaxy_qmark.png", 30, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "GALAXIE"
 	
-	if NovaFindClick("screen_markers\my_station.png", 20, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
+	if NovaFindClick("screen_markers\my_station.png", 30, "n0", FoundX, FoundY, 0, 800, 1780, 1050)
 		return "SYSTEME"
 	
     return "UNKNOWN"

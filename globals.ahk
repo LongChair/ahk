@@ -6,6 +6,7 @@ global BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
 
 ; Loop time and activation
 global LoopTime := 0
+global Farming := 0
     
 ; Window Size
 global AppW := 1920

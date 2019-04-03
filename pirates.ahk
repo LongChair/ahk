@@ -170,14 +170,14 @@ KillPirate(X,Y, ByRef Killed)
 	}
     
     ; Select All Fleets
-    if !NovaFindClick("buttons\AllFleets.png", 50, "w2000 n1")
+    if !NovaFindClick("buttons\AllFleets.png", 70, "w4000 n1")
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
 	
     ; Click Ok 
-    if !NovaFindClick("buttons\OKFleets.png", 50, "w2000 n1")
+    if !NovaFindClick("buttons\OKFleets.png", 20, "w2000 n1")
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
@@ -204,6 +204,7 @@ KillPirate(X,Y, ByRef Killed)
     }
     
     ; click attack button
+	Sleep, 1000
     Log("Selecting Tank...")
     ScrollCount := 0
     while (!NovaFindClick("buttons\Tank.png", 70, "w1000 n1"))

@@ -130,7 +130,7 @@ DoSequence()
 {
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
-	global PlayerName
+	global PlayerName, Farming
     
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
@@ -166,7 +166,7 @@ DoSequence()
         
         DoScan := 1
         
-        if (DoScan())
+        if (DoScan)
         {
             if (!ScanResourcesInSystem(""))
             {
@@ -178,9 +178,7 @@ DoSequence()
         {
             LoadRessourcesLists()
         }
-		
-        Farming := 1
-        
+		      
         if (Farming)
         {
             ; collect pirate resource and farm them
@@ -273,6 +271,7 @@ ReadConfig()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
 	global PlayerName
 	global KilledCount
+	global Farming
     
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -283,6 +282,7 @@ ReadConfig()
     
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
+	IniRead, Farming, %FullPath%, PARAMETERS, Farming, 0
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -315,6 +315,7 @@ WriteConfig()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
 	global PlayerName
     global KilledCount
+	global Farming
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -325,6 +326,7 @@ WriteConfig()
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
+	IniWrite, %Farming%, %FullPath%, PARAMETERS, Farming
 	
 	; Free resource counters
 	for i, res in PossibleRes
