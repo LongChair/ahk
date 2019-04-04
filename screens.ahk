@@ -32,8 +32,8 @@ WaitNovaScreen(Screen, Timeout)
 	Log("Waiting For nova Screen " . Screen . " to show up...")
 	While (GetNovaScreen() != Screen) AND (Remaining > 0)
     {
-		sleep, 500
-        Remaining := Remaining - 0.5
+		sleep, 100
+        Remaining := Remaining - 0.1
     }
     
     if (Remaining > 0)
@@ -65,8 +65,8 @@ GotoScreen(TargetScreen, Timeout)
     While (CurrentScreen = "UNKNOWN") AND (Remaining > 0)
     {
 		CurrentScreen := GetNovaScreen() 
-        Sleep, 500
-        Remaining := Remaining - 0.5
+        Sleep, 100
+        Remaining := Remaining - 0.1
     }
     
     if (Remaining <= 0)

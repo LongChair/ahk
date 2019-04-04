@@ -542,11 +542,12 @@ WaitForFleetsState(ImageState, TimeOut)
     }
     
     ; wait for all fleets to be idle
-    LoopCount := TimeOut
-    Loop, % LoopCount
+    TimeLeft := TimeOut * 10
+	
+    Loop
     {
 		CountFleets := 0
-		FleetIndex := 0
+		FleetIndex := 1
 		
 		Loop, % MaxPlayerFleets
 		{
@@ -566,8 +567,8 @@ WaitForFleetsState(ImageState, TimeOut)
         if (CountFleets = MaxPlayerFleets)
             break
             
-        Sleep, 1000
-        TimeOut := TimeOut - 1
+        Sleep, 100
+        TimeLeft := TimeLeft - 1
         
         if (TimeOut <= 0)
         {

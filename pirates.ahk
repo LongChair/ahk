@@ -153,7 +153,7 @@ KillPirate(X,Y, ByRef Killed)
             DeltaY := -OffsetClick
         }
 
-        NovaLeftMouseClick(MainWinW / 2 + DeltaX, MainWinH / 2 + DeltaY)
+        NovaLeftMouseClick((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY)
 			
 		Sleep, 1000
 		
@@ -165,7 +165,7 @@ KillPirate(X,Y, ByRef Killed)
 			Sleep, 1000
             
             ; Now recenter on pirate and close popup
-            NovaLeftMouseClick(MainWinW / 2 - DeltaX, MainWinH / 2 - DeltaY)
+            NovaLeftMouseClick((MainWinW / 2) - DeltaX, (MainWinH / 2) - DeltaY)
             NovaEscapeClick()
 			Sleep, 1000
                         
@@ -187,7 +187,7 @@ KillPirate(X,Y, ByRef Killed)
     ; TODO : implement it
     
     ; Select All Fleets
-    if !ClickOnly("buttons\AllFleets.png", 90)
+    if !ClickOnly("buttons\AllFleets.png", 50)
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
@@ -224,7 +224,7 @@ KillPirate(X,Y, ByRef Killed)
 	Sleep, 1000
     Log("Selecting Tank...")
     ScrollCount := 0
-    while (!NovaFindClick("buttons\Tank.png", 70, "w1000 n1"))
+    while (!NovaFindClick("buttons\Tank.png", 30, "w500 n1"))
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
