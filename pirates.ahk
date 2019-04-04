@@ -77,6 +77,13 @@ FarmPirates(PirateCount)
         
         CurrentPirate := CurrentPirate + 1
         
+         ; check if we have avengers
+        if (AvengersComing())
+        {
+            LOG("Avengers detected, Bringing fleets back to dock")
+            Ret := 1
+            goto FarmPirates_End
+        }        
     }
     
 FarmPirates_End:
@@ -151,7 +158,7 @@ KillPirate(X,Y, ByRef Killed)
 		Sleep, 1000
 		
 		; click group move
-		if !NovaFindClick("buttons\GroupMove.png", 50, "w2000 n1")
+		if !ClickOnly("buttons\GroupMove.png", 50, "w5000 n1")
 		{
             ; we clicked on something else, make sure there is no popup
 			NovaEscapeClick()
@@ -176,15 +183,18 @@ KillPirate(X,Y, ByRef Killed)
 		}
 	}
     
+    ; we could have the avengers popup here
+    ; TODO : implement it
+    
     ; Select All Fleets
-    if !NovaFindClick("buttons\AllFleets.png", 90, "w5000 n1")
+    if !ClickOnly("buttons\AllFleets.png", 90)
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
 	
     ; Click Ok 
-    if !ClickUntilChanged("buttons\OKFleets.png", 50, 5)
+    if !ClickUntilChanged("buttons\OKFleets.png")
     {
         Log("ERROR : failed to click OK to attack, exiting.", 2)
         return 0
@@ -279,4 +289,13 @@ ValidatePirate_End:
     Valid := 1
     
     return 1
+}
+
+;*******************************************************************************
+; AvengersComing : Detects if avengers are coming
+; return 1 if they are, 0 otherwise
+;*******************************************************************************
+AvengersComing()
+{
+    return 0
 }

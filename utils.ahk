@@ -482,18 +482,30 @@ RecallAllFleets()
     }
 		
 	FleetIndex := 1
-	Recalled := 0
 	
 	Loop
 	{	
 		FleetIndex := 1
-		
+		Recalled := 0
+            
 		Loop, % MaxPlayerFleets
 		{
 		
 			GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 			
-			ClickUntilChanged("buttons\recall_button.png", 70, 5, X1, Y1 , X2, Y2)
+            if (NovaFindClick("buttons\AQuai.png", 50, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
+            {
+                ; fleet is already docked
+                Recalled := Recalled + 1
+            }
+            Else
+            {
+                if NovaFindClick("buttons\recall_button.png", 70, "w100 n1", FoundX, FoundY, X1, Y1 , X2, Y2)
+                {
+                    LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
+                    Sleep, 500
+                }
+            }
 			
 			FleetIndex := FleetIndex + 1
 		}
@@ -534,19 +546,20 @@ WaitForFleetsState(ImageState, TimeOut)
     Loop, % LoopCount
     {
 		CountFleets := 0
-		FleetCount := 0
+		FleetIndex := 0
 		
 		Loop, % MaxPlayerFleets
 		{
-			Offset := FleetCount * 110
-			if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, 750, 180 + Offset, 1200, 290 + Offset)
+            GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
+            
+			if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
 			{
 				CountFleets := CountFleets + 1
 			}
 			Else
 				break
 				
-			FleetCount := FleetCount + 1
+			FleetIndex := FleetIndex + 1
 		}
 		       
             
@@ -609,7 +622,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
-        if !NovaFindClick("buttons\ceg.png", 30, "w10000 n0")
+        if !NovaFindClick("buttons\ceg.png", 50, "w10000 n0")
         {
             Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.", 2)
             return 0
@@ -681,10 +694,9 @@ GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
 }
 
 ;*******************************************************************************
-; ClickUntilChanged : will Wait for an image, click it, and then wait for 
-; it to go
+; ClickOnly: will Wait for an image, click it, 
 ;*******************************************************************************
-ClickUntilChanged(Image, Delta, Timeout, X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
+ClickOnly(Image, Delta := 50, Timeout := 5, X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
 {
 	global MainWinW, MainWinH
 	
@@ -693,16 +705,32 @@ ClickUntilChanged(Image, Delta, Timeout, X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
     if (Y2 = -1)
         Y2 := MainWinH - 1
 		
-	if (NovaFindClick(Image, Delta, "w5000 n1", FoundX, FoundY, X1, Y1, X2, Y2))
+	return NovaFindClick(Image, Delta, "w5000 n1", FoundX, FoundY, X1, Y1, X2, Y2)
+}
+
+
+;*******************************************************************************
+; ClickUntilChanged : will Wait for an image, click it, and then wait for 
+; it to go
+;*******************************************************************************
+ClickUntilChanged(Image, Delta := 50, Timeout := 5, X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
+{
+	global MainWinW, MainWinH
+	
+    if (X2 = -1)
+        X2 := MainWinW - 1
+    if (Y2 = -1)
+        Y2 := MainWinH - 1
+		
+	if (ClickOnly(Image, Delta, Timeout, X1, Y1, X2, Y2))
 	{
 		Loop
 		{
-			if (!NovaFindClick(Image, Delta, "w5000 n0", FoundX, FoundY, X1, Y1, X2, Y2))
+			if (!NovaFindClick(Image, Delta, "w1000 n0", FoundX, FoundY, X1, Y1, X2, Y2))
 			{
 				return 1
 			}
 			
-			Sleep, 1000
 			Timeout := Timeout - 1
 		
 			if (Timeout <= 0)

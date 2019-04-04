@@ -178,8 +178,10 @@ DoSequence()
         {
             LoadRessourcesLists()
         }
+        
+        
 		      
-        if (Farming)
+        if (Farming and !AvengersComing())
         {
             ; collect pirate resource and farm them
             if (!CollectRessourcesByType("PIRATERES"))
