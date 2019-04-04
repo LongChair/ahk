@@ -428,7 +428,6 @@ HandleScan(ResX, ResY)
         Log(Format("Found STATION at ({1:i},{2:i})", ResX, ResY))
 		StationX := ResX
 		StationY := ResY
-		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
     }
 	
 }

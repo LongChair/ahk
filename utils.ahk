@@ -481,27 +481,26 @@ RecallAllFleets()
         return 0
     }
 		
-	FleetIndex := 0
-    Loop, % MaxPlayerFleets
-    {
-        Offset := FleetIndex * 110
-        
-        ; click on fleet
-        NovaLeftMouseClick(1000, 230 + Offset)
-        
-        
-        LOG("Recalling one fleet...")
-        if (!NovaFindClick("buttons\fleet_rappeler.png", 80, "w3000 n1"))
-        {
-            LOG("ERROR : Could not find recall button while trying to recall fleet")
-            return 0
-        }
-        
-        FleetIndex := FleetIndex + 1
-    }
-    
+	FleetIndex := 1
+	Recalled := 0
+	
+	Loop
+	{	
+		FleetIndex := 1
+		
+		Loop, % MaxPlayerFleets
+		{
+		
+			GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
+			
+			ClickUntilChanged("buttons\recall_button.png", 70, 5, X1, Y1 , X2, Y2)
+			
+			FleetIndex := FleetIndex + 1
+		}
+	} until (Recalled >= MaxPlayerFleets)
+		
     ; now wait for them to be back to station
-    LOG(Format("We recalled {1} fleet.", FleetIndex ))
+    LOG(Format("We recalled {1} fleet(s).", Recalled))
     
 	PopRightMenu(0)	
 
@@ -544,6 +543,9 @@ WaitForFleetsState(ImageState, TimeOut)
 			{
 				CountFleets := CountFleets + 1
 			}
+			Else
+				break
+				
 			FleetCount := FleetCount + 1
 		}
 		       
@@ -616,4 +618,107 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         return 1
     }
 }
+
+;*******************************************************************************
+; PeekClosestRes : will peeks the closest ressource from the list to
+; the given position
+;*******************************************************************************
+PeekClosestRes(ByRef ResList, X, Y)
+{
+	FoundIndex := 0
+	CurrentRes := 1
+	MinDist := 99999999999999
+	
+	Loop, % ResList.Length()
+	{
+	
+		RefValues := StrSplit(ResList[CurrentRes], ",")
+		ResX := RefValues[2]
+		ResY := RefValues[3]
+		
+		DX := ResX - X
+		DY := ResY - Y
+		
+		Dist := sqrt(DX*DX + DY*DY)
+		
+		if (Dist < MinDist)
+		{
+			MinDist := Dist
+			FoundIndex := CurrentRes
+		}
+
+		CurrentRes := CurrentRes + 1
+	}
+	
+	; remove ressource and return it
+	return ResList.RemoveAt(FoundIndex)
+}
+
+;*******************************************************************************
+; GetFleetArea : will return the area of the given fleet index
+;*******************************************************************************
+GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
+{
+	if (FleetIndex > MaxPlayerFleets)
+	{
+		X1 := 0
+		Y1 := 0
+		X2 := 0
+		Y2 := 0
+		
+	}
+	Else
+	{
+		X1 := 783
+		Y1 := 190
+		X2 := 1490
+		Y2 := 300
+		
+		Y1 := Y1 + 115 * (FleetIndex - 1)
+		Y2 := Y2 + 115 * (FleetIndex - 1)
+	}
+	
+}
+
+;*******************************************************************************
+; ClickUntilChanged : will Wait for an image, click it, and then wait for 
+; it to go
+;*******************************************************************************
+ClickUntilChanged(Image, Delta, Timeout, X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
+{
+	global MainWinW, MainWinH
+	
+    if (X2 = -1)
+        X2 := MainWinW - 1
+    if (Y2 = -1)
+        Y2 := MainWinH - 1
+		
+	if (NovaFindClick(Image, Delta, "w5000 n1", FoundX, FoundY, X1, Y1, X2, Y2))
+	{
+		Loop
+		{
+			if (!NovaFindClick(Image, Delta, "w5000 n0", FoundX, FoundY, X1, Y1, X2, Y2))
+			{
+				return 1
+			}
+			
+			Sleep, 1000
+			Timeout := Timeout - 1
+		
+			if (Timeout <= 0)
+			{
+				LOG("ERROR : Timeout reached waiting for " . Image . " to disappear", 2)
+				break
+			}
+		}
+	}
+	Else
+	{
+		LOG("ERROR : cannot find " . Image . " to click it", 2)
+	}
+	
+ClickUntilChanged_Failure:
+	return 0
+}
+
 

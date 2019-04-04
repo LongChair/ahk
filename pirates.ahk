@@ -8,6 +8,7 @@ FarmPirates(PirateCount)
 {
     global Pirates
     global KilledCount
+	global StationX, StationY
     
     Ret := 0
     
@@ -31,6 +32,9 @@ FarmPirates(PirateCount)
     
     CurrentPirate := 1
     KilledPirate := 0
+	CurrentX := StationX
+	CurrentY := StationY
+	
     Loop
 	{
         ; we reached the end of the pirates list, then exit
@@ -43,7 +47,7 @@ FarmPirates(PirateCount)
         
         ; get the pirate coordinates
         Log(Format("Processing pirate #{1}/{2}...", KilledPirate + 1 , PirateCount))
-        RefValues := StrSplit(Pirates[CurrentPirate], ",")
+        RefValues := StrSplit(PeekClosestRes(Pirates, CurrentX, CurrentY) , ",")
 		ResX := RefValues[2]
 		ResY := RefValues[3]
 
@@ -54,6 +58,9 @@ FarmPirates(PirateCount)
             Goto FarmPirates_End
         }
         
+		CurrentX := ResX
+		CurrentY := ResY
+		
         ; check if it's been killed
         if (Killed)
         {
@@ -170,16 +177,16 @@ KillPirate(X,Y, ByRef Killed)
 	}
     
     ; Select All Fleets
-    if !NovaFindClick("buttons\AllFleets.png", 70, "w4000 n1")
+    if !NovaFindClick("buttons\AllFleets.png", 90, "w5000 n1")
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
 	
     ; Click Ok 
-    if !NovaFindClick("buttons\OKFleets.png", 20, "w2000 n1")
+    if !ClickUntilChanged("buttons\OKFleets.png", 50, 5)
     {
-        Log("ERROR : failed to select all fleets, exiting.", 2)
+        Log("ERROR : failed to click OK to attack, exiting.", 2)
         return 0
     }
     
@@ -197,7 +204,7 @@ KillPirate(X,Y, ByRef Killed)
     
     ; click attack button
     Log("Attacking it ...")
-    if !NovaFindClick("buttons\attack.png", 70, "w2000 n1")
+    if !ClickUntilChanged("buttons\attack.png", 70, 5)
     {
         Log("ERROR : failed to find attack button, exiting.", 2)
         return 0
