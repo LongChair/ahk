@@ -350,7 +350,9 @@ FindRessources()
     global AreaX1, AreaY1, AreaX2, AreaY2
 	global Farming
     
-	
+	CurrentResType := "STATION"
+	NovaFindClick("pirates\station.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		
 	if (Farming)
 	{
 		CurrentResType := "PIRATE"
@@ -398,6 +400,7 @@ HandleScan(ResX, ResY)
 	global MainWinX, MainWinY
     global MainWinW, MainWinH
     global Ressources, Collecting
+	global StationX, StationY
     
 	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX
 	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
@@ -417,6 +420,14 @@ HandleScan(ResX, ResY)
 	if CurrentResType in PIRATE
     {
         Log(Format("Found a pirate at ({1:i},{2:i}) Total={4}", ResX, ResY, Pirates.Length()))
+		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
+    }
+	
+	if CurrentResType in STATION
+    {
+        Log(Format("Found STATION at ({1:i},{2:i})", ResX, ResY))
+		StationX := ResX
+		StationY := ResY
 		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
     }
 	

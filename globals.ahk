@@ -48,3 +48,6 @@ global Window_ID := 0
 global ResPriority1 := ""
 global ResPriority2 := ""
 global ResPriority3 := ""
+
+global StationX := 0
+global StationY := 0
