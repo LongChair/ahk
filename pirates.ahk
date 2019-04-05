@@ -49,8 +49,16 @@ FarmPirates(PirateCount)
         }
         
         ; get the pirate coordinates
-        Log(Format("Processing pirate #{1}/{2}...", KilledPirate + 1 , PirateCount))
+        Log(Format("Processing pirate #{1}/{2} ({3} left)...", KilledPirate + 1 , PirateCount, Pirates.Lenght()))
         RefValues := StrSplit(PeekClosestRes(Pirates, CurrentX, CurrentY) , ",")
+		
+		if (RefValues = "")
+		{
+			Log("No more pirates to kill, ending farming")
+			Ret := 1
+			goto FarmPirates_End
+		}
+		
 		ResX := RefValues[2]
 		ResY := RefValues[3]
 

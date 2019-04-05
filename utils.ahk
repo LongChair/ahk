@@ -45,7 +45,8 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 ;*******************************************************************************
 NovaEscapeClick()
 {
-	;NovaLeftMouseClick(452, 635)
+	global Window_ID
+	WinActivate, ahk_id %Window_ID%
 	Send, {Esc}
 }
 
@@ -377,7 +378,7 @@ GotoSystem(SystemName)
     }
 
 
-    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w10000 n1"))
+    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w15000 n1"))
     {
         
         if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
@@ -523,17 +524,9 @@ RecallAllFleets()
 ;*******************************************************************************
 ; WaitForFleetsIdle : wait for all fleets to be idle
 ;*******************************************************************************
-WaitForFleetsIdle()
+WaitForFleetsIdle(TimeOut := 300)
 {
-    return WaitForFleetsState("buttons\EnAttente.png", 300)
-}
-
-;*******************************************************************************
-; WaitForFleetsState : wait for all fleets to be in the given image state
-;*******************************************************************************
-WaitForFleetsState(ImageState, TimeOut)
-{
-    global MaxPlayerFleets
+	global MaxPlayerFleets
     
     ; Open the fleets tab
     if !PopRightMenu(1, "FLEETS")
@@ -547,41 +540,57 @@ WaitForFleetsState(ImageState, TimeOut)
 	
     Loop
     {
-		CountFleets := 0
-		FleetIndex := 1
 		
-		Loop, % MaxPlayerFleets
+		Idle := CountFleetsState("buttons\EnAttente.png")
+		
+		if (Idle >= MaxPlayerFleets)
 		{
-            GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
-            
-			if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
-			{
-				CountFleets := CountFleets + 1
-			}
-			Else
-				break
-				
-			FleetIndex := FleetIndex + 1
+			break
 		}
-		       
-            
-        if (CountFleets = MaxPlayerFleets)
-            break
-            
+          
         Sleep, 100
         TimeLeft := TimeLeft - 1
         
         if (TimeOut <= 0)
         {
             Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
+			PopRightMenu(0)	
             return 0
         }
     }
 	
+
     ; fold again right menu
 	PopRightMenu(0)	
     
     return 1  
+}
+
+;*******************************************************************************
+; CountFleetsState : Count Fleets in a given state by image
+;*******************************************************************************
+CountFleetsState(ImageState)
+{
+    global MaxPlayerFleets
+    
+    ; Open the fleets tab
+	CountFleets := 0
+	FleetIndex := 1
+	
+	Loop, % MaxPlayerFleets
+	{
+		GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
+		
+		if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
+		{
+			CountFleets := CountFleets + 1
+		}
+			
+		FleetIndex := FleetIndex + 1
+	}
+		       
+            
+    return CountFleets
 }
 
 
@@ -619,15 +628,13 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     {
         Log("Hiding Main right menu ...")
         
-        ; click to close teh menu
-        NovaEscapeClick()
         
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
-        if !NovaFindClick("buttons\ceg.png", 50, "w10000 n0")
+        while (!NovaFindClick("buttons\ceg.png", 10, "w1000 n0"))
         {
-            Log("ERROR : Timeout for menu bar to disappear, exceeded 10 seconds.", 2)
-            return 0
+			; close teh menu
+			NovaEscapeClick()
         }
         
         return 1
@@ -667,7 +674,10 @@ PeekClosestRes(ByRef ResList, X, Y)
 	}
 	
 	; remove ressource and return it
-	return ResList.RemoveAt(FoundIndex)
+	if (FoundIndex> 0)
+		return ResList.RemoveAt(FoundIndex)
+	Else
+		return ""
 }
 
 ;*******************************************************************************
@@ -760,14 +770,27 @@ ClickMenuImage(X,Y, Image)
     Ret := 0
     
     ; Click on the pirate
-    NovaLeftMouseClick(X, Y)
-    
-    ; make sure we have the menu
-    if (!NovaFindClick("buttons\context_menu.png", 50, "w2000 n0"))
-    {
-        LOG("ERROR : could not find menu, while trying to click on " . Image, 2)
-        return 0
-    }
+	Count := 1
+	Loop
+	{
+		NovaLeftMouseClick(X, Y)
+		
+		; make sure we have the menu
+		if (!NovaFindClick("buttons\context_menu.png", 50, "w2000 n0"))
+		{
+			If (Count = 3)
+			{
+				LOG("ERROR : could not find menu, while trying to click on " . Image, 2)
+				return 0
+			}
+		}
+		Else
+		{
+			break
+		}
+			
+		Count := Count + 1
+	}
     
     ; we look for the image
     if (!NovaFindClick(Image, 50, "w3000 n1"))

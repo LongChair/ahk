@@ -419,7 +419,7 @@ HandleScan(ResX, ResY)
 	
 	if CurrentResType in PIRATE
     {
-        Log(Format("Found a pirate at ({1:i},{2:i}) Total={4}", ResX, ResY, Pirates.Length()))
+        Log(Format("Found a pirate at ({1:i},{2:i}) Total={3}", ResX, ResY, Pirates.Length()))
 		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
     }
 	
