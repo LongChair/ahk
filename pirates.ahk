@@ -165,7 +165,7 @@ KillPirate(X,Y, ByRef Killed)
 
 		Sleep, 1000
         
-        if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png")
+        if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png"))
         {
             Log("ERROR : failed to start group move", 2)
         }
@@ -204,7 +204,7 @@ KillPirate(X,Y, ByRef Killed)
     }
     
     ; Click on the pirate
-    if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\attack.png")
+    if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\attack.png"))
     {
         Log("ERROR : failed to find attack pirate, exiting.", 2)
         return 0
