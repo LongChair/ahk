@@ -751,4 +751,41 @@ ClickUntilChanged_Failure:
 	return 0
 }
 
+;*******************************************************************************
+; ClickMenuImage : Click at X,Y and select the given menu image
+;*******************************************************************************
+ClickMenuImage(X,Y, Image)
+{
+    Ret := 0
+    
+    ; Click on the pirate
+    NovaLeftMouseClick(X, Y)
+    
+    ; make sure we have the menu
+    if (!NovaFindClick("buttons\context_menu.png", 50, "w2000 n0"))
+    {
+        LOG("ERROR : could not find menu, while trying to click on " . Image, 2)
+        return 0
+    }
+    
+    ; we look for the image
+    if (!NovaFindClick(Image, 50, "w3000 n1"))
+    {
+        LOG("ERROR : Could Not find the menu image " . Image . ", different menu popped up ?", 2)        
+    }
+    Else
+    {
+        Ret := 1
+    }
+    
+    
+    ; wait for menu to vanish
+    while (NovaFindClick("buttons\context_menu.png", 50, "w1000 n0"))
+    {
+        NovaEscapeClick()
+    }
+    
+    return Ret
+}
+
 

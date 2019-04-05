@@ -155,36 +155,26 @@ KillPirate(X,Y, ByRef Killed)
             DeltaX := -OffsetClick
             DeltaY := -OffsetClick
         }
+        
+        if (Count = 4)
+        {
+            Log("ERROR : all attempts to do the group move failed, exiting ...", 2)
+            return 0
+        }
+
 
 		Sleep, 1000
-        NovaLeftMouseClick((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY)			
-		Sleep, 1000
-		
-		; click group move
-		if !ClickOnly("buttons\GroupMove.png", 50, "w5000 n1")
-		{
-            ; we clicked on something else, make sure there is no popup
-			NovaEscapeClick()
-			Sleep, 1000
-            
-            ; Now recenter on pirate and close popup
-            NovaLeftMouseClick((MainWinW / 2) - DeltaX, (MainWinH / 2) - DeltaY)
-			Sleep, 1000
-            NovaEscapeClick()
-			
-                        
-			Count := Count + 1
-			
-			if (Count = 4)	
-			{
-				Log("ERROR : failed to select group move on fleets, exiting.", 2)
-				return 0
-			}
-		}
-		Else
+        
+        if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png")
+        {
+            Log("ERROR : failed to start group move", 2)
+        }
+        else
 		{
 			break
 		}
+        
+        Count := Count + 1
 	}
     
     ; we could have the avengers popup here
@@ -214,13 +204,9 @@ KillPirate(X,Y, ByRef Killed)
     }
     
     ; Click on the pirate
-    NovaLeftMouseClick(MainWinW / 2, MainWinH / 2)
-    
-    ; click attack button
-    Log("Attacking it ...")
-    if !ClickUntilChanged("buttons\attack.png", 70, 5)
+    if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\attack.png")
     {
-        Log("ERROR : failed to find attack button, exiting.", 2)
+        Log("ERROR : failed to find attack pirate, exiting.", 2)
         return 0
     }
     
