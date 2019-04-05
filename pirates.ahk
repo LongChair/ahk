@@ -12,6 +12,9 @@ FarmPirates(PirateCount)
     
     Ret := 0
     
+    if (KilledCount > 40)
+        goto FarmPirates_End
+        
     ; Go to current system
     if !GotoSystem("")
     {
