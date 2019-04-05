@@ -655,8 +655,9 @@ PeekClosestRes(ByRef ResList, X, Y)
 		DY := ResY - Y
 		
 		Dist := sqrt(DX*DX + DY*DY)
-		
-		if (Dist < MinDist)
+		Radius := sqrt(ResX*ResX + ResY*ResY)
+        
+		if ((Dist < MinDist) and (Radius < 1800))
 		{
 			MinDist := Dist
 			FoundIndex := CurrentRes
