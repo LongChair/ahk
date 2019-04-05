@@ -156,8 +156,8 @@ KillPirate(X,Y, ByRef Killed)
             DeltaY := -OffsetClick
         }
 
-        NovaLeftMouseClick((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY)
-			
+		Sleep, 1000
+        NovaLeftMouseClick((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY)			
 		Sleep, 1000
 		
 		; click group move
@@ -169,8 +169,9 @@ KillPirate(X,Y, ByRef Killed)
             
             ; Now recenter on pirate and close popup
             NovaLeftMouseClick((MainWinW / 2) - DeltaX, (MainWinH / 2) - DeltaY)
-            NovaEscapeClick()
 			Sleep, 1000
+            NovaEscapeClick()
+			
                         
 			Count := Count + 1
 			
