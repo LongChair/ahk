@@ -264,8 +264,10 @@ ValidatePirate(X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if !NovaFindClick("pirates\valid\Pirate.png", 50, "w2000 n0")
-        return 0
+    if NovaFindClick("pirates\valid\Pirate.png", 50, "w2000 n0")
+    {
+		Valid := 1
+	}
         
     ; we check if it's know to be valid
     ;Loop, Files, %A_ScriptDir%\images\pirates\valid\pirate_*.png"
@@ -284,7 +286,6 @@ ValidatePirate(X, Y, ByRef Valid)
     ; close the popup
 ValidatePirate_End:
     NovaEscapeClick()
-    Valid := 1
     
     return 1
 }

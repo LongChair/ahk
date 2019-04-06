@@ -501,25 +501,28 @@ RecallAllFleets()
 		
 			GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 			
-            if (NovaFindClick("buttons\AQuai.png", 50, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
-            {
-                ; fleet is already docked
-                Recalled[FleetIndex] := 1
-            }
-            Else
-            {
-				; click on the fleet
-				NovaLeftMouseClick(X1 + 20, Y1 +20)
-				
-				
-                if NovaFindClick("buttons\fleet_window_recall.png", 70, "w2000 n1")
-                {
-                    LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
+			if (!Recalled[FleetIndex])
+			{
+				if (NovaFindClick("buttons\AQuai.png", 50, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
+				{
+					; fleet is already docked
 					Recalled[FleetIndex] := 1
-                    Sleep, 500
-					NovaEscapeClick()
-                }
-            }
+				}
+				Else
+				{
+					; click on the fleet
+					NovaLeftMouseClick(X1 + 20, Y1 +20)
+					
+					
+					if NovaFindClick("buttons\fleet_window_recall.png", 70, "w2000 n1")
+					{
+						LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
+						Recalled[FleetIndex] := 1
+						Sleep, 500
+						NovaEscapeClick()
+					}
+				}
+			}
 			
 			FleetIndex := FleetIndex + 1
 		}
