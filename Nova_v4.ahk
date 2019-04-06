@@ -135,7 +135,7 @@ DoSequence()
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
-    {       
+    {   
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {

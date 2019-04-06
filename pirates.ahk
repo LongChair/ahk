@@ -189,7 +189,7 @@ KillPirate(X,Y, ByRef Killed)
     ; TODO : implement it
     
     ; Select All Fleets
-    if !ClickOnly("buttons\AllFleets.png", 50)
+    if !ClickOnly("buttons\AllFleets.png", 80)
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
@@ -268,18 +268,18 @@ ValidatePirate(X, Y, ByRef Valid)
         return 0
         
     ; we check if it's know to be valid
-    Loop, Files, %A_ScriptDir%\images\pirates\valid\pirate_*.png"
-    {
-		FileName := "pirates\valid\" . A_LoopFileName
-        if NovaFindClick(FileName, 50, "w100 n0")
-		{
-			Log(Format("Validated a pirate matching {1}", A_LoopFileName))
-            goto ValidatePirate_End
-		}
-    }
+    ;Loop, Files, %A_ScriptDir%\images\pirates\valid\pirate_*.png"
+    ;{
+		;FileName := "pirates\valid\" . A_LoopFileName
+        ;if NovaFindClick(FileName, 50, "w100 n0")
+		;{
+			;Log(Format("Validated a pirate matching {1}", A_LoopFileName))
+            ;goto ValidatePirate_End
+		;}
+    ;}
     
     ; if we come here, then we haven't found any valid
-    return 0
+    ;return 0
     
     ; close the popup
 ValidatePirate_End:

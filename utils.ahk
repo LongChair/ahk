@@ -484,6 +484,12 @@ RecallAllFleets()
     }
 		
 	FleetIndex := 1
+	Loop, % MaxPlayerFleets
+	{
+		Recalled[FleetIndex] := 0
+		FleetIndex := FleetIndex  + 1
+	}
+	
 	
 	Loop
 	{	
@@ -498,20 +504,36 @@ RecallAllFleets()
             if (NovaFindClick("buttons\AQuai.png", 50, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
             {
                 ; fleet is already docked
-                Recalled := Recalled + 1
+                Recalled[FleetIndex] := 1
             }
             Else
             {
-                if NovaFindClick("buttons\recall_button.png", 70, "w100 n1", FoundX, FoundY, X1, Y1 , X2, Y2)
+				; click on the fleet
+				NovaLeftMouseClick(X1 + 20, Y1 +20)
+				
+				
+                if NovaFindClick("buttons\fleet_window_recall.png", 70, "w2000 n1")
                 {
                     LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
+					Recalled[FleetIndex] := 1
                     Sleep, 500
+					NovaEscapeClick()
                 }
             }
 			
 			FleetIndex := FleetIndex + 1
 		}
-	} until (Recalled >= MaxPlayerFleets)
+		
+		FleetIndex := 1
+		Count := 0
+		Loop, % MaxPlayerFleets
+		{
+			if (Recalled[FleetIndex])
+				Count := Count + 1
+			FleetIndex := FleetIndex  + 1
+		}
+	
+	} until (Count >= MaxPlayerFleets)
 		
     ; now wait for them to be back to station
     LOG(Format("We recalled {1} fleet(s).", Recalled))
@@ -778,7 +800,7 @@ ClickMenuImage(X,Y, Image)
 		; make sure we have the menu
 		if (!NovaFindClick("buttons\context_menu.png", 50, "w2000 n0"))
 		{
-			If (Count = 3)
+			If (Count >= 3)
 			{
 				LOG("ERROR : could not find menu, while trying to click on " . Image, 2)
 				return 0
@@ -793,7 +815,7 @@ ClickMenuImage(X,Y, Image)
 	}
     
     ; we look for the image
-    if (!NovaFindClick(Image, 50, "w3000 n1"))
+    if (!NovaFindClick(Image, 70, "w3000 n1"))
     {
         LOG("ERROR : Could Not find the menu image " . Image . ", different menu popped up ?", 2)        
     }
