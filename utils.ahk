@@ -475,8 +475,7 @@ RecallAllFleets()
 {
     global MaxPlayerFleets
     
-    LOG("Recalling fleets...")
-	; popup the main menu
+    ; popup the main menu
     if !PopRightMenu(1, "FLEETS")
     {
         Log("ERROR : failed to popup main menu for fleets. exiting", 2)
@@ -484,17 +483,17 @@ RecallAllFleets()
     }
 		
 	FleetIndex := 1
+	Recalled := []
 	Loop, % MaxPlayerFleets
 	{
 		Recalled[FleetIndex] := 0
 		FleetIndex := FleetIndex  + 1
 	}
 	
-	
+	LOG("Recalling fleets...")
 	Loop
 	{	
 		FleetIndex := 1
-		Recalled := 0
             
 		Loop, % MaxPlayerFleets
 		{
@@ -520,7 +519,14 @@ RecallAllFleets()
 						Recalled[FleetIndex] := 1
 						Sleep, 500
 						NovaEscapeClick()
+						
+						; wait for window to vanish
+						while (!NovaFindClick("buttons\fleets_on.png", 30, "w100 n1"))
+						{
+							Sleep, 500
+						}
 					}
+					
 				}
 			}
 			
@@ -563,9 +569,9 @@ WaitForFleetsIdle(TimeOut := 300)
     ; wait for all fleets to be idle
     TimeLeft := TimeOut * 10
 	
+	Log("Waiting for all fleets to be idle ...")
     Loop
     {
-		
 		Idle := CountFleetsState("buttons\EnAttente.png")
 		
 		if (Idle >= MaxPlayerFleets)
@@ -606,7 +612,7 @@ CountFleetsState(ImageState)
 	{
 		GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 		
-		if NovaFindClick(ImageState, 80, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
+		if NovaFindClick(ImageState, 50, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
 		{
 			CountFleets := CountFleets + 1
 		}
@@ -629,17 +635,20 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     if (Visible)
     {
         Log("Showing Main right menu ...")
-        ; click the button to show up the menu
-        NovaLeftMouseClick(1700, 510)
-        Sleep, 500
+		while (NovaFindClick("buttons\ceg.png", 10, "w1000 n0", FoundX, FoundY, 1650, 50, 1750, 140))
+        {
+			; click the button to show up the menu
+			NovaLeftMouseClick(1700, 510)
+			Sleep, 2000
+		}
         		
         ; wait for eventual unselected economy tab
-        if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w3000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
+        if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w2000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
         {
             Log("Selected " . TabPage . " tab in right menu")
         }
         
-        if !NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w3000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
+        if !NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w2000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
         {
             Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
             return 0
@@ -656,10 +665,12 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
-        while (!NovaFindClick("buttons\ceg.png", 10, "w1000 n0"))
+        while (!NovaFindClick("buttons\ceg.png", 10, "w500 n0", FoundX, FoundY, 1650, 50, 1750, 140))
         {
 			; close teh menu
 			NovaEscapeClick()
+			
+			Sleep, 2000
         }
         
         return 1
@@ -725,8 +736,8 @@ GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
 		X2 := 1490
 		Y2 := 300
 		
-		Y1 := Y1 + 115 * (FleetIndex - 1)
-		Y2 := Y2 + 115 * (FleetIndex - 1)
+		Y1 := Y1 + (115 * (FleetIndex - 1))
+		Y2 := Y2 + (115 * (FleetIndex - 1))
 	}
 	
 }
@@ -798,10 +809,11 @@ ClickMenuImage(X,Y, Image)
 	Count := 1
 	Loop
 	{
+		
 		NovaLeftMouseClick(X, Y)
 		
 		; make sure we have the menu
-		if (!NovaFindClick("buttons\context_menu.png", 50, "w2000 n0"))
+		if (!NovaFindClick("buttons\favori.png", 80, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
 		{
 			If (Count >= 3)
 			{
@@ -810,7 +822,7 @@ ClickMenuImage(X,Y, Image)
 			}
 		}
 		Else
-		{
+		{ 
 			break
 		}
 			
@@ -818,7 +830,7 @@ ClickMenuImage(X,Y, Image)
 	}
     
     ; we look for the image
-    if (!NovaFindClick(Image, 70, "w3000 n1"))
+    if (!NovaFindClick(Image, 70, "w3000 n1", FoundX, FoundY, 500,175, 1600, 875))
     {
         LOG("ERROR : Could Not find the menu image " . Image . ", different menu popped up ?", 2)        
     }
@@ -829,12 +841,34 @@ ClickMenuImage(X,Y, Image)
     
     
     ; wait for menu to vanish
-    while (NovaFindClick("buttons\context_menu.png", 50, "w1000 n0"))
-    {
-        NovaEscapeClick()
-    }
-    
+	NovaEscapeMenu()
+	
     return Ret
 }
 
-
+;*******************************************************************************
+; NovaEscapeMenu : Click at X,Y and select the given menu image
+;*******************************************************************************
+NovaEscapeMenu()
+{
+	 ; wait for menu to vanish
+    if (NovaFindClick("buttons\favori.png", 50, "w3000 n0", FoundX, FoundY, 500,175, 1600, 875))
+    {
+        NovaEscapeClick()
+    }
+	
+	Count := 0
+	while (NovaFindClick("buttons\favori.png", 50, "n0", FoundX, FoundY, 500,175, 1600, 875) and (Count < 10))
+	{
+		Sleep, 500
+		Count :=  Count + 1
+	}
+	
+	if (Count >= 10)
+	{
+		Log("ERROR : timeout while trying to escape menu, exiting")
+		return 0
+	}
+	
+	return 1
+}

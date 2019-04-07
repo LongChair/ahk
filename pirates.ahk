@@ -30,6 +30,15 @@ FarmPirates(PirateCount)
         
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
+
+    ; check if we have avengers
+	if (AvengersComing())
+	{
+		LOG("Avengers detected, Bringing fleets back to dock")
+		Ret := 1
+		goto FarmPirates_End
+	}        
+	
     MapPosX := 0
 	MapPosY := 0
     
@@ -167,7 +176,18 @@ KillPirate(X,Y, ByRef Killed)
         if (Count = 4)
         {
             Log("ERROR : all attempts to do the group move failed, exiting ...", 2)
-            return 0
+			
+			; we need to reset the position
+			; Go to current system
+			if !GotoSystem("")
+			{
+				return 0
+			}
+			
+			MapPosX := 0
+			MapPosY := 0
+	
+            return 1
         }
 
 
@@ -189,21 +209,22 @@ KillPirate(X,Y, ByRef Killed)
     ; TODO : implement it
     
     ; Select All Fleets
-    if !ClickOnly("buttons\AllFleets.png", 80)
+	LOG("Selecting all fleets ...")
+    if !ClickOnly("buttons\AllFleets.png", 80, 5, 350, 725, 750, 820)
     {
         Log("ERROR : failed to select all fleets, exiting.", 2)
         return 0
     }
 	
     ; Click Ok 
-    if !ClickUntilChanged("buttons\OKFleets.png")
+	Log("Validating all fleets ...")
+    if !ClickUntilChanged("buttons\OKFleets.png", 90, 5,  730, 800, 1020, 920)
     {
         Log("ERROR : failed to click OK to attack, exiting.", 2)
         return 0
     }
     
-    ; now Wait for all fleets to be there
-	Sleep, 1000
+    ; now Wait for all fleets to be theres
     Log("Waiting for fleets to complete move...")
     if (!WaitForFleetsIdle())
     {
@@ -218,6 +239,11 @@ KillPirate(X,Y, ByRef Killed)
         return 0
     }
     
+	if (NovaFindClick("buttons\avengers_continue.png", 30, "w1000 n1"))
+	{
+		Log("Avengers trigger validation")
+	}
+		
     ; click attack button
 	Sleep, 1000
     Log("Selecting Tank...")
@@ -285,7 +311,7 @@ ValidatePirate(X, Y, ByRef Valid)
     
     ; close the popup
 ValidatePirate_End:
-    NovaEscapeClick()
+    NovaEscapeMenu()
     
     return 1
 }
@@ -296,5 +322,5 @@ ValidatePirate_End:
 ;*******************************************************************************
 AvengersComing()
 {
-    return 0
+	return NovaFindClick("buttons\avengers.png", 50, "w100 n0")
 }

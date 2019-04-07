@@ -136,6 +136,7 @@ DoSequence()
 	
     if LaunchNova()
     {   
+
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
@@ -181,7 +182,7 @@ DoSequence()
         
         
 		      
-        if (Farming and !AvengersComing())
+        if (Farming)
         {
             ; collect pirate resource and farm them
             if (!CollectRessourcesByType("PIRATERES"))
@@ -461,7 +462,7 @@ StopNova()
     sleep, 2000
     
     ; Click on the confirm button
-    if !NovaFindClick("buttons\yes.png", 0, "w10000 n1")
+    if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
     {
         Log("ERROR : Could not find exit confirm button, exiting...", 2)
     }

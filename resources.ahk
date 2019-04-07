@@ -82,17 +82,19 @@ Toggle2DMode()
             Log("ERROR : Failed to find the 3D dot to click, stopping", 2)
             return 0
         }
+		
+		; wait eventually for system screen
+		if !WaitNovaScreen("SYSTEME", 10)
+		{
+			return 0
+		}
+
     }
     else
     {
         Log("Already in 2D")
     }
 
-    ; wait eventually for system screen
-    if !WaitNovaScreen("SYSTEME", 10)
-    {
-        return 0
-    }
     
     return 1
 }
@@ -356,7 +358,7 @@ FindRessources()
 	if (Farming)
 	{
 		CurrentResType := "PIRATE"
-		NovaFindClick("pirates\pirate.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		NovaFindClick("pirates\pirate.png", 70, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
 		CurrentResType := "PIRATERES"
 		NovaFindClick("resources\pirate.png", 30, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
