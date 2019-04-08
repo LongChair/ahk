@@ -612,7 +612,7 @@ CountFleetsState(ImageState)
 	{
 		GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 		
-		if NovaFindClick(ImageState, 50, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
+		if NovaFindClick(ImageState, 50, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
 		{
 			CountFleets := CountFleets + 1
 		}
@@ -641,19 +641,25 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 			NovaLeftMouseClick(1700, 510)
 			Sleep, 2000
 		}
-        		
-        ; wait for eventual unselected economy tab
-        if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w2000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
-        {
-            Log("Selected " . TabPage . " tab in right menu")
-        }
         
-        if !NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w2000 n0", FoundX, FoundY, 1500, 145, 1760, 680)
-        {
-            Log("ERROR : Could not find the " . TabPage . " button, exiting.", 2)
-            return 0
-        }
-        
+		Loop 
+		{
+			if (!NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w100 n0", FoundX, FoundY, 1500, 145, 1760, 680))
+			{
+				; wait for eventual unselected economy tab
+				if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w2000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
+				{
+					Log("Selected " . TabPage . " tab in right menu")
+				}
+			}
+			Else
+			{
+				break
+			}
+			
+			Sleep, 500
+		}
+	    
         ; we found button, that's done
         return 1
         

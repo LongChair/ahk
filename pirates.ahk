@@ -89,7 +89,7 @@ FarmPirates(PirateCount)
             
             if (KilledPirate >= PirateCount)
             {
-                LOG(Format("Done with killing {1} pirates, Total={2}]", PirateCount, KilledCount))
+                LOG(Format("Done with killing {1} pirates, Total={2}", PirateCount, KilledCount))
                 Ret := 1
                 Goto FarmPirates_End
             }
@@ -128,7 +128,7 @@ KillPirate(X,Y, ByRef Killed)
     Killed := 0
     
      ; go to the ressource position
-    Log(Format("Going to kill pirate at ({1:i}, {2:i} ...", X, Y), 1)
+    Log(Format("Going to kill pirate at ({1:i}, {2:i}) ...", X, Y), 1)
     MapMoveToXY(X, Y)
 
     ; validate if pirate is to be killed
@@ -173,7 +173,7 @@ KillPirate(X,Y, ByRef Killed)
             DeltaY := -OffsetClick
         }
         
-        if (Count = 4)
+        if (Count = 1)
         {
             Log("ERROR : all attempts to do the group move failed, exiting ...", 2)
 			
@@ -210,11 +210,31 @@ KillPirate(X,Y, ByRef Killed)
     
     ; Select All Fleets
 	LOG("Selecting all fleets ...")
-    if !ClickOnly("buttons\AllFleets.png", 80, 5, 350, 725, 750, 820)
-    {
-        Log("ERROR : failed to select all fleets, exiting.", 2)
-        return 0
-    }
+	Loop
+	{
+		; check if we have the left arrow which means we are ready
+		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n1", FoundX, FoundY, 860, 450, 900, 520))
+			break
+			
+		; right arrow means we have to click to add them all 
+		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n1", FoundX, FoundY, 860, 450, 900, 520))
+		{
+			NovaLeftMouseClick(410,787)
+		}
+		Else
+		{
+			Log("ERROR : No fleet arrow was found, exiting.", 2)
+			return 1
+		}
+		
+		Sleep, 500
+	}
+	
+    ;if !ClickOnly("buttons\AllFleets.png", 90, 5, 350, 725, 750, 820)
+    ;{
+        ;Log("ERROR : failed to select all fleets, exiting.", 2)
+        ;return 0
+    ;}
 	
     ; Click Ok 
 	Log("Validating all fleets ...")
@@ -245,10 +265,9 @@ KillPirate(X,Y, ByRef Killed)
 	}
 		
     ; click attack button
-	Sleep, 1000
     Log("Selecting Tank...")
     ScrollCount := 0
-    while (!NovaFindClick("buttons\Tank.png", 30, "w500 n1"))
+    while (!NovaFindClick("buttons\Tank.png", 30, "w1000 n1"))
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
@@ -290,9 +309,16 @@ ValidatePirate(X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick("pirates\valid\Pirate.png", 50, "w2000 n0")
+    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 589, 470, 740, 530)
     {
 		Valid := 1
+	}
+	else
+	{
+		if NovaFindClick("pirates\valid\Crystals.png", 50, "w2000 n0", FoundX, FoundY, 589, 470, 740, 530)
+		{
+			Valid := 1
+		}
 	}
         
     ; we check if it's know to be valid

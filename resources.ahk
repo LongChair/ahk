@@ -315,14 +315,23 @@ ScanMap()
     CurrentY := 1500
 	MapStepX := 1000
     MapStepY := 500
+    ;CurrentX := -1000
+    ;CurrentY := 1000
+	;MapStepX := 1000
+    ;MapStepY := 500
+	LoopY := 7
+	LoopX := 4
+	;LoopY := 5
+	;LoopX := 3
+
 	Dir := 1
 	
 	; Scan the ressources on the map and fill the ressources array
 	; Loop Y
-	Loop, 7
+	Loop, % LoopY
 	{
 		; Loop X
-		Loop, 4
+		Loop, % LoopX
 		{
 			MapMoveToXY(CurrentX, CurrentY)
 
@@ -499,15 +508,12 @@ CollectRessourcesByType(ResType)
 			MapMoveToXY(ResX, ResY)
 
 			
-			; Click on the ressource
-			NovaLeftMouseClick(MainWinW / 2, MainWinH / 2)
-			
 			; click collect button
 			Log("Collecting it ...")
-			if !NovaFindClick("buttons\collect.png", 70, "w2000 n1")
+			if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\collect.png"))
 			{
-				Log("ERROR : failed to find collect button, exiting.", 2)
-				return 0
+				Log("ERROR : failed to find collect button, skipping.", 2)
+				goto CollectRessourcesByType_Next
 			}
 			
 			; eventually click on the OK button if we had no more mecas
@@ -530,7 +536,8 @@ CollectRessourcesByType(ResType)
 			}
 			
 		}
-		
+
+CollectRessourcesByType_Next:
 		CurrentRes := CurrentRes  + 1
 	}
 	
