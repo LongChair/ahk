@@ -213,11 +213,11 @@ KillPirate(X,Y, ByRef Killed)
 	Loop
 	{
 		; check if we have the left arrow which means we are ready
-		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n1", FoundX, FoundY, 860, 450, 900, 520))
+		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
 			break
 			
 		; right arrow means we have to click to add them all 
-		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n1", FoundX, FoundY, 860, 450, 900, 520))
+		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
 		{
 			NovaLeftMouseClick(410,787)
 		}
