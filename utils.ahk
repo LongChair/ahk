@@ -806,8 +806,12 @@ ClickUntilChanged_Failure:
 
 ;*******************************************************************************
 ; ClickMenuImage : Click at X,Y and select the given menu image
+; will return : 
+;   0 if failed
+;   1 if succeeded
+;  -1 if not valid 
 ;*******************************************************************************
-ClickMenuImage(X,Y, Image)
+ClickMenuImage(X,Y, Image, ValidateFunction := "")
 {
     Ret := 0
     
@@ -835,6 +839,16 @@ ClickMenuImage(X,Y, Image)
 		Count := Count + 1
 	}
     
+    if (ValidateFunction <> "")
+    {
+        if (not %ValidateFunction%())
+        {
+            LOG("Ressource is not valid, skipping")
+            Ret := -1
+            goto ClickMenuImage_End
+        }
+    }
+    
     ; we look for the image
     if (!NovaFindClick(Image, 70, "w3000 n1", FoundX, FoundY, 500,175, 1600, 875))
     {
@@ -845,7 +859,7 @@ ClickMenuImage(X,Y, Image)
         Ret := 1
     }
     
-    
+ClickMenuImage_End:  
     ; wait for menu to vanish
 	NovaEscapeMenu()
 	

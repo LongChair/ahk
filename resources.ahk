@@ -510,30 +510,34 @@ CollectRessourcesByType(ResType)
 			
 			; click collect button
 			Log("Collecting it ...")
-			if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\collect.png"))
+            Ret := ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\collect.png", "ValidateRessource")
+			if (Ret = 0)
 			{
 				Log("ERROR : failed to find collect button, skipping.", 2)
 				goto CollectRessourcesByType_Next
 			}
 			
-			; eventually click on the OK button if we had no more mecas
-			if NovaFindClick("buttons\Ok.png", 50, "w2000 n1")
-			{
-				Log("Obviosuly no more mecas, but we should not have been here ...")
-				return 0
-			}
-			Else
-			{
-				Log("sending meca ...")
-				OtherResCollected := OtherResCollected + 1
-				NumFreeMecas := NumFreeMecas - 1
-				
-				if (NumFreeMecas = 0)
-				{
-					Log("Looks like we have no more free mecas, exiting")
-					return 1
-				}
-			}
+            if (Ret = 1)
+            {
+                ; eventually click on the OK button if we had no more mecas
+                if NovaFindClick("buttons\Ok.png", 50, "w2000 n1")
+                {
+                    Log("Obviosuly no more mecas, but we should not have been here ...")
+                    return 0
+                }
+                Else
+                {
+                    Log("sending meca ...")
+                    OtherResCollected := OtherResCollected + 1
+                    NumFreeMecas := NumFreeMecas - 1
+                    
+                    if (NumFreeMecas = 0)
+                    {
+                        Log("Looks like we have no more free mecas, exiting")
+                        return 1
+                    }
+                }
+             }
 			
 		}
 
@@ -590,5 +594,15 @@ LoadListsFromFile(ByRef ResList, InputFile)
     {
         ResList.Insert(A_LoopReadLine)
     }
+}
+
+
+;*******************************************************************************
+; ValidateRessource : check teh on screen displayed ressource to see if 
+; it's valid
+;*******************************************************************************
+ValidateRessource()
+{  
+    return 1
 }
 

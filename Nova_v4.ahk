@@ -180,9 +180,11 @@ DoSequence()
             LoadRessourcesLists()
         }
         
+        ;if tank is not fresh then we need to avoid farming
+        TankFresh := IsTankFresh()
         
-		      
-        if (Farming)
+              
+        if (Farming and TankFresh)
         {
             ; collect pirate resource and farm them
             if (!CollectRessourcesByType("PIRATERES"))

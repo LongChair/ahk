@@ -252,6 +252,13 @@ KillPirate(X,Y, ByRef Killed)
         return 0
     }
     
+    ; check if we can do the attack
+    if (!ValidateAttack())
+    {
+        Log("Attack was not validated, skipping.", 2)
+        return 1
+    }
+    
     ; Click on the pirate
     if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\attack.png"))
     {
@@ -350,3 +357,46 @@ AvengersComing()
 {
 	return NovaFindClick("buttons\avengers.png", 50, "w100 n0")
 }
+
+;*******************************************************************************
+; IsTankFresh : Checks if the tank is fresh enough
+;*******************************************************************************
+IsTankFresh()
+{
+    ; go to dock
+    if (!NovaFindClick("buttons\dock.png", 50, "w1000 n0"))
+    {
+        Log("ERROR : failed to find dock button, exiting.", 2)
+        return 0
+    }
+
+    ; select tank Tab
+    if (!NovaFindClick("buttons\dock_tank.png", 50, "w1000 n0"))
+    {
+        Log("ERROR : failed to find tank tab in dock , exiting.", 2)
+        return 0
+    }
+
+    ; check if we have enough health
+    if (!NovaFindClick("buttons\tank_health.png", 50, "w1000 n0"))
+    {
+        Log("Tank is not fresh enough.")
+        return 0
+    }
+
+    Log("Tank looks fresh enough.")
+    return 1
+}
+
+;*******************************************************************************
+; ValidateAttack : Validate conditions before completing the attack
+; basically check that there would be no players (yellow) in the area
+;*******************************************************************************
+ValidateAttack()
+{
+    if NovaFindClick("buttons\yellow_fleet.png", 50, "n0")
+        return 0
+        
+    return 1
+}
+
