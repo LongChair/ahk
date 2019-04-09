@@ -309,20 +309,24 @@ ScanResourcesInSystem(system)
 ;*******************************************************************************
 ScanMap()
 {
-    global Ressources
+    global Ressources, PlayerName
 	
-    CurrentX := -1500
-    CurrentY := 1500
+	; Get the current system we are in
+	FullPath =  %A_ScriptDir%\%PlayerName%.ini
+	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
+	
+	; get system size
+	FullPath =  %A_ScriptDir%\images\systems\%CurrentSystem%\system.ini
+	IniRead, SystemWidth, %FullPath%, SYSTEM, WIDTH, 3000
+	IniRead, SystemHeight, %FullPath%, SYSTEM, HEIGHT, 3000
+	
+	
+    CurrentX := -(SystemWidth / 2)
+    CurrentY :=  (SystemHeight / 2)
 	MapStepX := 1000
     MapStepY := 500
-    ;CurrentX := -1000
-    ;CurrentY := 1000
-	;MapStepX := 1000
-    ;MapStepY := 500
-	LoopY := 7
-	LoopX := 4
-	;LoopY := 5
-	;LoopX := 3
+	LoopY := (SystemHeight / MapStepY) + 1 
+    LoopX := (SystemWidth / MapStepX) + 1 
 
 	Dir := 1
 	
