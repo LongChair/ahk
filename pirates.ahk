@@ -137,6 +137,17 @@ KillPirate(X,Y, ByRef Killed)
     if (!Valid)
     {
         LOG("Pirate is not valid, skipping")
+		
+		; we need to reset the position
+		; Go to current system
+		if !GotoSystem("")
+		{
+			return 0
+		}
+		
+		MapPosX := 0
+		MapPosY := 0
+			
         return 1
     }
     

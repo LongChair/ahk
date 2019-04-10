@@ -209,10 +209,17 @@ DoSequence()
         }
         Else
         {
-            ; do the normal ressource collection
-        	if CollectRessourcesByType(ResPriority1)
-                if CollectRessourcesByType(ResPriority2)
-                    CollectRessourcesByType(ResPriority3)
+			if (NumFreeMecas > 0 )
+			{
+				; do the normal ressource collection
+				if CollectRessourcesByType(ResPriority1)
+					if CollectRessourcesByType(ResPriority2)
+						CollectRessourcesByType(ResPriority3)
+			}
+			Else
+			{
+				LOG("No free meca, skipping, collect...")
+			}
         }
             
         ; logs the summuary of the iteration
