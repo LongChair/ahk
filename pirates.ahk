@@ -11,24 +11,11 @@ FarmPirates(PirateCount)
 	global StationX, StationY
     
     Ret := 0
-     ; Go to current system
-    ;if !GotoSystem("")
-    ;{
-        ;return 0
-    ;}
-    ;
-    ; then go in 2D Mode
-    ;if !Toggle2DMode()
-    ;{
-        ;Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
-        ;return 0
-    ;}
 	
-	LOG("Centering on station ...")
 	if (!ReadjustPosition())
 	{
 		LOG("ERROR : Failed to recenter position on station, exiting ...")
-		return 0
+		goto FarmPirates_End
 	}
         
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
@@ -198,8 +185,6 @@ KillPirate(X,Y, ByRef Killed)
         Count := Count + 1
 	}
     
-    ; we could have the avengers popup here
-    ; TODO : implement it
     
     ; Select All Fleets
 	LOG("Selecting all fleets ...")
@@ -222,12 +207,6 @@ KillPirate(X,Y, ByRef Killed)
 		
 		Sleep, 500
 	}
-	
-    ;if !ClickOnly("buttons\AllFleets.png", 90, 5, 350, 725, 750, 820)
-    ;{
-        ;Log("ERROR : failed to select all fleets, exiting.", 2)
-        ;return 0
-    ;}
 	
     ; Click Ok 
 	Log("Validating all fleets ...")

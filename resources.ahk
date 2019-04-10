@@ -530,7 +530,7 @@ CollectRessourcesByType(ResType)
             if (Ret = 1)
             {
                 ; eventually click on the OK button if we had no more mecas
-                if NovaFindClick("buttons\Ok.png", 50, "w2000 n1")
+                if NovaFindClick("buttons\Ok.png", 50, "w1000 n1")
                 {
                     Log("Obviosuly no more mecas, but we should not have been here ...")
                     return 0

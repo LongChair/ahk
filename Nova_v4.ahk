@@ -144,8 +144,7 @@ DoSequence()
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
-    {   
-
+    {   	
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
@@ -228,7 +227,7 @@ DoSequence()
         
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
-		IterationTime := ElapsedTime
+		IterationTime := (ElapsedTime / 1000)
 		   
         ; logs the summuary of the iteration
 		Summuary := GetSummuary()
@@ -258,7 +257,7 @@ GetSummuary()
 	global IterationTime
 	
 	Summurary := ""
-	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ==({3} secs)==========-`r`n", A_Hour, A_Min, IterationTime)  
+	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ==({3})==========-`r`n", A_Hour, A_Min, FormatSeconds(IterationTime))  
 	Summuary := Summuary . Format(" - MECAS :`r`n")
 	Summuary := Summuary . Format("   * Free mecas at start         : {1}`r`n", StartFreeMecas)
 	Summuary := Summuary . Format("   * Free mecas at end           : {1}`r`n", NumFreeMecas)
@@ -485,7 +484,7 @@ StopNova(CloseBluestacks := 1)
         Log("Closing Nova ...")
         
         Log("Waiting for BlueStacks Nova tab ...")
-        while (NovaFindClick("buttons\nova_icon.png", 60, "w500 n1"))
+        while (NovaFindClick("buttons\nova_icon.png", 30, "w500 n1 Stay"))
         {
             Log("Closing Nova tab ...")
             if !NovaFindClick("buttons\tab_cross.png", 60, "w1000 n1")

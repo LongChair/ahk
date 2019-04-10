@@ -612,7 +612,7 @@ CountFleetsState(ImageState)
 	{
 		GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 		
-		if NovaFindClick(ImageState, 50, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y2)
+		if NovaFindClick(ImageState, 50, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y1 + (Y2 - Y1) / 2)
 		{
 			CountFleets := CountFleets + 1
 		}
@@ -676,7 +676,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 			; close teh menu
 			NovaEscapeClick()
 			
-			Sleep, 2000
+			Sleep, 1000
         }
         
         return 1
@@ -923,4 +923,15 @@ ReadjustPosition()
 	
 	Log("Recentering completed")
 	return 1
+}
+
+;*******************************************************************************
+; FormatSeconds() : Formats a second count to a duration
+;*******************************************************************************
+FormatSeconds(NumberOfSeconds)  ; Convert the specified number of seconds to hh:mm:ss format.
+{
+    time = 19990101  ; *Midnight* of an arbitrary date.
+    time += %NumberOfSeconds%, seconds
+    FormatTime, mmss, %time%, mm:ss
+    return NumberOfSeconds//3600 ":" mmss
 }
