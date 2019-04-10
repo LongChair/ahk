@@ -614,15 +614,15 @@ LoadListsFromFile(ByRef ResList, InputFile)
 ValidateRessource()
 {  
 	; we check if it's know to be valid
-    ;Loop, Files, %A_ScriptDir%\images\resources\invalid\*.png"
-    ;{
-		;FileName := "resources\invalid\" . A_LoopFileName
-        ;if NovaFindClick(FileName, 50, "w100 n0", FoundX, FoundY, 575, 475, 750, 600)
-		;{
-			;Log(Format("invalidating ressource matching {1}", A_LoopFileName))
-            ;return 0
-		;}
-    ;}
+    Loop, Files, %A_ScriptDir%\images\resources\invalid\*.png"
+    {
+		FileName := "resources\invalid\" . A_LoopFileName
+        if NovaFindClick(FileName, 50, "w100 n0", FoundX, FoundY, 575, 475, 750, 600)
+		{
+			Log(Format("invalidating ressource matching {1}", A_LoopFileName))
+            return 0
+		}
+    }
     
     return 1
 }

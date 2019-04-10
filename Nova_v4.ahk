@@ -25,7 +25,7 @@ SetTitleMatchMode 2
 Loop
 {
 	global PasteBinUser, PasteBinPassword
-	global IterationTime
+	
 
 	
 	; global Nova config file
@@ -50,7 +50,7 @@ Loop
 	PlayerIndex := 1
 	Loop, %PlayerCount%
 	{
-		StartTime := A_TickCount
+		
 		
 		; Get player name
 		Key := "Player" . PlayerIndex
@@ -63,8 +63,7 @@ Loop
 		{
 		   LOG(Format("Player {1} is enabled, proceeding.", Player))
 		   DoAccount(Player)
-		   ElapsedTime := A_TickCount - StartTime
-		   IterationTime := ElapsedTime
+		  
 		   LOG(Format("Player {1} was processed in {2:i} seconds.", Player, ElapsedTime / 1000))
 		}
 		Else
@@ -137,9 +136,11 @@ DoSequence()
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
 	global PlayerName, Farming
-    
+    global IterationTime
+	
     Fail := 0
-    
+    StartTime := A_TickCount
+	
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
@@ -224,7 +225,11 @@ DoSequence()
 				LOG("No free meca, skipping, collect...")
 			}
         }
-            
+        
+		; compute iteration time
+		ElapsedTime := A_TickCount - StartTime
+		IterationTime := ElapsedTime
+		   
         ; logs the summuary of the iteration
 		Summuary := GetSummuary()
         Log(Format("`r`n{1}", Summuary), 1)

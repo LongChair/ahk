@@ -12,17 +12,24 @@ FarmPirates(PirateCount)
     
     Ret := 0
      ; Go to current system
-    if !GotoSystem("")
-    {
-        return 0
-    }
-    
+    ;if !GotoSystem("")
+    ;{
+        ;return 0
+    ;}
+    ;
     ; then go in 2D Mode
-    if !Toggle2DMode()
-    {
-        Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
-        return 0
-    }
+    ;if !Toggle2DMode()
+    ;{
+        ;Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
+        ;return 0
+    ;}
+	
+	LOG("Centering on station ...")
+	if (!ReadjustPosition())
+	{
+		LOG("ERROR : Failed to recenter position on station, exiting ...")
+		return 0
+	}
         
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
@@ -34,10 +41,7 @@ FarmPirates(PirateCount)
 		Ret := 1
 		goto FarmPirates_End
 	}        
-	
-    MapPosX := 0
-	MapPosY := 0
-    
+	    
     CurrentPirate := 1
     KilledPirate := 0
 	CurrentX := StationX
@@ -138,17 +142,8 @@ KillPirate(X,Y, ByRef Killed)
     {
         LOG("Pirate is not valid, skipping")
 		
-		; we need to reset the position
-		; Go to current system
-		if !GotoSystem("")
-		{
-			return 0
-		}
-		
-		MapPosX := 0
-		MapPosY := 0
-			
-        return 1
+		; we need to reclaibrate position
+		return ReadjustPosition()
     }
     
     ; Send Fleets there
@@ -184,17 +179,8 @@ KillPirate(X,Y, ByRef Killed)
         {
             Log("ERROR : all attempts to do the group move failed, exiting ...", 2)
 			
-			; we need to reset the position
-			; Go to current system
-			if !GotoSystem("")
-			{
-				return 0
-			}
-			
-			MapPosX := 0
-			MapPosY := 0
-	
-            return 1
+			; we need to reclaibrate position
+			return ReadjustPosition()
         }
 
 

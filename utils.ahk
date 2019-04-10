@@ -850,7 +850,7 @@ ClickMenuImage(X,Y, Image, ValidateFunction := "")
     }
     
     ; we look for the image
-    if (!NovaFindClick(Image, 70, "w3000 n1", FoundX, FoundY, 500,175, 1600, 875))
+    if (!NovaFindClick(Image, 70, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
     {
         LOG("ERROR : Could Not find the menu image " . Image . ", different menu popped up ?", 2)        
     }
@@ -891,5 +891,36 @@ NovaEscapeMenu()
 		return 0
 	}
 	
+	return 1
+}
+
+;*******************************************************************************
+; ReadjustPosition() : readjusts the position with centering on station
+;*******************************************************************************
+ReadjustPosition()
+{
+	global MapPosX, MapPosY
+	global StationX, StationY
+
+	Log("Recentering on station ...")
+	if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 950)
+	{
+		if (!NovaFindClick("pirates\station.png", 110, "w5000 n0", FoundX, FoundY, 840, 490, 930, 580))
+		{
+			LOG("ERROR : Timeout while waiting for the station, while recentering")
+			return 0
+		}
+	}
+	Else
+	{
+		LOG("ERROR : Failed to find station button for recentering")
+		return 0
+	}
+	
+	
+	MapPosX := StationX
+	MapPosY := StationY
+	
+	Log("Recentering completed")
 	return 1
 }
