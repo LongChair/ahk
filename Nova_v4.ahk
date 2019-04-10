@@ -138,6 +138,8 @@ DoSequence()
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
 	global PlayerName, Farming
     
+    Fail := 0
+    
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
     if LaunchNova()
@@ -161,7 +163,8 @@ DoSequence()
 		StartFreeMecas := NumFreeMecas
 		
 		; check if tank is fresh
-        TankFresh := IsTankFresh()
+        if (Farming)
+            TankFresh := IsTankFresh()
 		
 		Log("========= getFreeMecas End =========")
     
@@ -229,11 +232,11 @@ DoSequence()
 		; paste it to pastebin
 		pbin := new pastebin(PasteBinUser, PasteBinPassword)
 		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
-        
+        Fail := 0
     }
     
     TheEnd:
-    StopNova()
+    StopNova(Fail)
     Log("------------------------------ Stopping Sequence for " . PlayerName . " ------------------------------")
 }
 
@@ -468,27 +471,51 @@ LaunchNova()
 ;*******************************************************************************
 ; StopNova : Will Stop nova by closing it in blue stacks
 ;*******************************************************************************
-StopNova()
+StopNova(CloseBluestacks := 1)
 {
 	global Window_ID, WindowName 
-    
-    ; Now Close BlueStacks
-    Log("Closing BlueStacks...")
-    WinClose, %WindowName%
-    sleep, 2000
-    
-    ; Click on the confirm button
-    if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
+ 
+    if (!CloseBluestacks)
     {
-        Log("ERROR : Could not find exit confirm button, exiting...", 2)
+        Log("Closing Nova ...")
+        
+        Log("Waiting for BlueStacks Nova tab ...")
+        while (NovaFindClick("buttons\nova_icon.png", 60, "w500 n1"))
+        {
+            Log("Closing Nova tab ...")
+            if !NovaFindClick("buttons\tab_cross.png", 60, "w1000 n1")
+            {
+                Log("ERROR : Failed to find nova tab cross to close, exiting...", 2)
+                CloseBluestacks := 1
+                goto StopNova_Close
+            }
+
+        }
+        Log("Nova is closed.")
     }
     
-    ; Wait for it to close
-    Log("Waiting for BlueStacks to close...")    
-    while WinExist(WindowName)
-    {
-        sleep, 1000
-    }
     
-    Log("BlueStacks is closed.")
+StopNova_Close:    
+    if (CloseBluestacks)
+    {
+        ; Now Close BlueStacks
+        Log("Closing BlueStacks...")
+        WinClose, %WindowName%
+        sleep, 2000
+        
+        ; Click on the confirm button
+        if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
+        {
+            Log("ERROR : Could not find exit confirm button, exiting...", 2)
+        }
+        
+        ; Wait for it to close
+        Log("Waiting for BlueStacks to close...")    
+        while WinExist(WindowName)
+        {
+            sleep, 1000
+        }
+        
+        Log("BlueStacks is closed.")
+    }
 }
