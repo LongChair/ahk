@@ -32,6 +32,7 @@ ResetStats()
 {
 	global FreeResCollected, OtherResCollected
 	global FreeResCount, PossibleRes
+	global KilledCount
 
 	FreeResCollected := 0
 	OtherResCollected := 0
@@ -39,7 +40,8 @@ ResetStats()
 	{
 		FreeResCount[i] := 0
 	}
-		
+	
+	KilledCount := 0
 }
 
 ;*******************************************************************************

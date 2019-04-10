@@ -25,6 +25,7 @@ SetTitleMatchMode 2
 Loop
 {
 	global PasteBinUser, PasteBinPassword
+	global IterationTime
 
 	
 	; global Nova config file
@@ -49,6 +50,8 @@ Loop
 	PlayerIndex := 1
 	Loop, %PlayerCount%
 	{
+		StartTime := A_TickCount
+		
 		; Get player name
 		Key := "Player" . PlayerIndex
 		IniRead, Player, %FullPath%, PLAYERS, %Key%, 0
@@ -60,11 +63,14 @@ Loop
 		{
 		   LOG(Format("Player {1} is enabled, proceeding.", Player))
 		   DoAccount(Player)
+		   ElapsedTime := A_TickCount - StartTime
+		   IterationTime := ElapsedTime
+		   LOG(Format("Player {1} was processed in {2:i} seconds.", Player, ElapsedTime / 1000))
 		}
 		Else
 		{
   		   LOG(Format("Player {1} is disabled, skipping.", Player))
-		   Sleep, 60000
+		   Sleep, 30000
 		}
 		
 		PlayerIndex := PlayerIndex + 1
@@ -154,6 +160,9 @@ DoSequence()
 		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
 		StartFreeMecas := NumFreeMecas
 		
+		; check if tank is fresh
+        TankFresh := IsTankFresh()
+		
 		Log("========= getFreeMecas End =========")
     
 		Log("========= BuildFrigates Start =========")
@@ -179,9 +188,6 @@ DoSequence()
         {
             LoadRessourcesLists()
         }
-        
-        ;if tank is not fresh then we need to avoid farming
-        TankFresh := IsTankFresh()
         
               
         if (Farming and TankFresh)
@@ -215,7 +221,7 @@ DoSequence()
 		
 		; paste it to pastebin
 		pbin := new pastebin(PasteBinUser, PasteBinPassword)
-		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "10M", 2)
+		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
         
     }
     
@@ -234,9 +240,10 @@ GetSummuary()
 	global FreeResCount, PossibleRes, MaxFreeRes
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
 	global ResPriority1, ResPriority2, ResPriority3
+	global IterationTime
 	
 	Summurary := ""
-	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ====================-`r`n", A_Hour, A_Min)  
+	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ==({3} secs)==========-`r`n", A_Hour, A_Min, IterationTime)  
 	Summuary := Summuary . Format(" - MECAS :`r`n")
 	Summuary := Summuary . Format("   * Free mecas at start         : {1}`r`n", StartFreeMecas)
 	Summuary := Summuary . Format("   * Free mecas at end           : {1}`r`n", NumFreeMecas)

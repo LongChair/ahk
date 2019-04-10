@@ -11,11 +11,7 @@ FarmPirates(PirateCount)
 	global StationX, StationY
     
     Ret := 0
-    
-    if (KilledCount > 40)
-        goto FarmPirates_End
-        
-    ; Go to current system
+     ; Go to current system
     if !GotoSystem("")
     {
         return 0
@@ -274,7 +270,7 @@ KillPirate(X,Y, ByRef Killed)
     ; click attack button
     Log("Selecting Tank...")
     ScrollCount := 0
-    while (!NovaFindClick("buttons\Tank.png", 30, "w1000 n1"))
+    while (!NovaFindClick("buttons\Tank.png", 30, "w500 n1"))
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
@@ -363,29 +359,39 @@ AvengersComing()
 ;*******************************************************************************
 IsTankFresh()
 {
+	Ret:= 0
     ; go to dock
-    if (!NovaFindClick("buttons\dock.png", 50, "w1000 n0"))
+    if (!NovaFindClick("buttons\dock.png", 50, "w1000 n1"))
     {
         Log("ERROR : failed to find dock button, exiting.", 2)
         return 0
     }
 
     ; select tank Tab
-    if (!NovaFindClick("buttons\dock_tank.png", 50, "w1000 n0"))
-    {
-        Log("ERROR : failed to find tank tab in dock , exiting.", 2)
-        return 0
-    }
-
+	while (!NovaFindClick("buttons\dock_tank_on.png", 50, "w100 n1"))
+	{
+		NovaFindClick("buttons\dock_tank_off.png", 50, "w100 n1")
+		Sleep, 500
+	}
+	
     ; check if we have enough health
     if (!NovaFindClick("buttons\tank_health.png", 50, "w1000 n0"))
     {
         Log("Tank is not fresh enough.")
+    }
+	Else
+	{
+		Log("Tank looks fresh enough.")
+		Ret:= 1
+	}
+
+    if (!NovaFindClick("buttons\back.png", 50, "w1000 n1"))
+    {
+        Log("ERROR : failed to back button in dock , exiting.", 2)
         return 0
     }
 
-    Log("Tank looks fresh enough.")
-    return 1
+    return Ret
 }
 
 ;*******************************************************************************
@@ -394,7 +400,7 @@ IsTankFresh()
 ;*******************************************************************************
 ValidateAttack()
 {
-    if NovaFindClick("buttons\yellow_fleet.png", 50, "n0")
+    if NovaFindClick("buttons\yellow_fleet.png", 50, "n0", FoundX, FoundY, 750, 400, 1050, 700)
         return 0
         
     return 1

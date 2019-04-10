@@ -58,8 +58,14 @@ Toggle2DMode()
 {
     Log("Toggling 2D Mode ...")
     
+	if (NovaFindClick("buttons\2D_system.png", 50, "w1000 n0", FoundX, FoundY, 740, 400, 880, 530))
+	{
+		Log("System already in 2D")
+		return 1
+	}
+    
     ; Look if pane is already openned
-    if !NovaFindClick("buttons\right_menu_off.png", 80, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
+    if !NovaFindClick("buttons\right_menu_off.png", 80, "w500 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Unfolding 2D/3D menu")
         if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1", FoundX, FoundY, 1450, 640, 1760, 820)
@@ -508,7 +514,7 @@ CollectRessourcesByType(ResType)
 		if (RefValues[1] = ResType)
 		{
 			; go to the ressource position
-			Log(Format("Going to collect {1} at ({2:i}, {3:i} ...", ResType, ResX, ResY), 1)
+			Log(Format("Going to collect {1} at ({2:i}, {3:i}) ...", ResType, ResX, ResY), 1)
 			MapMoveToXY(ResX, ResY)
 
 			
@@ -607,6 +613,17 @@ LoadListsFromFile(ByRef ResList, InputFile)
 ;*******************************************************************************
 ValidateRessource()
 {  
+	; we check if it's know to be valid
+    ;Loop, Files, %A_ScriptDir%\images\resources\invalid\*.png"
+    ;{
+		;FileName := "resources\invalid\" . A_LoopFileName
+        ;if NovaFindClick(FileName, 50, "w100 n0", FoundX, FoundY, 575, 475, 750, 600)
+		;{
+			;Log(Format("invalidating ressource matching {1}", A_LoopFileName))
+            ;return 0
+		;}
+    ;}
+    
     return 1
 }
 

@@ -872,13 +872,14 @@ ClickMenuImage_End:
 NovaEscapeMenu()
 {
 	 ; wait for menu to vanish
-    if (NovaFindClick("buttons\favori.png", 50, "w3000 n0", FoundX, FoundY, 500,175, 1600, 875))
+    if (NovaFindClick("buttons\favori.png", 50, "w100 n0", FoundX, FoundY, 500,175, 1600, 875))
     {
         NovaEscapeClick()
+		Sleep, 2000
     }
 	
 	Count := 0
-	while (NovaFindClick("buttons\favori.png", 50, "n0", FoundX, FoundY, 500,175, 1600, 875) and (Count < 10))
+	while (NovaFindClick("buttons\favori.png", 50, "w100 n0", FoundX, FoundY, 500,175, 1600, 875) and (Count < 10))
 	{
 		Sleep, 500
 		Count :=  Count + 1
