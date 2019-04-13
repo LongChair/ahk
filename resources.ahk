@@ -672,8 +672,6 @@ FilterListwithBlackList(Byref List, Blacklist)
 	ListIndex := 1
 	Loop, % List.Length()
 	{
-		Text := List[ListIndex]
-		
 		Values := StrSplit(List[ListIndex], ",")
 		X := Values[2]
 		Y := Values[3]
@@ -688,7 +686,7 @@ FilterListwithBlackList(Byref List, Blacklist)
 			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
 			{
 				; we need to remove this one
-				Log(Format("Removing {1} at ({2}, {3}) due to blaclist filter", BlackValues[1], BlackValues[2], BlackValues[3])
+				Log(Format("Removing {1} at ({2}, {3}) due to blaclist filter", BlackValues[1], BlackValues[2], BlackValues[3]))
 				List.RemoveAt(ListIndex)
 				goto FilterListwithBlackList_End
 			}
@@ -702,3 +700,45 @@ FilterListwithBlackList_End:
 
 	}
 }
+
+;*******************************************************************************
+; RemoveObosoleteBlackList : Removes obsolete blacklist items that are not Close
+; to list items
+;*******************************************************************************
+RemoveObosoleteBlackList(Byref Blacklist, List)
+{
+	BlackListIndex := 1
+	Loop, % Blacklist.Length()
+	{
+		BlackValues := StrSplit(Blacklist[BlackListIndex], ",")
+		BlackX := BlackValues[2]
+		BlackY := BlackValues[3]
+		
+		ListIndex := 1
+		Valid := 0
+		Loop, % List.Length()
+		{
+			Values := StrSplit(List[ListIndex], ",")
+			X := Values[2]
+			Y := Values[3]
+			
+			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
+			{
+				Valid := 1
+				break
+			}
+			
+			ListIndex := ListIndex + 1
+		}
+		
+		if (!Valid)
+		{
+			Log(Format("Removing {1} from black list as it looks obsolete", Blacklist[BlackListIndex]))
+			Blacklist.RemoveAt(BlackListIndex)
+		}
+		Else
+			BlackListIndex := BlackListIndex + 1
+		
+	}
+}
+

@@ -1,5 +1,5 @@
 ﻿; script version
-global Version := "4.0"
+global Version := "5.0"
 
 ; Working directory
 global BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
