@@ -180,9 +180,17 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
         Log("ERROR : failed to click OK to attack, trying direct click.", 2)		
 		NovaLeftMouseClick(875, 860)
     }
-    
+
+	; wait for move to start 
+    Log("Waiting for fleets to start move...")
+    if (!WaitForFleetsMoving())
+    {
+        Log("ERROR : failed to wait for fleets to be start move, exiting.", 2)
+        return 0
+    }
+
 	Moved := 1
-	
+
     ; now Wait for all fleets to be theres
     Log("Waiting for fleets to complete move...")
     if (!WaitForFleetsIdle())

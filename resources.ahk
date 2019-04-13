@@ -432,19 +432,19 @@ HandleScan(ResX, ResY)
 	if CurrentResType in ALLIUM,MINE,CRYSTALS,PIRATERES
 	{
         Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
-		Ressources.Insert(CurrentResType . "," . ResX . "," . ResY)
+		Ressources.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY))
 	}
 
 	if CurrentResType in  MINING,CRYSTALING,ALLIUMING
 	{
-		Collecting.Insert(CurrentResType . "," . ResX . "," . ResY)
+		Collecting.Insert(Ressources.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY)))
 		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
 	}
 	
 	if CurrentResType in PIRATE
     {
-        Log(Format("Found a pirate at ({1:i},{2:i}) Total={3}", ResX, ResY, Pirates.Length()))
-		Pirates.Insert(CurrentResType . "," . ResX . "," . ResY)
+        Log(Format("Found a Pirate at ({1:i},{2:i}) Total={3}", ResX, ResY, Pirates.Length()))
+		Pirates.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY))
     }
 	
 	if CurrentResType in STATION
@@ -586,10 +586,11 @@ SaveRessourcesLists()
 SaveBlackLists()
 {
 	global PlayerName
+	global Pirates_BlackList, Ressources_BlackList
 	
 	LOG("Saving BlackLists...")
     SaveListToFile(Pirates_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
-    SaveListToFile(Ressources_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
+    SaveListToFile(Ressources_BlackList, Format("{1}_Ressources_BlackList.txt", PlayerName))
 }
 
 ;*******************************************************************************
@@ -625,9 +626,12 @@ LoadRessourcesLists()
 LoadBlackLists()
 {
 	global PlayerName
+	global Pirates_BlackList, Ressources_BlackList
+	
 	LOG("Loading BlackLists...")
     LoadListsFromFile(Pirates_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
-    LoadListsFromFile(Ressources_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
+    LoadListsFromFile(Ressources_BlackList, Format("{1}_Ressources_BlackList.txt", PlayerName))
+	Log(Format("We Found {1} pirates and {2} ressources in blacklists.", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
 }
 
 
@@ -686,7 +690,7 @@ FilterListwithBlackList(Byref List, Blacklist)
 			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
 			{
 				; we need to remove this one
-				Log(Format("Removing {1} at ({2}, {3}) due to blaclist filter", BlackValues[1], BlackValues[2], BlackValues[3]))
+				Log(Format("Removing {1} at ({2}, {3}) due to blacklist filter", BlackValues[1], BlackValues[2], BlackValues[3]))
 				List.RemoveAt(ListIndex)
 				goto FilterListwithBlackList_End
 			}
@@ -733,7 +737,7 @@ RemoveObosoleteBlackList(Byref Blacklist, List)
 		
 		if (!Valid)
 		{
-			Log(Format("Removing {1} from black list as it looks obsolete", Blacklist[BlackListIndex]))
+			Log(Format("Removing {1} from black ist as it looks obsolete", Blacklist[BlackListIndex]))
 			Blacklist.RemoveAt(BlackListIndex)
 		}
 		Else

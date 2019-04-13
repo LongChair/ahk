@@ -570,35 +570,111 @@ WaitForFleetsIdle(TimeOut := 300)
         return 0
     }
     
-    ; wait for all fleets to be idle
-    TimeLeft := TimeOut * 10
-	
-	Log("Waiting for all fleets to be idle ...")
-    Loop
-    {	
-		Idle := CountFleetsState("buttons\EnAttente.png")
+	TimeLeft := TimeOut * 100
+	Loop
+	{
+		IdleCounter := 0
+		NovaFindClick("buttons\recall_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
+		NovaFindClick("buttons\manage_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
 		
-		if (Idle >= MaxPlayerFleets)
+		if (IdleCounter >= MaxPlayerFleets)
 		{
 			break
 		}
-          
-        Sleep, 100
-        TimeLeft := TimeLeft - 1
-        
+		
+		Sleep, 100
+		
+		TimeLeft := TimeLeft - 1
         if (TimeLeft <= 0)
         {
             Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
 			PopRightMenu(0)	
             return 0
         }
-    }
+	}
+		
+		
+		
+    ; wait for all fleets to be idle
+    ;TimeLeft := TimeOut * 10
+	;
+	;Log("Waiting for all fleets to be idle ...")
+    ;Loop
+    ;{	
+		;Idle := CountFleetsState("buttons\EnAttente.png")
+		;
+		;if (Idle >= MaxPlayerFleets)
+		;{
+			;break
+		;}
+          ;
+        ;Sleep, 100
+        ;TimeLeft := TimeLeft - 1
+        ;
+        ;if (TimeLeft <= 0)
+        ;{
+            ;Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
+			;PopRightMenu(0)	
+            ;return 0
+        ;}
+    ;}
 	
 
     ; fold again right menu
 	PopRightMenu(0)	
     
     return 1  
+}
+
+;*******************************************************************************
+; WaitForFleetsMoving : wait for at least a fleet to be moving
+;*******************************************************************************
+WaitForFleetsMoving()
+{   
+    ; Open the fleets tab
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+    
+	TimeLeft := TimeOut * 100
+	Loop
+	{
+		IdleCounter := 0
+		NovaFindClick("buttons\turbo_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
+		
+		if (IdleCounter > 0)
+		{
+			break
+		}
+		
+		Sleep, 100
+		
+		TimeLeft := TimeLeft - 1
+        if (TimeLeft <= 0)
+        {
+            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
+			PopRightMenu(0)	
+            return 0
+        }
+	}
+	
+
+    ; fold again right menu
+	PopRightMenu(0)	
+    
+    return 1  
+}
+
+;*******************************************************************************
+; HandleIdleCount : Count Fleets in idle state
+;*******************************************************************************
+HandleIdleCount(ResX, ResY)
+{
+	global IdleCounter
+	
+	IdleCounter := IdleCounter + 1
 }
 
 ;*******************************************************************************

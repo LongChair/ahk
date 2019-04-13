@@ -59,3 +59,6 @@ global LastStartTime := 0
 ; blacklists
 global Ressources_BlackList := []
 global Pirates_BlackList := []
+
+; various global counters for callbacks
+global IdleCounter := 0

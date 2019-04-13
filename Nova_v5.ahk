@@ -159,13 +159,11 @@ DoSequence()
 
 	
 	
-    Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
-	
+    Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")	
 	LoadBlackLists()
 	
     if LaunchNova()
-    {   	
-	
+    {   
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
@@ -198,13 +196,12 @@ DoSequence()
 			}
 			
 			Log("Filtering with blacklists and cleaning up ...")
+			RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
+			RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
 			FilterListwithBlackList(Ressources, Ressources_BlackList)
 			FilterListwithBlackList(Pirates, Pirates_BlackList)
 			Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
-			RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
-			RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
 			Log(Format("We have {1} pirates and {2} ressources in blacklist...", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
-			
 		}
 		
 		Log("========= getFreeMecas Start =========")
