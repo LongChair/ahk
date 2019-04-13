@@ -43,6 +43,7 @@ global WindowName := ""
 global MaxPlayerMecas := 6
 global MaxPlayerFleets := 6
 global KilledCount := 0
+global CurrentSystem := ""
 
 global Window_ID := 0
 
@@ -52,3 +53,9 @@ global ResPriority3 := ""
 
 global StationX := 0
 global StationY := 0
+
+global LastStartTime := 0
+
+; blacklists
+global Ressources_BlackList := []
+global Pirates_BlackList := []

@@ -359,13 +359,8 @@ GetAvailableMecaCount(ByRef NumMecas)
 ;*******************************************************************************
 GotoSystem(SystemName)
 {
-    global PlayerName
-    
-    FullPath =  %A_ScriptDir%\%PlayerName%.ini
- 
-	; Get the current system we are in
-	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
-    
+    global PlayerName, CurrentSystem
+        
     ; default to current system if unspecified
     if (SystemName = "")
         SystemName := CurrentSystem
@@ -378,7 +373,7 @@ GotoSystem(SystemName)
     }
 
 
-    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 50, "w15000 n1"))
+    if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 70, "w15000 n1"))
     {
         
         if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
@@ -392,6 +387,8 @@ GotoSystem(SystemName)
                 return 0
             }
             
+			CurrentSystem := SystemName
+			
             return 1
         }
         Else
@@ -508,25 +505,32 @@ RecallAllFleets()
 					Recalled[FleetIndex] := 1
 				}
 				Else
-				{
-					; click on the fleet
-					NovaLeftMouseClick(X1 + 20, Y1 +20)
-					
-					
-					if NovaFindClick("buttons\fleet_window_recall.png", 70, "w2000 n1")
+				{				
+					; first try to click recall Button
+					if (NovaFindClick("buttons\recall_button.png", 50, "n1", FoundX, FoundY, X1, Y1 , X2, Y2))
 					{
-						LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
 						Recalled[FleetIndex] := 1
-						Sleep, 500
-						NovaEscapeClick()
-						
-						; wait for window to vanish
-						while (!NovaFindClick("buttons\fleets_on.png", 30, "w100 n1"))
-						{
-							Sleep, 500
-						}
 					}
-					
+					Else
+					{
+						; click on the fleet
+						NovaLeftMouseClick(X1 + 20, Y1 +20)
+						
+						
+						if NovaFindClick("buttons\fleet_window_recall.png", 70, "w2000 n1")
+						{
+							LOG(Format("Recalling fleet #{1}/{2} ...", FleetIndex, MaxPlayerFleets))
+							Recalled[FleetIndex] := 1
+							Sleep, 500
+							NovaEscapeClick()
+							
+							; wait for window to vanish
+							while (!NovaFindClick("buttons\fleets_on.png", 30, "w100 n1"))
+							{
+								Sleep, 500
+							}
+						}					
+					}
 				}
 			}
 			
@@ -571,7 +575,7 @@ WaitForFleetsIdle(TimeOut := 300)
 	
 	Log("Waiting for all fleets to be idle ...")
     Loop
-    {
+    {	
 		Idle := CountFleetsState("buttons\EnAttente.png")
 		
 		if (Idle >= MaxPlayerFleets)
@@ -582,7 +586,7 @@ WaitForFleetsIdle(TimeOut := 300)
         Sleep, 100
         TimeLeft := TimeLeft - 1
         
-        if (TimeOut <= 0)
+        if (TimeLeft <= 0)
         {
             Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
 			PopRightMenu(0)	
@@ -612,7 +616,7 @@ CountFleetsState(ImageState)
 	{
 		GetFleetArea(FleetIndex, X1, Y1, X2, Y2)
 		
-		if NovaFindClick(ImageState, 50, "w100 n0", FoundX, FoundY, X1, Y1, X2, Y1 + (Y2 - Y1) / 2)
+		if NovaFindClick(ImageState, 50, "n0", FoundX, FoundY, X1, Y1, X1 + (X2 - X1) / 2, Y1 + (Y2 - Y1) / 2)
 		{
 			CountFleets := CountFleets + 1
 		}
@@ -635,13 +639,22 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     if (Visible)
     {
         Log("Showing Main right menu ...")
-		while (NovaFindClick("buttons\ceg.png", 10, "w1000 n0", FoundX, FoundY, 1650, 50, 1750, 140))
+		Count := 1
+		while (NovaFindClick("buttons\ceg.png", 10, "w100 n0", FoundX, FoundY, 1650, 50, 1750, 140))
         {
 			; click the button to show up the menu
 			NovaLeftMouseClick(1700, 510)
-			Sleep, 2000
+			Sleep, 1000
+			
+			Count := Count  + 1
+			if (Count > 30)
+			{
+				LOG("ERROR : Timeout Waiting for right menu to show up")
+				return 0
+			}
 		}
         
+		Count := 1
 		Loop 
 		{
 			if (!NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w100 n0", FoundX, FoundY, 1500, 145, 1760, 680))
@@ -658,6 +671,14 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 			}
 			
 			Sleep, 500
+			
+			
+			Count := Count  + 1
+			if (Count > 30)
+			{
+				LOG("ERROR : Timeout Waiting for right menu tab to show up")
+				return 0
+			}
 		}
 	    
         ; we found button, that's done
@@ -671,12 +692,20 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
-        while (!NovaFindClick("buttons\ceg.png", 10, "w500 n0", FoundX, FoundY, 1650, 50, 1750, 140))
+		Count := 1
+        while (!NovaFindClick("buttons\ceg.png", 10, "n0", FoundX, FoundY, 1650, 50, 1750, 140))
         {
 			; close teh menu
 			NovaEscapeClick()
 			
 			Sleep, 1000
+			
+			Count := Count  + 1
+			if (Count > 30)
+			{
+				LOG("ERROR : Timeout Waiting for right menu to vanish")
+				return 0
+			}
         }
         
         return 1
@@ -872,7 +901,7 @@ ClickMenuImage_End:
 NovaEscapeMenu()
 {
 	 ; wait for menu to vanish
-    if (NovaFindClick("buttons\favori.png", 50, "w100 n0", FoundX, FoundY, 500,175, 1600, 875))
+    if (NovaFindClick("buttons\favori.png", 50, "n0", FoundX, FoundY, 500,175, 1600, 875))
     {
         NovaEscapeClick()
 		Sleep, 2000
@@ -903,32 +932,30 @@ ReadjustPosition()
 	global StationX, StationY
 
 	Log("Recentering on station ...")
+	
+	; click on my station button
 	if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 950)
 	{
-		if (!NovaFindClick("pirates\station.png", 110, "w5000 n0", FoundX, FoundY, 840, 490, 930, 580))
-		{
-			LOG("ERROR : Timeout while waiting for the station, while recentering")
-			return 0
-		}
+		; wait until we find the station, but could be hard to detect
+		NovaFindClick("pirates\station.png", 110, "w2000 n0", FoundX, FoundY, 840, 490, 930, 580)
+	
+		MapPosX := StationX
+		MapPosY := StationY
+		
+		Log("Recentering completed")
+		return 1	
 	}
 	Else
 	{
 		LOG("ERROR : Failed to find station button for recentering")
 		return 0
 	}
-	
-	
-	MapPosX := StationX
-	MapPosY := StationY
-	
-	Log("Recentering completed")
-	return 1
 }
 
 ;*******************************************************************************
-; FormatSeconds() : Formats a second count to a duration
+; FormatSeconds() : Convert the specified number of seconds to hh:mm:ss format.
 ;*******************************************************************************
-FormatSeconds(NumberOfSeconds)  ; Convert the specified number of seconds to hh:mm:ss format.
+FormatSeconds(NumberOfSeconds)
 {
     time = 19990101  ; *Midnight* of an arbitrary date.
     time += %NumberOfSeconds%, seconds

@@ -17,6 +17,9 @@ FarmPirates(PirateCount)
 		LOG("ERROR : Failed to recenter position on station, exiting ...")
 		goto FarmPirates_End
 	}
+	
+	CurrentX := StationX
+	CurrentY := StationY
         
     Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
 
@@ -28,16 +31,13 @@ FarmPirates(PirateCount)
 		Ret := 1
 		goto FarmPirates_End
 	}        
-	    
-    CurrentPirate := 1
+	   
     KilledPirate := 0
-	CurrentX := StationX
-	CurrentY := StationY
 	
     Loop
 	{
         ; we reached the end of the pirates list, then exit
-        if (CurrentPirate >= Pirates.Length())
+        if (Pirates.Length() <= 0)
         {
             LOG("No more pirates to kill, exiting...")
             Ret := 1
@@ -59,14 +59,17 @@ FarmPirates(PirateCount)
 		ResY := RefValues[3]
 
         ; try to kill pirate
-        if (!KillPirate(ResX, ResY, Killed))
+        if (!KillPirate(ResX, ResY, Killed, Moved))
         {
             Log(Format("ERROR : failed to kill pirates at ({1}, {2}).", ResX, ResY), 2)
             Goto FarmPirates_End
         }
         
-		CurrentX := ResX
-		CurrentY := ResY
+		if (Moved)
+		{
+			CurrentX := ResX
+			CurrentY := ResY
+		}
 		
         ; check if it's been killed
         if (Killed)
@@ -81,8 +84,6 @@ FarmPirates(PirateCount)
                 Goto FarmPirates_End
             }
         }
-        
-        CurrentPirate := CurrentPirate + 1
         
          ; check if we have avengers
         if (AvengersComing())
@@ -108,12 +109,14 @@ FarmPirates_End:
 ; FarmPirate : Will try to find a pirate, kill it and collect resource
 ; Function assumes we're in the system center in 2D as startpoint
 ;*******************************************************************************
-KillPirate(X,Y, ByRef Killed)
+KillPirate(X,Y, ByRef Killed, ByRef Moved)
 {
     global MainWinW, MainWinH
-    
+    global Pirates_BlackList
+	
     Killed := 0
-    
+    Moved := 0
+	
      ; go to the ressource position
     Log(Format("Going to kill pirate at ({1:i}, {2:i}) ...", X, Y), 1)
     MapMoveToXY(X, Y)
@@ -127,7 +130,8 @@ KillPirate(X,Y, ByRef Killed)
     
     if (!Valid)
     {
-        LOG("Pirate is not valid, skipping")
+        LOG("Pirate is not valid, blacklisting and skipping")
+		Pirates_BlackList.insert(Format("PIRATE,{1},{2}", X, Y))
 		
 		; we need to reclaibrate position
 		return ReadjustPosition()
@@ -135,57 +139,17 @@ KillPirate(X,Y, ByRef Killed)
     
     ; Send Fleets there
     OffsetClick := 30
-    Count := 0
-	Loop
+	DeltaX := OffsetClick
+	DeltaY := OffsetClick
+	
+	if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png"))
 	{
-		if (Count = 0)
-        {
-            DeltaX := OffsetClick
-            DeltaY := OffsetClick
-        }
-			
-		if (Count = 1)
-        {
-            DeltaX := -OffsetClick
-            DeltaY := OffsetClick
-        }
-			
-		if (Count = 2)        
-        {
-            DeltaX := OffsetClick
-            DeltaY := -OffsetClick
-        }
-			
-		if (Count = 3)
-        {
-            DeltaX := -OffsetClick
-            DeltaY := -OffsetClick
-        }
-        
-        if (Count = 1)
-        {
-            Log("ERROR : all attempts to do the group move failed, exiting ...", 2)
-			
-			; we need to reclaibrate position
-			return ReadjustPosition()
-        }
-
-
-		Sleep, 1000
-        
-        if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png"))
-        {
-            Log("ERROR : failed to start group move", 2)
-        }
-        else
-		{
-			break
-		}
-        
-        Count := Count + 1
+		Log("ERROR : failed to start group move", 2)
+		
+		; we need to reclaibrate position
+		return ReadjustPosition()
 	}
-    
-    
+		
     ; Select All Fleets
 	LOG("Selecting all fleets ...")
 	Loop
@@ -210,12 +174,15 @@ KillPirate(X,Y, ByRef Killed)
 	
     ; Click Ok 
 	Log("Validating all fleets ...")
-    if !ClickUntilChanged("buttons\OKFleets.png", 90, 5,  730, 800, 1020, 920)
-    {
-        Log("ERROR : failed to click OK to attack, exiting.", 2)
-        return 0
+	if (!NovaFindClick("buttons\OKFleets.png", 100, "w5000 n1", FoundX, FoundY,  730, 800, 1020, 920))
+	{
+		; we didn't find button, but try to click 
+        Log("ERROR : failed to click OK to attack, trying direct click.", 2)		
+		NovaLeftMouseClick(875, 860)
     }
     
+	Moved := 1
+	
     ; now Wait for all fleets to be theres
     Log("Waiting for fleets to complete move...")
     if (!WaitForFleetsIdle())
@@ -224,7 +191,7 @@ KillPirate(X,Y, ByRef Killed)
         return 0
     }
     
-    ; check if we can do the attack
+    ; check if we can do the attack just before attacking
     if (!ValidateAttack())
     {
         Log("Attack was not validated, skipping.", 2)
@@ -238,7 +205,7 @@ KillPirate(X,Y, ByRef Killed)
         return 0
     }
     
-	if (NovaFindClick("buttons\avengers_continue.png", 30, "w1000 n1"))
+	if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
 	{
 		Log("Avengers trigger validation")
 	}
@@ -261,6 +228,12 @@ KillPirate(X,Y, ByRef Killed)
             return 0
         }
     }
+	
+	; we can have an heavy ennemy continue popup
+	if (NovaFindClick("buttons\red_continue.png", 50, "w3000 n1"))
+	{
+		Log("Validating heavy enemy continue")
+	}
     
     ; now Wait for all fleets to be out of fight
     Log("Waiting for fleets to complete attack...")
@@ -290,6 +263,17 @@ ValidatePirate(X, Y, ByRef Valid)
     ; we check if it's a pirate
     if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 589, 470, 740, 530)
     {
+	    ; we check if it's know to be valid
+		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
+		{
+			FileName := "pirates\invalid\" . A_LoopFileName
+			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 589, 560, 740, 590))
+			{
+				Log(Format("Invalidating a pirate matching {1}", A_LoopFileName))
+				goto ValidatePirate_End
+			}
+		}
+	
 		Valid := 1
 	}
 	else
@@ -327,7 +311,7 @@ ValidatePirate_End:
 ;*******************************************************************************
 AvengersComing()
 {
-	return NovaFindClick("buttons\avengers.png", 50, "w100 n0")
+	return NovaFindClick("buttons\number_mark.png", 50, "n0", FoundX, FoundY, 650, 870, 785, 1024)
 }
 
 ;*******************************************************************************
@@ -335,39 +319,39 @@ AvengersComing()
 ;*******************************************************************************
 IsTankFresh()
 {
-	Ret:= 0
-    ; go to dock
-    if (!NovaFindClick("buttons\dock.png", 50, "w1000 n1"))
+	Ret := 0
+	
+	; Open the fleets tab
+    if !PopRightMenu(1, "FLEETS")
     {
-        Log("ERROR : failed to find dock button, exiting.", 2)
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
         return 0
     }
-
-    ; select tank Tab
-	while (!NovaFindClick("buttons\dock_tank_on.png", 50, "w100 n1"))
+    
+	if (!NovaFindClick("buttons\Tank.png", 50, "w1000 n1", FoundX, FoundY, 780, 185, 1050, 850))
 	{
-		NovaFindClick("buttons\dock_tank_off.png", 50, "w100 n1")
-		Sleep, 500
+		Log("ERROR : failed to find tank fleet. exiting", 2)
+        return 0
 	}
 	
-    ; check if we have enough health
-    if (!NovaFindClick("buttons\tank_health.png", 50, "w1000 n0"))
-    {
-        Log("Tank is not fresh enough.")
-    }
-	Else
+	if (!NovaFindClick("buttons\Tank_popup.png", 50, "w5000 n0"))
 	{
-		Log("Tank looks fresh enough.")
-		Ret:= 1
-	}
-
-    if (!NovaFindClick("buttons\back.png", 50, "w1000 n1"))
-    {
-        Log("ERROR : failed to back button in dock , exiting.", 2)
+		Log("ERROR : failed to find tank popup. exiting", 2)
         return 0
-    }
+	}
+    
+	Ret := NovaFindClick("buttons\tank_fresh.png", 50, "n0")
+	if (Ret)
+		LOG("Tank looks fresh enough :)")
+	Else
+		LOG("Tank doesn't look fresh :/")
+	
+	NovaEscapeClick()
 
-    return Ret
+    ; fold again right menu
+	PopRightMenu(0)	
+    
+    return Ret  
 }
 
 ;*******************************************************************************

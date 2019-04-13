@@ -136,15 +136,36 @@ DoSequence()
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
 	global PlayerName, Farming
-    global IterationTime
+    global IterationTime, LastStartTime
+	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	
-    Fail := 0
+    Fail := 1
     StartTime := A_TickCount
+
+	; wait for period to be done
+	Period_s := 6 * 60
+	MinTime := LastStartTime + (1000 * Period_s)
+	
+	; wait for it
+	if (MinTime > A_TickCount)
+	{
+		WaitTime_ms := (MinTime - A_TickCount)
+		LOG(Format("Waiting for period completion : {1:i} s...", WaitTime_ms / 1000))
+		Sleep, % WaitTime_ms
+	}
+	
+	LOG(Format("Loop period was : {1:i} s...", (StartTime - LastStartTime) / 1000))
+	LastStartTime := StartTime
+
+	
 	
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")
 	
+	LoadBlackLists()
+	
     if LaunchNova()
     {   	
+	
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
@@ -153,6 +174,35 @@ DoSequence()
         }
         Log("========= CheckFreeResources End   =========")
 	
+    
+		Log("========= BuildFrigates Start =========")
+        if !BuildFrigates(FrigatesAmount)
+        {
+            Log ("ERROR : Failed to build frigates !", 2)
+            Goto TheEnd
+        }
+        Log("========= BuildFrigates End   =========")
+		                      
+		; check if tank is fresh
+        if (Farming)
+            TankFresh := IsTankFresh()
+			
+		
+		; scan pirates ressources in system if farming
+        if (Farming and TankFresh)
+        {
+			if (!ScanResourcesInSystem(""))
+			{
+				Log ("ERROR : Failed to scan system ressources !", 2)
+				Goto TheEnd
+			}
+			
+			Log("Filtering with blacklists ...")
+			Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
+			FilterListwithBlackList(Ressources, Ressources_BlackList)
+			FilterListwithBlackList(Pirates, Pirates_BlackList)
+		}
+		
 		Log("========= getFreeMecas Start =========")
 		if !GetAvailableMecaCount(NumFreeMecas)
         {
@@ -162,62 +212,44 @@ DoSequence()
 		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
 		StartFreeMecas := NumFreeMecas
 		
-		; check if tank is fresh
-        if (Farming)
-            TankFresh := IsTankFresh()
-		
+		if (NumFreeMecas = 0)
+		{
+			Log("Looks like we have no more mecas, skipping")
+			Goto DoSequence_Complete
+		}
+	
 		Log("========= getFreeMecas End =========")
-    
-		Log("========= BuildFrigates Start =========")
-        if !BuildFrigates(FrigatesAmount)
-        {
-            Log ("ERROR : Failed to build frigates !", 2)
-            Goto TheEnd
-        }
-        Log("========= BuildFrigates End   =========")
-        
-        
-        DoScan := 1
-        
-        if (DoScan)
-        {
-            if (!ScanResourcesInSystem(""))
-            {
-                Log ("ERROR : Failed to scan system ressources !", 2)
-                Goto TheEnd
-            }		
-        }
-        Else
-        {
-            LoadRessourcesLists()
-        }
-        
-              
-        if (Farming and TankFresh)
-        {
+		
+		if (Farming and TankFresh)
+		{
             ; collect pirate resource and farm them
             if (!CollectRessourcesByType("PIRATERES"))
             {
                 Log ("ERROR : Failed to collect pirates ressources !", 2)
                 Goto TheEnd
             }
-            
+			
             Log("========= FarmPirate Start =========")
-            if (!FarmPirates(3))
-            {
-                Log ("ERROR : Failed to farm pirates !", 2)
-                Goto TheEnd
-            }
+			if (ScanPiratesRes < 20)
+			{
+				if (!FarmPirates(3))
+				{
+					Log ("ERROR : Failed to farm pirates !", 2)
+					Goto TheEnd
+				}
+			}
+			Else
+			{
+				LOG("Too many ressources in system already, skipping farming, waiting a bit")
+				Sleep, 60000
+			}
             Log("========= FarmPirate End   =========")
         }
         Else
         {
 			if (NumFreeMecas > 0 )
-			{
-				; do the normal ressource collection
-				if CollectRessourcesByType(ResPriority1)
-					if CollectRessourcesByType(ResPriority2)
-						CollectRessourcesByType(ResPriority3)
+			{					
+				CollectResources()
 			}
 			Else
 			{
@@ -225,6 +257,7 @@ DoSequence()
 			}
         }
         
+DoSequence_Complete:	
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
 		IterationTime := (ElapsedTime / 1000)
@@ -237,6 +270,8 @@ DoSequence()
 		pbin := new pastebin(PasteBinUser, PasteBinPassword)
 		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
         Fail := 0
+		
+		SaveBlackLists()
     }
     
     TheEnd:
@@ -298,6 +333,8 @@ ReadConfig()
 	global PlayerName
 	global KilledCount
 	global Farming
+	global CurrentSystem
+	global LastStartTime
     
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -305,6 +342,7 @@ ReadConfig()
     IniRead, FreeResCollected, %FullPath%, COUNTERS, FreeResCollected, 0
     IniRead, OtherResCollected, %FullPath%, COUNTERS, OtherResCollected , 0
     IniRead, FrigatesBuilt, %FullPath%, COUNTERS, FrigatesBuilt, 0
+	IniRead, LastStartTime, %FullPath%, COUNTERS, LastStartTime, 0
     
     IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
@@ -330,6 +368,10 @@ ReadConfig()
 	
     ; stats
     IniRead, KilledCount, %FullPath%, STATS, KilledCount, 0
+	
+	; Get the current system we are in
+	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
+   
     
 }
 
@@ -342,6 +384,7 @@ WriteConfig()
 	global PlayerName
     global KilledCount
 	global Farming
+	global LastStartTime
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -349,6 +392,7 @@ WriteConfig()
     IniWrite, %FreeResCollected%, %FullPath%, COUNTERS, FreeResCollected
     IniWrite, %OtherResCollected%, %FullPath%, COUNTERS, OtherResCollected
     IniWrite, %FrigatesBuilt%, %FullPath%, COUNTERS, FrigatesBuilt
+	IniWrite, %LastStartTime%, %FullPath%, COUNTERS, LastStartTime
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime

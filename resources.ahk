@@ -185,16 +185,13 @@ CollectResources()
 		if (SystemName = "")
 			break
 
-        ; go to system
-        if (!GotoSystem(SystemName))
-        {
-            LOG("ERROR : Failed to got to system " . SystemName . ", exiting ...")
-            return 0
-        }
-        
         ; collect ressources
-        LOG("Collecting ressources in" . SystemName . "...")
+        LOG("Collecting ressources in " . SystemName . " ...")
         ScanResourcesInSystem(SystemName)
+		
+		if CollectRessourcesByType(ResPriority1)
+			if CollectRessourcesByType(ResPriority2)
+				CollectRessourcesByType(ResPriority3)
 			
 		SystemIndex := SystemIndex + 1
 	}
@@ -206,18 +203,24 @@ CollectResources()
 ; CollectResourcesInSystem : Parse given system and collect ressources if any
 ; by sending workers onto them
 ;*******************************************************************************
-ScanResourcesInSystem(system)
+ScanResourcesInSystem(SystemName)
 {
     global Ressources, Collecting, Pirates
     global NumFreeMecas
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas, ScanPirates, ScanPiratesRes
 	global MapPosX, MapPosY
 	global ResPriority1, ResPriority2, ResPriority3
+	global CurrentSystem
     
-    Log("Starting to scan map...")
+   
+	; default to current system if unspecified
+    if (SystemName = "")
+        SystemName := CurrentSystem
     
+	 Log(Format("Starting to scan map in {1} ...", SystemName))
+	
     ; we need the system screen
-    if !GotoSystem(system)
+    if !GotoSystem(SystemName)
     {
         return 0
     }
@@ -236,7 +239,7 @@ ScanResourcesInSystem(system)
 	MapPosY := 0
 	
 	; Scan the map for ressources
-	ScanMap()
+	ScanMap(SystemName)
 	
 	; remove duplicate ressources
 	Log("Sorting ressources ...")
@@ -313,16 +316,16 @@ ScanResourcesInSystem(system)
 ; CollectResourcesByType : browse the map and collect a ressource from The
 ; given type
 ;*******************************************************************************
-ScanMap()
+ScanMap(SystemName)
 {
-    global Ressources, PlayerName
-	
-	; Get the current system we are in
-	FullPath =  %A_ScriptDir%\%PlayerName%.ini
-	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
-	
+    global Ressources, PlayerName, CurrentSystem
+		
+		; default to current system if unspecified
+    if (SystemName = "")
+        SystemName := CurrentSystem
+		
 	; get system size
-	FullPath =  %A_ScriptDir%\images\systems\%CurrentSystem%\system.ini
+	FullPath =  %A_ScriptDir%\images\systems\%SystemName%\system.ini
 	IniRead, SystemWidth, %FullPath%, SYSTEM, WIDTH, 3000
 	IniRead, SystemHeight, %FullPath%, SYSTEM, HEIGHT, 3000
 	
@@ -472,7 +475,7 @@ SortStart:
 		{
 			CompareValues := StrSplit(ResList[CompareRes], ",")
 			
-			if (Abs(CompareValues[2] - RefValues[2]) < 10) AND (Abs(CompareValues[3] - RefValues[3]) < 10)
+			if (Abs(CompareValues[2] - RefValues[2]) < 15) AND (Abs(CompareValues[3] - RefValues[3]) < 15)
 			{
 				Log("Removing dupplicate " . ResList[CompareRes] . " of " . ResList[CurrentRes])
 				ResList.RemoveAt(CompareRes)
@@ -494,11 +497,12 @@ CollectRessourcesByType(ResType)
 	global NumFreeMecas, OtherResCollected
     global Ressources
     global MainWinW, MainWinH
+	global Ressources_BlackList
 	
 	if (NumFreeMecas = 0)
 	{
-		Log("Looks like we have no more mecas, exiting")
-		return 0
+		Log("Looks like we have no more mecas, skipping")
+		return 1
 	}
 		
 		
@@ -524,6 +528,7 @@ CollectRessourcesByType(ResType)
 			if (Ret = 0)
 			{
 				Log("ERROR : failed to find collect button, skipping.", 2)
+				ReadjustPosition()
 				goto CollectRessourcesByType_Next
 			}
 			
@@ -548,6 +553,13 @@ CollectRessourcesByType(ResType)
                     }
                 }
              }
+			 
+			 ; if ressource is invalid
+			 if (Ret = -1)
+             {
+				Log(Format("Blacklisting ressource {1}", Ressources[CurrentRes]))
+				Ressources_BlackList.Insert(Ressources[CurrentRes])
+			 }
 			
 		}
 
@@ -566,6 +578,18 @@ SaveRessourcesLists()
     SaveListToFile(Ressources, "Ressources.txt")
     SaveListToFile(Collecting, "Collecting.txt")
     SaveListToFile(Pirates, "Pirates.txt")
+}
+
+;*******************************************************************************
+; SaveBlackLists : Saves the blackllists to files
+;*******************************************************************************
+SaveBlackLists()
+{
+	global PlayerName
+	
+	LOG("Saving BlackLists...")
+    SaveListToFile(Pirates_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
+    SaveListToFile(Ressources_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
 }
 
 ;*******************************************************************************
@@ -594,6 +618,18 @@ LoadRessourcesLists()
     LoadListsFromFile(Collecting, "Collecting.txt")
     LoadListsFromFile(Pirates, "Pirates.txt")
 }
+
+;*******************************************************************************
+; LoadBlackLists : Load the black lists
+;*******************************************************************************
+LoadBlackLists()
+{
+	global PlayerName
+	LOG("Loading BlackLists...")
+    LoadListsFromFile(Pirates_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
+    LoadListsFromFile(Ressources_BlackList, Format("{1}_Pirates_BlackList.txt", PlayerName))
+}
+
 
 ;*******************************************************************************
 ; LoadListsFromFile : Load the ressource list from a given file
@@ -627,3 +663,42 @@ ValidateRessource()
     return 1
 }
 
+
+;*******************************************************************************
+; FilterListwithBlackList : Removes list items that are in the blacklist
+;*******************************************************************************
+FilterListwithBlackList(Byref List, Blacklist)
+{
+	ListIndex := 1
+	Loop, % List.Length()
+	{
+		Text := List[ListIndex]
+		
+		Values := StrSplit(List[ListIndex], ",")
+		X := Values[2]
+		Y := Values[3]
+		
+		BlackListIndex := 1
+		Loop, % Blacklist.Length()
+		{
+			BlackValues := StrSplit(Blacklist[BlackListIndex], ",")
+			BlackX := BlackValues[2]
+			BlackY := BlackValues[3]
+			
+			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
+			{
+				; we need to remove this one
+				Log(Format("Removing {1} at ({2}, {3}) due to blaclist filter", BlackValues[1], BlackValues[2], BlackValues[3])
+				List.RemoveAt(ListIndex)
+				goto FilterListwithBlackList_End
+			}
+			
+			BlackListIndex := BlackListIndex + 1
+		}
+		
+		ListIndex := ListIndex + 1
+		
+FilterListwithBlackList_End:
+
+	}
+}
