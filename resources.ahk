@@ -375,7 +375,7 @@ FindRessources()
 	global Farming
     
 	CurrentResType := "STATION"
-	NovaFindClick("pirates\station.png", 90, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("pirates\station.png", 30, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
 	if (Farming)
 	{
@@ -383,7 +383,7 @@ FindRessources()
 		NovaFindClick("pirates\pirate.png", 70, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
 		CurrentResType := "PIRATERES"
-		NovaFindClick("resources\pirate.png", 30, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
+		NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
 	}
 	Else
 	{
@@ -475,7 +475,7 @@ SortStart:
 		{
 			CompareValues := StrSplit(ResList[CompareRes], ",")
 			
-			if (Abs(CompareValues[2] - RefValues[2]) < 15) AND (Abs(CompareValues[3] - RefValues[3]) < 15)
+			if (Abs(CompareValues[2] - RefValues[2]) < RssDistThreshold) AND (Abs(CompareValues[3] - RefValues[3]) < RssDistThreshold)
 			{
 				Log("Removing dupplicate " . ResList[CompareRes] . " of " . ResList[CurrentRes])
 				ResList.RemoveAt(CompareRes)
@@ -538,7 +538,7 @@ CollectRessourcesByType(ResType)
                 if NovaFindClick("buttons\Ok.png", 50, "w1000 n1")
                 {
                     Log("Obviosuly no more mecas, but we should not have been here ...")
-                    return 0
+                    return 1
                 }
                 Else
                 {
@@ -673,6 +673,8 @@ ValidateRessource()
 ;*******************************************************************************
 FilterListwithBlackList(Byref List, Blacklist)
 {
+	global RssDistThreshold
+	
 	ListIndex := 1
 	Loop, % List.Length()
 	{
@@ -687,7 +689,7 @@ FilterListwithBlackList(Byref List, Blacklist)
 			BlackX := BlackValues[2]
 			BlackY := BlackValues[3]
 			
-			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
+			if (Abs(X - BlackX) < RssDistThreshold) AND (Abs(Y - BlackY) < RssDistThreshold)
 			{
 				; we need to remove this one
 				Log(Format("Removing {1} at ({2}, {3}) due to blacklist filter", BlackValues[1], BlackValues[2], BlackValues[3]))
@@ -711,6 +713,8 @@ FilterListwithBlackList_End:
 ;*******************************************************************************
 RemoveObosoleteBlackList(Byref Blacklist, List)
 {
+	global RssDistThreshold
+
 	BlackListIndex := 1
 	Loop, % Blacklist.Length()
 	{
@@ -726,7 +730,7 @@ RemoveObosoleteBlackList(Byref Blacklist, List)
 			X := Values[2]
 			Y := Values[3]
 			
-			if (Abs(X - BlackX) < 15) AND (Abs(Y - BlackY) < 15)
+			if (Abs(X - BlackX) < RssDistThreshold) AND (Abs(Y - BlackY) < RssDistThreshold)
 			{
 				Valid := 1
 				break

@@ -138,13 +138,13 @@ DoSequence()
 	global PlayerName, Farming
     global IterationTime, LastStartTime
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
+	global LoopPeriod
 	
     Fail := 1
     StartTime := A_TickCount
 
 	; wait for period to be done
-	Period_s := 6 * 60
-	MinTime := LastStartTime + (1000 * Period_s)
+	MinTime := LastStartTime + (1000 * LoopPeriod)
 	
 	; wait for it
 	if (MinTime > A_TickCount)
@@ -160,7 +160,7 @@ DoSequence()
 	
 	
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")	
-	LoadBlackLists()
+	;LoadBlackLists()
 	
     if LaunchNova()
     {   
@@ -196,10 +196,10 @@ DoSequence()
 			}
 			
 			Log("Filtering with blacklists and cleaning up ...")
-			RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
-			RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
-			FilterListwithBlackList(Ressources, Ressources_BlackList)
-			FilterListwithBlackList(Pirates, Pirates_BlackList)
+			;RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
+			;RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
+			;FilterListwithBlackList(Ressources, Ressources_BlackList)
+			;FilterListwithBlackList(Pirates, Pirates_BlackList)
 			Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
 			Log(Format("We have {1} pirates and {2} ressources in blacklist...", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
 		}
@@ -231,7 +231,8 @@ DoSequence()
             }
 			
             Log("========= FarmPirate Start =========")
-			if (ScanPiratesRes < 20)
+			Res := CountResByType(Ressources, "PIRATERES")
+			if (Res < 20)
 			{
 				if (!FarmPirates(3))
 				{
@@ -241,8 +242,7 @@ DoSequence()
 			}
 			Else
 			{
-				LOG("Too many ressources in system already, skipping farming, waiting a bit")
-				Sleep, 60000
+				LOG(Format("Too many ressources in system already ({1}), skipping farming", Res))
 			}
             Log("========= FarmPirate End   =========")
         }
@@ -272,7 +272,7 @@ DoSequence_Complete:
 		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
         Fail := 0
 		
-		SaveBlackLists()
+		;SaveBlackLists()
     }
     
     TheEnd:
@@ -552,17 +552,19 @@ StopNova_Close:
         WinClose, %WindowName%
         sleep, 2000
         
-        ; Click on the confirm button
-        if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
-        {
-            Log("ERROR : Could not find exit confirm button, exiting...", 2)
-        }
-        
         ; Wait for it to close
         Log("Waiting for BlueStacks to close...")    
         while WinExist(WindowName)
         {
-            sleep, 1000
+			; Click on the confirm button
+			if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
+			{
+				Log("ERROR : Could not find exit confirm button, exiting...", 2)
+			}
+			Else
+			{
+				break
+			}
         }
         
         Log("BlueStacks is closed.")

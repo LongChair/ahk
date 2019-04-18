@@ -157,6 +157,13 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 		; check if we have the left arrow which means we are ready
 		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
 			break
+		Else
+		{
+			; or it could be double arrow if one fleet is busy
+			if (NovaFindClick("buttons\fleets_arrow_left_right.png", 30, "w100 n0", FoundX, FoundY, 860, 430, 900, 550))
+				break
+		}
+			
 			
 		; right arrow means we have to click to add them all 
 		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))

@@ -62,3 +62,9 @@ global Pirates_BlackList := []
 
 ; various global counters for callbacks
 global IdleCounter := 0
+
+global RssDistThreshold := 15
+
+; program loop period in s
+Global LoopPeriod := 6 * 60 + 30
+
