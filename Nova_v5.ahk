@@ -118,7 +118,7 @@ DoAccount(Account)
 	; Read Configureation
     Log("Reading Configuration...")
     ReadConfig()
-
+	
     DoSequence()
      
     ; Write Configuration
@@ -144,7 +144,13 @@ DoSequence()
     StartTime := A_TickCount
 
 	; wait for period to be done
-	MinTime := LastStartTime + (1000 * LoopPeriod)
+	if  (LastStartTime > A_TickCount)
+		LastStartTime := A_TickCount - (LoopPeriod * 1000)
+		
+	if (Farming)
+		MinTime := LastStartTime + (1000 * LoopPeriod)
+	Else
+		MinTime := LastStartTime + (1000 * 3 * 60)
 	
 	; wait for it
 	if (MinTime > A_TickCount)
@@ -163,7 +169,7 @@ DoSequence()
 	;LoadBlackLists()
 	
     if LaunchNova()
-    {   
+    {   			
         Log("========= CheckFreeResources Start =========")
         if !CheckFreeResources()
         {
@@ -276,6 +282,7 @@ DoSequence_Complete:
     }
     
     TheEnd:
+	Fail := 1
     StopNova(Fail)
     Log("------------------------------ Stopping Sequence for " . PlayerName . " ------------------------------")
 }
@@ -336,8 +343,11 @@ ReadConfig()
 	global Farming
 	global CurrentSystem
 	global LastStartTime
+	global FrigateType
     
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
+	IniPath =  %A_ScriptDir%\PasteBin.ini
+	
     
     ; Counters
     IniRead, FreeResCollected, %FullPath%, COUNTERS, FreeResCollected, 0
@@ -345,7 +355,8 @@ ReadConfig()
     IniRead, FrigatesBuilt, %FullPath%, COUNTERS, FrigatesBuilt, 0
 	IniRead, LastStartTime, %FullPath%, COUNTERS, LastStartTime, 0
     
-    IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
+    ;IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
+	IniRead, FrigatesAmount, %IniPath%, FRIGATES, %PlayerName%, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
 	IniRead, Farming, %FullPath%, PARAMETERS, Farming, 0
 	
@@ -361,6 +372,7 @@ ReadConfig()
 	IniRead, CommandLine, %FullPath%, GENERAL, CommandLine, ""
 	IniRead, WindowName, %FullPath%, GENERAL, WindowName, ""
 	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
+	IniRead, FrigateType, %FullPath%, GENERAL, FrigateType, ""
 	
 	; ressources Priority
 	IniRead, ResPriority1, %FullPath%, PRIORITIES, ResPriority1, "MINE"
@@ -557,9 +569,12 @@ StopNova_Close:
         while WinExist(WindowName)
         {
 			; Click on the confirm button
-			if !NovaFindClick("buttons\yes.png", 0, "w20000 n1")
+			if !NovaFindClick("buttons\yes.png", 70, "w20000 n1")
 			{
 				Log("ERROR : Could not find exit confirm button, exiting...", 2)
+				
+				; try to click Button
+				NovaLeftMouseClick(976, 596) 
 			}
 			Else
 			{

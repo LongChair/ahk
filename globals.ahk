@@ -44,6 +44,7 @@ global MaxPlayerMecas := 6
 global MaxPlayerFleets := 6
 global KilledCount := 0
 global CurrentSystem := ""
+global FrigateType =""
 
 global Window_ID := 0
 

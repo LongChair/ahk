@@ -117,7 +117,7 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
     H := Y2 - Y1 + 1
     
 	;Opts := "r""" . WindowName . """ oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
-	Opts := "r" . Window_ID . " oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
 	C := FindClick(FullPath, Opts, FoundX, FoundY)
@@ -343,7 +343,7 @@ GetAvailableMecaCount(ByRef NumMecas)
 	}
 	
 	; look how many mecas are at work
-	AtWork := NovaFindClick("buttons\recuperation.png", 80, "e w1000 n0", FoundX, FoundY, 750, 220, 1340, 960)
+	AtWork := NovaFindClick("buttons\mecatelier.png", 50, "e w1000 n0", FoundX, FoundY, 780, 220, 1340, 960)
 	
 	PopRightMenu(0)	
 	
@@ -928,7 +928,7 @@ ClickMenuImage(X,Y, Image, ValidateFunction := "")
 		NovaLeftMouseClick(X, Y)
 		
 		; make sure we have the menu
-		if (!NovaFindClick("buttons\favori.png", 80, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
+		if (!NovaFindClick("buttons\favori.png", 80, "w3000 n0", FoundX, FoundY, 500,175, 1600, 875))
 		{
 			If (Count >= 3)
 			{
@@ -1006,25 +1006,29 @@ ReadjustPosition()
 {
 	global MapPosX, MapPosY
 	global StationX, StationY
+	global CurrentSystem
+	
+	if (StationX <> 0) and (StationY <> 0)
+	{
+		Log("Recentering on station ...")
 
-	Log("Recentering on station ...")
-	
-	; click on my station button
-	if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 950)
-	{
-		; wait until we find the station, but could be hard to detect
-		NovaFindClick("pirates\station.png", 110, "w2000 n0", FoundX, FoundY, 840, 490, 930, 580)
-	
-		MapPosX := StationX
-		MapPosY := StationY
+		; click on my station button
+		if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 950)
+		{
+			; wait until we find the station, but could be hard to detect
+			NovaFindClick("pirates\station.png", 110, "w2000 n0", FoundX, FoundY, 840, 490, 930, 580)
 		
-		Log("Recentering completed")
-		return 1	
-	}
-	Else
-	{
-		LOG("ERROR : Failed to find station button for recentering")
-		return 0
+			MapPosX := StationX
+			MapPosY := StationY
+			
+			Log("Recentering completed")
+			return 1	
+		}
+		Else
+		{
+			LOG("ERROR : Failed to find station button for recentering")
+			return 0
+		}
 	}
 }
 

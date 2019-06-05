@@ -58,7 +58,7 @@ Toggle2DMode()
 {
     Log("Toggling 2D Mode ...")
     
-	if (NovaFindClick("buttons\2D_system.png", 50, "w1000 n0", FoundX, FoundY, 740, 400, 880, 530))
+	if (NovaFindClick("buttons\3D.png", 50, "w1000 n0", FoundX, FoundY, 1650, 750, 1750, 830))
 	{
 		Log("System already in 2D")
 		return 1
@@ -164,9 +164,14 @@ RecallMecas(ByRef ResList, ResType, Amount)
 CollectResources()
 {
 	global PlayerName, NumFreeMecas
+	global ResPriority1, ResPriority2, ResPriority3
+	global CurrentSystem
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
-    	
+    CurrentSystem := FindCurrentSystem()
+	StartSystem := CurrentSystem
+	LOG("We found " . StartSystem . " as current system.")
+	
 	SystemIndex := 1
 	Loop
 	{
@@ -181,7 +186,7 @@ CollectResources()
 		Key := "System" . SystemIndex
 		
 		; Read System
-		IniRead, SystemName, %FullPath%, SYSTEMS, %Key%, %A_Space%
+		IniRead, SystemName, %FullPath%, %StartSystem%, %Key%, %A_Space%
 		if (SystemName = "")
 			break
 
@@ -189,14 +194,51 @@ CollectResources()
         LOG("Collecting ressources in " . SystemName . " ...")
         ScanResourcesInSystem(SystemName)
 		
-		if CollectRessourcesByType(ResPriority1)
-			if CollectRessourcesByType(ResPriority2)
-				CollectRessourcesByType(ResPriority3)
+		if !CollectRessourcesByType(ResPriority1)
+			return 0
+		if !CollectRessourcesByType(ResPriority2)
+			return 0
+		if !CollectRessourcesByType(ResPriority3)
+			return 0
 			
 		SystemIndex := SystemIndex + 1
 	}
 	
 	return 1
+}
+
+;*******************************************************************************
+; FindCurrentSystem : determines which is the current system based on known
+; systems
+;*******************************************************************************
+FindCurrentSystem()
+{
+	; go to galaxy screen
+	if (!GotoScreen("GALAXIE",30))
+	{
+		return 0
+	}
+	
+	FoundSystem := ""
+	SystemDirectory = %A_ScriptDir%\images\systems
+	LoopCount := 15
+	
+	while (LoopCount > 0)
+	{
+		Loop, Files, %SystemDirectory%\* , D
+		{
+			SystemPath = %A_LoopFileShortPath%
+			SystemName = %A_LoopFileShortName%
+			FileName := Format("systems\{1}\{2}.png", SystemName, SystemName)
+			
+			if (NovaFindClick(FileName, 70, "w100 n0", FoundX, FoundY, 825, 480,920, 580))
+				return %SystemName%
+		}
+		Sleep, 1000
+		LoopCount := LoopCount - 1
+	}
+	
+	return ""
 }
 
 ;*******************************************************************************
@@ -215,7 +257,13 @@ ScanResourcesInSystem(SystemName)
    
 	; default to current system if unspecified
     if (SystemName = "")
-        SystemName := CurrentSystem
+        SystemName := FindCurrentSystem()
+		
+	if (SystemName = "")
+	{
+		Log("Error : Could not identify current system, Is it unknown ?")
+		return 0
+	}
     
 	 Log(Format("Starting to scan map in {1} ...", SystemName))
 	
@@ -239,6 +287,7 @@ ScanResourcesInSystem(SystemName)
 	MapPosY := 0
 	
 	; Scan the map for ressources
+	Sleep, 2000
 	ScanMap(SystemName)
 	
 	; remove duplicate ressources
@@ -504,10 +553,15 @@ CollectRessourcesByType(ResType)
 		Log("Looks like we have no more mecas, skipping")
 		return 1
 	}
+	
+	if (ResType = "")
+	{
+		Log("Ressource type is empty, skipping")
+		return 1
+	}
 		
-		
-	Log("Collecting ressources found for " . ResType)
 	CurrentRes := 1
+	Log(Format("Collecting ressources found for {1} ", ResType))
 	Loop, % Ressources.Length()
 	{
 		RefValues := StrSplit(Ressources[CurrentRes], ",")
@@ -528,7 +582,7 @@ CollectRessourcesByType(ResType)
 			if (Ret = 0)
 			{
 				Log("ERROR : failed to find collect button, skipping.", 2)
-				ReadjustPosition()
+				;ReadjustPosition()
 				goto CollectRessourcesByType_Next
 			}
 			
@@ -538,11 +592,15 @@ CollectRessourcesByType(ResType)
                 if NovaFindClick("buttons\Ok.png", 50, "w1000 n1")
                 {
                     Log("Obviosuly no more mecas, but we should not have been here ...")
+										
+					; we usually have the context menu still up, close it
+					Sleep, 500
+					NovaEscapeClick()
                     return 1
                 }
                 Else
                 {
-                    Log("sending meca ...")
+                    Log(Format("sending meca ({1} left) ...", NumFreeMecas))
                     OtherResCollected := OtherResCollected + 1
                     NumFreeMecas := NumFreeMecas - 1
                     

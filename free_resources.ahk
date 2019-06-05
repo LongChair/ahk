@@ -122,8 +122,8 @@ CheckFreeResources()
 		Log("Collecting free resources ... got '" . ResDescription . "', YEAH!", 1)
 		
 		; Grab a screenshot of the resource
-        NovaGrab(740, 350, 300, 365)
-        Sleep, 1000
+        ;NovaGrab(740, 350, 300, 365)
+        ;Sleep, 1000
         
         ; look for the grab button
         Log("Clicking on grab button...")
@@ -147,6 +147,8 @@ CheckFreeResources()
         LoopCount := 0
         Loop
         {
+			NovaFindClick("buttons\reward.png", 80, "w5000 n1")
+			
             LoopCount := LoopCount + 1
             Sleep, 1000
         } Until WaitNovaScreen("STATION", 1) or LoopCount > 5
