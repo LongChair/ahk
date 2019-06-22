@@ -297,7 +297,7 @@ GetSummuary()
 	global FreeResCount, PossibleRes, MaxFreeRes
 	global ScanAvailMine, ScanAvailAllium, ScanAvailCrystals, ScanMiningMecas, ScanCrystalingMecas, ScanAlliumingMecas
 	global ResPriority1, ResPriority2, ResPriority3
-	global IterationTime
+	global IterationTime, Helped
 	
 	Summurary := ""
 	Summuary := Summuary . Format("-==================== SUMMUARY at {1}:{2} ==({3})==========-`r`n", A_Hour, A_Min, FormatSeconds(IterationTime))  
@@ -321,6 +321,7 @@ GetSummuary()
 	Summuary := Summuary . Format("   * Regular resources collected : {1}`r`n", OtherResCollected)
 	Summuary := Summuary . Format("   * Frigates built              : {1}/{2}`r`n", FrigatesBuilt, FrigatesAmount)
     Summuary := Summuary . Format("   * Killed pirates              : {1}`r`n", KilledCount)
+	Summuary := Summuary . Format("   * Alliance Helps              : {1}`r`n", Helped)
 	Summuary := Summuary . Format("`r`n")
 	Summuary := Summuary . Format(" - FREE RESSOURCES :`r`n")
 	
@@ -381,6 +382,7 @@ ReadConfig()
 	
     ; stats
     IniRead, KilledCount, %FullPath%, STATS, KilledCount, 0
+	IniRead, Helped, %FullPath%, STATS, Helped, 0
 	
 	; Get the current system we are in
 	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
@@ -395,7 +397,7 @@ WriteConfig()
 {
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
 	global PlayerName
-    global KilledCount
+    global KilledCount, Helped
 	global Farming
 	global LastStartTime
 	
@@ -426,6 +428,7 @@ WriteConfig()
     
     ; stats
 	IniWrite, %KilledCount%, %FullPath%, STATS, KilledCount
+	IniWrite, %Helped%, %FullPath%, STATS, Helped
 }
 
 ;*******************************************************************************

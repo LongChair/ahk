@@ -42,6 +42,7 @@ ResetStats()
 	}
 	
 	KilledCount := 0
+	Helped := 0
 }
 
 ;*******************************************************************************
@@ -64,11 +65,21 @@ CheckFreeResources()
         Log("Found Day 1 icon, and clicked.")
      
 		 ; look for the reward screen
+        if !NovaFindClick("buttons\reward_Connexion.png", 30, "w5000 n1")
+        {
+            Log("ERROR : Failed to find the reward connexion button for daily mission, exiting", 2)
+            return 0
+        }
+		
+	 
+		 ; look for the reward screen
         if !NovaFindClick("buttons\reward.png", 30, "w5000 n1")
         {
             Log("ERROR : Failed to find the reward screen for daily mission, exiting", 2)
             return 0
         }
+		
+		NovaEscapeClick()
 	 
         ; reset all stats counters
         ResetStats()
@@ -163,6 +174,13 @@ CheckFreeResources()
     {
         Log("No free resources :/")
     }
+	
+	; check for help
+	if (NovaFindClick("buttons\help.png", 80, "w500 n1", FoundX, FoundY, 960, 900, 1040, 980))
+	{
+		Helped := Helped + 1
+		Log(Format("Found People to help (Total %1)", Helped))
+	}
     
     return 1
 }

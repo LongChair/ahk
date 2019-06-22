@@ -8,7 +8,7 @@
 ;*******************************************************************************
 GetNovaScreen()
 {   
-	if NovaFindClick("screen_markers\daily_mission.png", 30, "n0", FoundX, FoundY, 230, 880, 360, 1000)
+	if NovaFindClick("screen_markers\daily_mission.png", 30, "n0", FoundX, FoundY, 205, 880, 305, 1000)
 		return "STATION"
 	
 	if NovaFindClick("screen_markers\galaxy_qmark.png", 30, "n0", FoundX, FoundY, 20, 920, 105, 1015)

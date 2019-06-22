@@ -69,3 +69,6 @@ global RssDistThreshold := 15
 ; program loop period in s
 Global LoopPeriod := 6 * 60 + 30
 
+; Amount of people helped
+global Helped := 0
+
