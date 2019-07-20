@@ -265,6 +265,7 @@ ScanResourcesInSystem(SystemName)
 		return 0
 	}
     
+	 CurrentSystem := SystemName
 	 Log(Format("Starting to scan map in {1} ...", SystemName))
 	
     ; we need the system screen

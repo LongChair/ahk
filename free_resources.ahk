@@ -179,7 +179,7 @@ CheckFreeResources()
 	if (NovaFindClick("buttons\help.png", 80, "w500 n1", FoundX, FoundY, 960, 900, 1040, 980))
 	{
 		Helped := Helped + 1
-		Log(Format("Found People to help (Total %1)", Helped))
+		Log(Format("Found People to help (Total {1})", Helped))
 	}
     
     return 1

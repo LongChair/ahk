@@ -559,7 +559,7 @@ RecallAllFleets()
 ;*******************************************************************************
 ; WaitForFleetsIdle : wait for all fleets to be idle
 ;*******************************************************************************
-WaitForFleetsIdle(TimeOut := 300)
+WaitForFleetsIdle(TimeOut := 180)
 {
 	global MaxPlayerFleets
     
@@ -570,7 +570,7 @@ WaitForFleetsIdle(TimeOut := 300)
         return 0
     }
     
-	TimeLeft := TimeOut * 100
+	TimeLeft := TimeOut * 10
 	Loop
 	{
 		IdleCounter := 0

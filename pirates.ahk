@@ -228,7 +228,7 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
     ; click attack button
     Log("Selecting Tank...")
     ScrollCount := 0
-    while (!NovaFindClick("buttons\Tank.png", 30, "w500 n1"))
+    while (!NovaFindClick("buttons\Tankfleet.png", 50, "w500 n1"))
     {
         NovaMouseMove(1050, 470)
         MouseClick, WheelDown,,, 2
