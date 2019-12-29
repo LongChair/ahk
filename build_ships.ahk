@@ -28,31 +28,33 @@ HandleFreeSlot(X, Y)
 	}
 	
 	; then click on build button
-	if !NovaFindClick("buttons\build.png", 30, "w1000 n1")
+	while (NovaFindClick("buttons\build.png", 30, "w1000 n1", FoundX, FoundY, 1480, 690, 1740, 790))
 	{
-		Log("Could not find build button")
-		Build_error := 1
-	}
-	Else
-	{	
-		; Add one more build to the counter
 		FrigatesBuilt := FrigatesBuilt + 1
+		Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
+		Sleep, 500
 	}
+	;if (NovaFindClick("buttons\build.png", 30, "w1000 n1"))
+	;{
+	;	FrigatesBuilt := FrigatesBuilt + 1
+	;}
 		
+	;Sleep, 1000
+	
 	; then click on back button               
-	while NovaFindClick("buttons\back_ships.png", 30, "w1000 n1")
+	while NovaFindClick("buttons\back_ships.png", 30, "w1000 n1", FoundX, FoundY, 0, 40, 200, 140)
 	{
-		Sleep, 1000
+		Log("Going back from shipyard screen")
 	}
 	
 	; wait to come back to main screen with economy button highlighted
-	if !NovaFindClick("buttons\economy_on.png", 30, "w3000 n")
+	if !NovaFindClick("buttons\economy_on.png", 30, "w3000 n0", FoundX, FoundY, 1510, 170, 1750, 270)
 	{
 		Log("Could not find economy tab, while getting back to main screen, exiting.")
 		return
 	}
 	
-	Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
+	
 	
 }
 

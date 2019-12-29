@@ -37,7 +37,7 @@ NovaDragMouse(X, Y, SpanX, SpanY)
 	Sleep, 200
 	MouseMove, X + SpanX, Y + SpanY, 10
 	SendEvent {click up}
-	Sleep, 200
+	Sleep, 500
 }
 
 ;*******************************************************************************
@@ -273,6 +273,7 @@ MapMoveToXY(X, Y)
 	MoveXDir := 0
     MoveYDir := 0
 	
+	
 	Loop 
 	{
 		if (X >= MapPosX)
@@ -375,27 +376,21 @@ GotoSystem(SystemName)
 
     if (NovaFindClick(Format("systems\{1}\{2}.png", CurrentSystem , SystemName), 70, "w15000 n1"))
     {
-        
-        if (NovaFindClick("buttons\rejoindre.png", 70, "w5000 n1"))
-        {
-            
-            Sleep, 5000
-            
-            ; make sure we reached the system
-            if !GotoScreen("SYSTEME", 60)
-            {
-                return 0
-            }
-            
-			CurrentSystem := SystemName
-			
-            return 1
-        }
-        Else
-        {
-            LOG("ERROR : Failed to find system join button for " . SystemName . ", exiting ...")
-            Return 0
-        }
+		Sleep, 3000
+		
+		NovaLeftMouseClick(1280, 930)
+                    
+		Sleep, 5000
+		
+		; make sure we reached the system
+		if !GotoScreen("SYSTEME", 60)
+		{
+			return 0
+		}
+		
+		CurrentSystem := SystemName
+		
+		return 1
     }
     Else
     {
@@ -488,6 +483,8 @@ RecallAllFleets()
 	}
 	
 	LOG("Recalling fleets...")
+	LoopCount := 0
+	
 	Loop
 	{	
 		FleetIndex := 1
@@ -545,6 +542,13 @@ RecallAllFleets()
 				Count := Count + 1
 			FleetIndex := FleetIndex  + 1
 		}
+		
+		LoopCount := LoopCount + 1
+		if (LoopCount >= 50)
+		{
+			Log("ERROR : failed to recall all fleets (timeout). exiting", 2)
+			return 0
+		}
 	
 	} until (Count >= MaxPlayerFleets)
 		
@@ -559,10 +563,12 @@ RecallAllFleets()
 ;*******************************************************************************
 ; WaitForFleetsIdle : wait for all fleets to be idle
 ;*******************************************************************************
-WaitForFleetsIdle(TimeOut := 180)
+WaitForFleetsIdle(TimeOut := 100)
 {
 	global MaxPlayerFleets
     
+	ZeroTimeCount := 0
+	
     ; Open the fleets tab
     if !PopRightMenu(1, "FLEETS")
     {
@@ -570,27 +576,43 @@ WaitForFleetsIdle(TimeOut := 180)
         return 0
     }
     
-	TimeLeft := TimeOut * 10
+	TimeLeft := TimeOut * 2
 	Loop
 	{
 		IdleCounter := 0
-		NovaFindClick("buttons\recall_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
-		NovaFindClick("buttons\manage_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
+		NovaFindClick("buttons\recall_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1585, 920)
+		NovaFindClick("buttons\manage_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1585, 920)
 		
 		if (IdleCounter >= MaxPlayerFleets)
 		{
 			break
 		}
 		
-		Sleep, 100
+		Sleep, 500
 		
 		TimeLeft := TimeLeft - 1
         if (TimeLeft <= 0)
         {
-            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
+            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be in state Idle. exiting", TimeOut), 2)
 			PopRightMenu(0)	
             return 0
         }
+		
+		if (NovaFindClick("buttons\zerotime.png", 30, "n0", FoundX, FoundY, 1000, 185, 1350, 880))
+		{
+			ZeroTimeCount := ZeroTimeCount + 1
+		}
+		Else
+		{
+			ZeroTimeCount := 0
+		}
+		
+		if (ZeroTimeCount >= 10)
+		{
+			Log("ERROR : Zero Time detected, connection from somewhere else ?" )
+			PopRightMenu(0)	
+            return 0
+		}
 	}
 		
 		
@@ -638,11 +660,12 @@ WaitForFleetsMoving()
         return 0
     }
     
-	TimeLeft := TimeOut * 100
+	TimeOut := 5
+	TimeLeft := TimeOut * 10
 	Loop
 	{
 		IdleCounter := 0
-		NovaFindClick("buttons\turbo_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1485, 880)
+		NovaFindClick("buttons\turbo_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1585, 920)
 		
 		if (IdleCounter > 0)
 		{
@@ -654,7 +677,7 @@ WaitForFleetsMoving()
 		TimeLeft := TimeLeft - 1
         if (TimeLeft <= 0)
         {
-            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
+            Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state Moving. exiting", TimeOut), 2)
 			PopRightMenu(0)	
             return 0
         }
@@ -716,14 +739,14 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     {
         Log("Showing Main right menu ...")
 		Count := 1
-		while (NovaFindClick("buttons\ceg.png", 10, "w100 n0", FoundX, FoundY, 1650, 50, 1750, 140))
+		while (NovaFindClick("buttons\ceg.png", 50, "w2000 n0", FoundX, FoundY, 1750, 50, 1850, 140))
         {
 			; click the button to show up the menu
-			NovaLeftMouseClick(1700, 510)
+			NovaLeftMouseClick(1780, 525)
 			Sleep, 1000
 			
 			Count := Count  + 1
-			if (Count > 30)
+			if (Count > 10)
 			{
 				LOG("ERROR : Timeout Waiting for right menu to show up")
 				return 0
@@ -733,10 +756,10 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 		Count := 1
 		Loop 
 		{
-			if (!NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w100 n0", FoundX, FoundY, 1500, 145, 1760, 680))
+			if (!NovaFindClick("buttons\" . TabPage . "_on.png", 40, "w100 n0", FoundX, FoundY, 1600, 145, 1800, 680))
 			{
 				; wait for eventual unselected economy tab
-				if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w2000 n1", FoundX, FoundY, 1500, 145, 1760, 680)
+				if NovaFindClick("buttons\" . TabPage . "_off.png", 40, "w2000 n1", FoundX, FoundY, 1600, 145, 1800, 680)
 				{
 					Log("Selected " . TabPage . " tab in right menu")
 				}
@@ -769,7 +792,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
 		Count := 1
-        while (!NovaFindClick("buttons\ceg.png", 10, "n0", FoundX, FoundY, 1650, 50, 1750, 140))
+        while (!NovaFindClick("buttons\ceg.png", 10, "n0", FoundX, FoundY, 1750, 50, 1850, 140))
         {
 			; close teh menu
 			NovaEscapeClick()
@@ -842,13 +865,13 @@ GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
 	}
 	Else
 	{
-		X1 := 783
-		Y1 := 190
-		X2 := 1490
+		X1 := 760
+		Y1 := 193
+		X2 := 1580
 		Y2 := 300
 		
-		Y1 := Y1 + (115 * (FleetIndex - 1))
-		Y2 := Y2 + (115 * (FleetIndex - 1))
+		Y1 := Y1 + (122 * (FleetIndex - 1))
+		Y2 := Y2 + (122 * (FleetIndex - 1))
 	}
 	
 }
@@ -1013,10 +1036,10 @@ ReadjustPosition()
 		Log("Recentering on station ...")
 
 		; click on my station button
-		if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 950)
+		if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 980)
 		{
 			; wait until we find the station, but could be hard to detect
-			NovaFindClick("pirates\station.png", 110, "w2000 n0", FoundX, FoundY, 840, 490, 930, 580)
+			NovaFindClick("pirates\station.png", 50, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
 		
 			MapPosX := StationX
 			MapPosY := StationY

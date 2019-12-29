@@ -7,6 +7,8 @@ global BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
 ; Loop time and activation
 global LoopTime := 0
 global Farming := 0
+global Farming3D := 0
+global FarmingMulti := 0
 global IterationTime := 0
     
 ; Window Size
@@ -67,8 +69,13 @@ global IdleCounter := 0
 global RssDistThreshold := 15
 
 ; program loop period in s
-Global LoopPeriod := 6 * 60 + 30
+Global LoopPeriod := 3 * 60 + 30
 
 ; Amount of people helped
 global Helped := 0
+
+global FleetX := 0
+global FleetY := 0
+global PirateX := 0
+global PirateY := 0
 

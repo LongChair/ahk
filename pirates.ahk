@@ -119,8 +119,8 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 	
      ; go to the ressource position
     Log(Format("Going to kill pirate at ({1:i}, {2:i}) ...", X, Y), 1)
-    MapMoveToXY(X, Y)
-
+	MapMoveToXY(X, Y - 20)
+	
     ; validate if pirate is to be killed
     if (!ValidatePirate(MainWinW / 2, MainWinH / 2, Valid))
     {
@@ -138,11 +138,24 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
     }
     
     ; Send Fleets there
-    OffsetClick := 30
+    OffsetClick := 35
 	DeltaX := OffsetClick
-	DeltaY := OffsetClick
+	DeltaY := -OffsetClick
 	
-	if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png"))
+	random, rnd, 0.0, 2.0 
+	if (rnd < 1.0)
+	{
+		DeltaX := -DeltaX
+	}
+	
+	;random, rnd, 0.0, 2.0 
+	;if (rnd < 1.0)
+	;{
+	;	DeltaY := -DeltaY
+	;}
+
+	
+	if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY + 10 , "buttons\GroupMove.png"))
 	{
 		Log("ERROR : failed to start group move", 2)
 		
@@ -155,20 +168,20 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 	Loop
 	{
 		; check if we have the left arrow which means we are ready
-		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
+		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 950, 550))
 			break
 		Else
 		{
 			; or it could be double arrow if one fleet is busy
-			if (NovaFindClick("buttons\fleets_arrow_left_right.png", 30, "w100 n0", FoundX, FoundY, 860, 430, 900, 550))
+			if (NovaFindClick("buttons\fleets_arrow_left_right.png", 30, "w100 n0", FoundX, FoundY, 860, 430, 950, 550))
 				break
 		}
 			
 			
 		; right arrow means we have to click to add them all 
-		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
+		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 950, 550))
 		{
-			NovaLeftMouseClick(410,787)
+			NovaLeftMouseClick(422,825)
 		}
 		Else
 		{
@@ -181,11 +194,11 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 	
     ; Click Ok 
 	Log("Validating all fleets ...")
-	if (!NovaFindClick("buttons\OKFleets.png", 100, "w5000 n1", FoundX, FoundY,  730, 800, 1020, 920))
+	if (!NovaFindClick("buttons\OKFleets.png", 100, "w5000 n1", FoundX, FoundY,  830, 800, 1020, 920))
 	{
 		; we didn't find button, but try to click 
         Log("ERROR : failed to click OK to attack, trying direct click.", 2)		
-		NovaLeftMouseClick(875, 860)
+		NovaLeftMouseClick(920, 893)
     }
 
 	; wait for move to start 
@@ -200,7 +213,7 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 
     ; now Wait for all fleets to be theres
     Log("Waiting for fleets to complete move...")
-    if (!WaitForFleetsIdle())
+    if (!WaitForFleetsIdle(60))
     {
         Log("ERROR : failed to wait for fleets to be idle before attack, exiting.", 2)
         return 0
@@ -214,7 +227,7 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
     }
     
     ; Click on the pirate
-    if (!ClickMenuImage(MainWinW / 2, MainWinH / 2, "buttons\attack.png"))
+    if (!ClickMenuImage(MainWinW / 2, MainWinH / 2 + 10 , "buttons\attack.png"))
     {
         Log("ERROR : failed to find attack pirate, exiting.", 2)
         return 0
@@ -252,7 +265,7 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
     
     ; now Wait for all fleets to be out of fight
     Log("Waiting for fleets to complete attack...")
-    if (!WaitForFleetsIdle())
+    if (!WaitForFleetsIdle(10))
     {
         Log("ERROR : failed to wait for fleets to be idle after attack, exiting.", 2)
         return 0
@@ -276,7 +289,7 @@ ValidatePirate(X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 589, 470, 740, 530)
+    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 620, 470, 780, 540)
     {
 	    ; we check if it's know to be valid
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
@@ -293,7 +306,7 @@ ValidatePirate(X, Y, ByRef Valid)
 	}
 	else
 	{
-		if NovaFindClick("pirates\valid\Crystals.png", 50, "w2000 n0", FoundX, FoundY, 589, 470, 740, 530)
+		if NovaFindClick("pirates\valid\Crystals.png", 50, "w2000 n0", FoundX, FoundY, 620, 470, 780, 540)
 		{
 			Valid := 1
 		}
@@ -381,3 +394,270 @@ ValidateAttack()
     return 1
 }
 
+
+;*******************************************************************************
+; FarmPirates3D : Farms the pirates in 3D mode
+;*******************************************************************************
+FarmPirates3D(PirateCount)
+{
+	global FleetX, FleetY
+	global KilledPirate, Pirates
+	
+	; goes to system screen
+	if (!GotoScreen("SYSTEME", 10))
+	{
+		return 0
+	}
+	
+	Sleep ,3000
+	
+	Pirates    := []
+	
+	NovaFindClick("pirates\pirate3d.png", 80, "e n0 FuncHandlePirate", FoundX, FoundY, 340, 160, 1460, 820)
+	
+	if (!NovaFindClick("buttons\station3d.png", 50, "w100 n0", FleetX, FleetY, 340, 160, 1460, 820))
+	{
+		FleetX := 0
+		FleetY := 0
+	}
+
+	KilledPirate := 0
+	Loop
+	{
+		
+		Log(Format("Fleet found at {1}, {2} ", FleetX, FleetY))
+		
+		  ; we reached the end of the pirates list, then exit
+        if (Pirates.Length() <= 0)
+        {
+            LOG("No more pirates to kill, exiting...")
+            Ret := 1
+            Goto FarmPirates3D_End
+        }
+        
+        ; get the pirate coordinates
+        Log(Format("Processing pirate #{1}/{2} ({3} left)...", KilledPirate + 1 , PirateCount, Pirates.Lenght()))
+        RefValues := StrSplit(PeekClosestRes(Pirates, FleetX, FleetY) , ",")
+		
+		if (RefValues = "")
+		{
+			Log("No more pirates to kill, ending farming")
+			Ret := 1
+			goto FarmPirates3D_End
+		}
+		
+		PirateX := RefValues[2]
+		PirateY := RefValues[3]
+		
+		
+		Log(Format("Closest Pirate to {1}, {2} we found is at {3}, {4}", FleetX, FleetY, PirateX, PirateY))
+		
+		Killed := 0
+		Moved := 0
+		if (!KillPirateOnScreen(PirateX, PirateY, Killed, Moved))
+		{
+			LOG("ERROR : Pirate Kill failed, exiting", 2)
+			Ret := 0
+            Goto FarmPirates3D_End
+		}
+		
+		
+		if (Killed)
+        {
+            KilledPirate := KilledPirate + 1
+            KilledCount  := KilledCount + 1
+            
+            if (KilledPirate >= PirateCount)
+            {
+                LOG(Format("Done with killing {1} pirates, Total={2}", PirateCount, KilledCount))
+                Ret := 1
+                Goto FarmPirates3D_End
+            }
+        }
+		
+		if (Moved)
+		{
+			FleetX := PirateX
+			FleetX := PirateY
+		}
+
+	}
+	
+	FarmPirates3D_End:
+	return Ret
+
+}
+
+;*******************************************************************************
+; HandlePirate : Handle Found Pirate
+;*******************************************************************************
+HandlePirate(X, Y)
+{
+	global FleetX, FleetY
+	global PirateX, PirateY
+	
+	Pirates.Insert(Format("{1},{2:i},{3:i}", "PIRATE", X, Y))	
+}
+
+
+;*******************************************************************************
+; KillPirateOnScreen : Kiills the pirate at center of screen
+;*******************************************************************************
+KillPirateOnScreen(X, Y, ByRef Killed, ByRef Moved)
+{
+    global MainWinW, MainWinH
+    global Pirates_BlackList
+	
+    Killed := 0
+    Moved := 0
+	
+	 ; validate if pirate is to be killed
+    if (!ValidatePirate(X, Y, Valid))
+    {
+        LOG("ERROR :Pirate Validation failed, exiting", 2)
+        return 0
+    }
+    
+    if (!Valid)
+    {
+        LOG("Pirate is not valid, blacklisting and skipping")
+		Pirates_BlackList.insert(Format("PIRATE,{1},{2}", X, Y))
+		
+		Ret := 1
+		goto BackAndEnd
+    }
+	
+    
+    ; Send Fleets there
+    OffsetClick := 80
+	DeltaX := OffsetClick
+	DeltaY := OffsetClick
+	
+			
+	
+	if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY, "buttons\GroupMove.png"))
+	{
+		Log("ERROR : failed to start group move", 2)
+		
+		Ret := 1
+		goto BackAndEnd
+	}
+		
+    ; Select All Fleets
+	LOG("Selecting all fleets ...")
+	Loop
+	{
+		; check if we have the left arrow which means we are ready
+		if (NovaFindClick("buttons\fleets_arrow_left.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
+			break
+		Else
+		{
+			; or it could be double arrow if one fleet is busy
+			if (NovaFindClick("buttons\fleets_arrow_left_right.png", 30, "w100 n0", FoundX, FoundY, 860, 430, 900, 550))
+				break
+		}
+			
+			
+		; right arrow means we have to click to add them all 
+		if (NovaFindClick("buttons\fleets_arrow_right.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 900, 520))
+		{
+			NovaLeftMouseClick(410,787)
+		}
+		Else
+		{
+			Log("ERROR : No fleet arrow was found, exiting.", 2)
+			Ret := 1
+			goto BackAndEnd
+		}
+		
+		Sleep, 500
+	}
+	
+    ; Click Ok 
+	Log("Validating all fleets ...")
+	if (!NovaFindClick("buttons\OKFleets.png", 100, "w5000 n1", FoundX, FoundY,  730, 800, 1020, 920))
+	{
+		; we didn't find button, but try to click 
+        Log("ERROR : failed to click OK to attack, trying direct click.", 2)		
+		NovaLeftMouseClick(875, 860)
+    }
+
+	; wait for move to start 
+    Log("Waiting for fleets to start move...")
+    if (!WaitForFleetsMoving())
+    {
+        Log("ERROR : failed to wait for fleets to be start move, exiting.", 2)
+        Ret := 0
+		goto BackAndEnd
+    }
+
+	Moved := 1
+
+    ; now Wait for all fleets to be theres
+    Log("Waiting for fleets to complete move...")
+    if (!WaitForFleetsIdle(60))
+    {
+        Log("ERROR : failed to wait for fleets to be idle before attack, exiting.", 2)
+        Ret := 0
+		goto BackAndEnd
+    }
+    
+ 
+    ; Click on the pirate
+    if (!ClickMenuImage(X, y, "buttons\attack.png"))
+    {
+        Log("ERROR : failed to find attack pirate, exiting.", 2)
+        Ret := 0
+		goto BackAndEnd
+    }
+    
+	if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+	{
+		Log("Avengers trigger validation")
+	}
+		
+    ; click attack button
+    Log("Selecting Tank...")
+    ScrollCount := 0
+    while (!NovaFindClick("buttons\Tankfleet.png", 50, "w500 n1"))
+    {
+        NovaMouseMove(1050, 470)
+        MouseClick, WheelDown,,, 2
+        Sleep 1000
+    
+        ScrollCount := ScrollCount + 1
+        
+        ; if we didn't fin the tank, just exit
+        if (ScrollCount >= 2)
+        {
+            Log("ERROR : failed to find tank fleet exiting.", 2)
+            return 0
+        }
+    }
+	
+	; we can have an heavy ennemy continue popup
+	if (NovaFindClick("buttons\red_continue.png", 50, "w3000 n1"))
+	{
+		Log("Validating heavy enemy continue")
+	}
+    
+    ; now Wait for all fleets to be out of fight
+    Log("Waiting for fleets to complete attack...")
+    if (!WaitForFleetsIdle(10))
+    {
+        Log("ERROR : failed to wait for fleets to be idle after attack, exiting.", 2)
+        return 0
+    }
+    
+	Ret := 1
+	Killed := 1
+
+BackAndEnd:
+
+	while NovaFindClick("buttons\back_arrow.png", 30, "w100 n1", FoundX, FoundY, 0, 40, 200, 140)
+	{
+		LOG("Clicking on back button")
+	}
+	
+    return Ret
+}

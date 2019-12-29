@@ -68,7 +68,7 @@ Toggle2DMode()
     if !NovaFindClick("buttons\right_menu_off.png", 80, "w500 n0", FoundX, FoundY, 1450, 640, 1760, 820)
     {
         Log("Unfolding 2D/3D menu")
-        if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1", FoundX, FoundY, 1450, 640, 1760, 820)
+        if !NovaFindClick("buttons\right_menu_on.png", 80, "w1000 n1", FoundX, FoundY, 1750, 640, 1840, 820)
         {
             Log("ERROR : Failed to unfold thr right 2D/3D menu, stopping", 2)
             return 0
@@ -80,10 +80,10 @@ Toggle2DMode()
     }
 
     ; switch to 2D
-    if NovaFindClick("buttons\2D.png", 30, "w1000 n0", FoundX, FoundY, 1450, 640, 1760, 820)
+    if NovaFindClick("buttons\2D.png", 30, "w1000 n0", FoundX, FoundY, 1640, 640, 1760, 820)
     {
         Log("Switching to 2D")
-        if !NovaFindClick("buttons\3D_dot.png", 50, "w5000 n1", FoundX, FoundY, 1475,645, 1760, 800)
+        if !NovaFindClick("buttons\3D_dot.png", 50, "w5000 n1", FoundX, FoundY, 1600,645, 1760, 800)
         {
             Log("ERROR : Failed to find the 3D dot to click, stopping", 2)
             return 0
@@ -191,7 +191,7 @@ CollectResources()
 			break
 
         ; collect ressources
-        LOG("Collecting ressources in " . SystemName . " ...")
+        LOG("Collecting ressources in " . SystemName . " from " . CurrentSystem . " ...")
         ScanResourcesInSystem(SystemName)
 		
 		if !CollectRessourcesByType(ResPriority1)
@@ -231,7 +231,7 @@ FindCurrentSystem()
 			SystemName = %A_LoopFileShortName%
 			FileName := Format("systems\{1}\{2}.png", SystemName, SystemName)
 			
-			if (NovaFindClick(FileName, 70, "w100 n0", FoundX, FoundY, 825, 480,920, 580))
+			if (NovaFindClick(FileName, 70, "w100 n0", FoundX, FoundY, 850, 480,950, 580))
 				return %SystemName%
 		}
 		Sleep, 1000
@@ -257,15 +257,17 @@ ScanResourcesInSystem(SystemName)
    
 	; default to current system if unspecified
     if (SystemName = "")
-        SystemName := FindCurrentSystem()
-		
+	{
+		SystemName := FindCurrentSystem()
+		CurrentSystem := SystemName
+	}
+        
 	if (SystemName = "")
 	{
 		Log("Error : Could not identify current system, Is it unknown ?")
 		return 0
 	}
     
-	 CurrentSystem := SystemName
 	 Log(Format("Starting to scan map in {1} ...", SystemName))
 	
     ; we need the system screen
@@ -273,6 +275,8 @@ ScanResourcesInSystem(SystemName)
     {
         return 0
     }
+	
+	CurrentSystem := SystemName
     
     ; then go in 2D Mode
     if !Toggle2DMode()
@@ -425,15 +429,15 @@ FindRessources()
 	global Farming
     
 	CurrentResType := "STATION"
-	NovaFindClick("pirates\station.png", 30, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	NovaFindClick("pirates\station.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
 	if (Farming)
 	{
 		CurrentResType := "PIRATE"
 		NovaFindClick("pirates\pirate.png", 70, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
-		CurrentResType := "PIRATERES"
-		NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
+		;CurrentResType := "PIRATERES"
+		;NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
 	}
 	Else
 	{
@@ -476,7 +480,7 @@ HandleScan(ResX, ResY)
     global Ressources, Collecting
 	global StationX, StationY
     
-	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX
+	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX 
 	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
 
 	if CurrentResType in ALLIUM,MINE,CRYSTALS,PIRATERES
@@ -562,6 +566,8 @@ CollectRessourcesByType(ResType)
 	}
 		
 	CurrentRes := 1
+	CollectError := 0
+	
 	Log(Format("Collecting ressources found for {1} ", ResType))
 	Loop, % Ressources.Length()
 	{
@@ -583,7 +589,13 @@ CollectRessourcesByType(ResType)
 			if (Ret = 0)
 			{
 				Log("ERROR : failed to find collect button, skipping.", 2)
-				;ReadjustPosition()
+				CollectError := CollectError + 1
+				if (CollectError > 5)
+				{
+					Log("Too many collect failures, we will stop this time")
+					return 1
+				}
+				ReadjustPosition()
 				goto CollectRessourcesByType_Next
 			}
 			

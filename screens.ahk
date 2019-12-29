@@ -11,10 +11,10 @@ GetNovaScreen()
 	if NovaFindClick("screen_markers\daily_mission.png", 30, "n0", FoundX, FoundY, 205, 880, 305, 1000)
 		return "STATION"
 	
-	if NovaFindClick("screen_markers\galaxy_qmark.png", 30, "n0", FoundX, FoundY, 20, 920, 105, 1015)
+	if NovaFindClick("screen_markers\galaxy_qmark.png", 30, "n0", FoundX, FoundY, 20, 920, 105, 1050)
 		return "GALAXIE"
 	
-	if NovaFindClick("screen_markers\my_station.png", 30, "n0", FoundX, FoundY, 270, 845, 420, 950)
+	if NovaFindClick("screen_markers\my_station.png", 30, "n0", FoundX, FoundY, 270, 845, 420, 980)
 		return "SYSTEME"
 	
     return "UNKNOWN"
@@ -82,12 +82,12 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "SYSTEME")
         {
-            NovaLeftMouseClick(1450, 910)
+            NovaLeftMouseClick(1520, 950)
             WaitTargetScreen := 1
         }
         If (TargetScreen = "GALAXIE")
         {
-            NovaLeftMouseClick(1660, 905)
+            NovaLeftMouseClick(1740, 950)
             WaitTargetScreen := 1
         }
     }
@@ -97,12 +97,12 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "SYSTEME")
         {
-            NovaLeftMouseClick(1450, 910)
+            NovaLeftMouseClick(1520, 950)
             WaitTargetScreen := 1
         }
         If (TargetScreen = "STATION")
         {
-            NovaLeftMouseClick(1660, 905)
+            NovaLeftMouseClick(1740, 950)
             WaitTargetScreen := 1
         }
     }
@@ -112,13 +112,13 @@ GotoScreen(TargetScreen, Timeout)
     {
         If (TargetScreen = "GALAXIE")
         {
-             NovaLeftMouseClick(1450, 910)
+             NovaLeftMouseClick(1520, 950)
             Sleep, 10
             WaitTargetScreen := 1
         }
         If (TargetScreen = "STATION")
         {
-            NovaLeftMouseClick(1660, 905)
+            NovaLeftMouseClick(1740, 950)
             Sleep, 10
             WaitTargetScreen := 1
         }

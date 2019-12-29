@@ -116,7 +116,7 @@ CheckFreeResources()
         Log("Collecting free resources ... YEAH!")
         
 		; Wait for the carte to show up
-		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 650, 300, 1150, 650)
+		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 850, 300, 1150, 650)
 		{
 			Log("ERROR : Failed to find the crate, exiting", 2)
             return 0
@@ -138,7 +138,7 @@ CheckFreeResources()
         
         ; look for the grab button
         Log("Clicking on grab button...")
-        if !NovaFindClick("buttons\recuperer.png", 80, "w5000 n1", FoundX, FoundY, 500, 500, 1250, 880)
+        if !NovaFindClick("buttons\recuperer.png", 80, "w5000 n1", FoundX, FoundY, 800, 800, 1250, 1000)
         {
             Log("ERROR : Failed to click the grab button for free resources, exiting", 2)
             return 0
@@ -176,7 +176,7 @@ CheckFreeResources()
     }
 	
 	; check for help
-	if (NovaFindClick("buttons\help.png", 80, "w500 n1", FoundX, FoundY, 960, 900, 1040, 980))
+	if (NovaFindClick("buttons\help.png", 40, "w500 n1", FoundX, FoundY, 960, 900, 1040, 980))
 	{
 		Helped := Helped + 1
 		Log(Format("Found People to help (Total {1})", Helped))

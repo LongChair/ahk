@@ -1,4 +1,4 @@
-﻿; Nova automation  LongChair 2019
+﻿
 ; This script automates a few non fun tasks in Nova empire
 
 #Include  %A_ScriptDir% 
@@ -69,7 +69,7 @@ Loop
 		Else
 		{
   		   LOG(Format("Player {1} is disabled, skipping.", Player))
-		   Sleep, 30000
+		   Sleep, 10000
 		}
 		
 		PlayerIndex := PlayerIndex + 1
@@ -135,7 +135,7 @@ DoSequence()
 {
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
-	global PlayerName, Farming
+	global PlayerName, Farming, Farming3D
     global IterationTime, LastStartTime
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	global LoopPeriod
@@ -146,7 +146,6 @@ DoSequence()
 	; wait for period to be done
 	if  (LastStartTime > A_TickCount)
 		LastStartTime := A_TickCount - (LoopPeriod * 1000)
-		
 	if (Farming)
 		MinTime := LastStartTime + (1000 * LoopPeriod)
 	Else
@@ -188,7 +187,7 @@ DoSequence()
         Log("========= BuildFrigates End   =========")
 		                      
 		; check if tank is fresh
-        if (Farming)
+        if (Farming Or Farming3D)
             TankFresh := IsTankFresh()
 			
 		
@@ -211,56 +210,65 @@ DoSequence()
 		}
 		
 		Log("========= getFreeMecas Start =========")
-		if !GetAvailableMecaCount(NumFreeMecas)
-        {
-            Log ("ERROR : Failed to get available mecas count !", 2)
-            Goto TheEnd
-        }
-		Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
-		StartFreeMecas := NumFreeMecas
-		
-		if (NumFreeMecas = 0)
+		if (!Farming3D)
 		{
-			Log("Looks like we have no more mecas, skipping")
-			Goto DoSequence_Complete
+			if !GetAvailableMecaCount(NumFreeMecas)
+			{
+				Log ("ERROR : Failed to get available mecas count !", 2)
+				Goto TheEnd
+			}
+			Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
+			StartFreeMecas := NumFreeMecas
+			
+			if (NumFreeMecas = 0 and Farming = 0)
+			{
+				Log("Looks like we have no more mecas, skipping")
+				Goto DoSequence_Complete
+			}
 		}
-	
 		Log("========= getFreeMecas End =========")
 		
 		if (Farming and TankFresh)
 		{
             ; collect pirate resource and farm them
-            if (!CollectRessourcesByType("PIRATERES"))
-            {
-                Log ("ERROR : Failed to collect pirates ressources !", 2)
-                Goto TheEnd
-            }
+            ;if (!CollectRessourcesByType("PIRATERES"))
+            ;{
+            ;    Log ("ERROR : Failed to collect pirates ressources !", 2)
+            ;    Goto TheEnd
+            ;}
 			
             Log("========= FarmPirate Start =========")
-			Res := CountResByType(Ressources, "PIRATERES")
-			if (Res < 20)
-			{
-				if (!FarmPirates(3))
+			;Res := CountResByType(Ressources, "PIRATERES")
+			;if (Res < 20)
+			;{
+				if (!FarmPirates(25))
 				{
 					Log ("ERROR : Failed to farm pirates !", 2)
 					Goto TheEnd
 				}
-			}
-			Else
-			{
-				LOG(Format("Too many ressources in system already ({1}), skipping farming", Res))
-			}
-            Log("========= FarmPirate End   =========")
+			;}
+			;Else
+			;{
+			;	LOG(Format("Too many ressources in system already ({1}), skipping farming", Res))
+			;}
+            ;Log("========= FarmPirate End   =========")
         }
         Else
         {
-			if (NumFreeMecas > 0 )
-			{					
-				CollectResources()
+			if (Farming3D)
+			{
+				FarmPirates3D(20)
 			}
 			Else
 			{
-				LOG("No free meca, skipping, collect...")
+				if (NumFreeMecas > 0 )
+				{					
+					CollectResources()
+				}
+				Else
+				{
+					LOG("No free meca, skipping, collect...")
+				}
 			}
         }
         
@@ -341,7 +349,7 @@ ReadConfig()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
 	global PlayerName
 	global KilledCount
-	global Farming
+	global Farming, Farming3D, FarmingMulti
 	global CurrentSystem
 	global LastStartTime
 	global FrigateType
@@ -360,6 +368,8 @@ ReadConfig()
 	IniRead, FrigatesAmount, %IniPath%, FRIGATES, %PlayerName%, 0
     IniRead, LoopTime, %FullPath%, PARAMETERS, LoopTime, 300000
 	IniRead, Farming, %FullPath%, PARAMETERS, Farming, 0
+	IniRead, Farming3D, %FullPath%, PARAMETERS, Farming3D, 0
+	IniRead, FarmingMulti, %FullPath%, PARAMETERS, FarmingMulti, 0
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -398,7 +408,7 @@ WriteConfig()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
 	global PlayerName
     global KilledCount, Helped
-	global Farming
+	global Farming, Farming3D, FarmingMulti
 	global LastStartTime
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
@@ -412,6 +422,8 @@ WriteConfig()
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
 	IniWrite, %Farming%, %FullPath%, PARAMETERS, Farming
+	IniWrite, %Farming3D%, %FullPath%, PARAMETERS, Farming3D
+	IniWrite, %FarmingMulti%, %FullPath%, PARAMETERS, FarmingMulti
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -447,6 +459,7 @@ LaunchNova()
 	SetWinDelay 0
 	SetKeyDelay -1
 	SetBatchLines -1
+	
 	
     if (!WinExist(WindowName))
     {
@@ -504,11 +517,11 @@ LaunchNova()
     
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-    if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
+    if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
     {
 		
 		Log("Waiting for Nova welcome screen ...")
-		if !NovaFindClick("buttons\cross.png", 60, " w60000 n1")
+		if !NovaFindClick("buttons\cross.png", 40, " w70000 n1")
 		{
 			Log("No welcome screen found.")
 		}
@@ -521,7 +534,7 @@ LaunchNova()
 			
 		; check CEG button
 		Log("Waiting for Nova Main screen ...")   
-		if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1500, 40, 1760, 150)
+		if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
 		{
 			Log("ERROR : Couldn't find CEG on start screen...", 2)
 			return 0
@@ -577,7 +590,7 @@ StopNova_Close:
 				Log("ERROR : Could not find exit confirm button, exiting...", 2)
 				
 				; try to click Button
-				NovaLeftMouseClick(976, 596) 
+				NovaLeftMouseClick(980, 580) 
 			}
 			Else
 			{
