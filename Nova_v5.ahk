@@ -135,7 +135,7 @@ DoSequence()
 {
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
-	global PlayerName, Farming, Farming3D
+	global PlayerName, Farming, Farming3D, FarmingMulti
     global IterationTime, LastStartTime
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	global LoopPeriod
@@ -188,9 +188,20 @@ DoSequence()
 		                      
 		; check if tank is fresh
         if (Farming Or Farming3D)
-            TankFresh := IsTankFresh()
+			if (!FarmingMulti)
+				TankFresh := IsTankFresh()
+			Else
+			{
+				;if (!RepairAllFleets())
+				;{
+				;	Log ("ERROR : Failed to repair fleets !", 2)
+				;	Goto TheEnd
+				;}
+				
+				TankFresh := 1
+			}
 			
-		
+
 		; scan pirates ressources in system if farming
         if (Farming and TankFresh)
         {
@@ -230,28 +241,25 @@ DoSequence()
 		
 		if (Farming and TankFresh)
 		{
-            ; collect pirate resource and farm them
-            ;if (!CollectRessourcesByType("PIRATERES"))
-            ;{
-            ;    Log ("ERROR : Failed to collect pirates ressources !", 2)
-            ;    Goto TheEnd
-            ;}
+  
+			if (FarmingMulti)
+			{
 			
-            Log("========= FarmPirate Start =========")
-			;Res := CountResByType(Ressources, "PIRATERES")
-			;if (Res < 20)
-			;{
+				if (!FarmPiratesMulti(25))
+				{
+					Log ("ERROR : Failed to farm pirates !", 2)
+					Goto TheEnd
+				}
+			}
+			Else
+			{
 				if (!FarmPirates(25))
 				{
 					Log ("ERROR : Failed to farm pirates !", 2)
 					Goto TheEnd
 				}
-			;}
-			;Else
-			;{
-			;	LOG(Format("Too many ressources in system already ({1}), skipping farming", Res))
-			;}
-            ;Log("========= FarmPirate End   =========")
+			}
+	
         }
         Else
         {
@@ -450,7 +458,7 @@ WriteConfig()
 LaunchNova()
 {
     global AppX, AppY, AppW, AppH
-    global MainWinX, MainWinY, MainWinW, MainWinH
+    global MainWinX, MainWinY, MainWinW, MainWinH, WinCenterX, WinCenterY, WinBorderX, WinBorderY
     global CommandLine, WindowName
 	global Window_ID
 	
@@ -480,6 +488,8 @@ LaunchNova()
     WinActivate, ahk_id %Window_ID%
     WinMove, ahk_id %Window_ID%,, AppX, AppY, AppW, AppH
     WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, ahk_id %Window_ID%
+	WinCenterX := (MainWinW - WinBorderX) / 2 + WinBorderX
+	WinCenterY := (MainWinH - WinBorderY) / 2 + WinBorderY
    
     ; click home tab
     Log("Waiting for BlueStacks home tab ...")

@@ -10,10 +10,18 @@ global Farming := 0
 global Farming3D := 0
 global FarmingMulti := 0
 global IterationTime := 0
+
+; fleets position
+global FleetPosX := []
+global FleetPosY := []
     
 ; Window Size
 global AppW := 1920
 global AppH := 1080
+global WinBorderY = 40
+global WinBorderX = 0
+global WinCenterX := 0
+global WinCenterY := 0
 
 ; Window Position
 global AppX := 0
@@ -65,6 +73,7 @@ global Pirates_BlackList := []
 
 ; various global counters for callbacks
 global IdleCounter := 0
+global IdleFleet := 0
 
 global RssDistThreshold := 15
 

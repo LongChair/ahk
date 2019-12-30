@@ -275,6 +275,218 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
     return 1
 }
 
+
+;*******************************************************************************
+; FarmPiratesMulti : Will try to find a pirate & kill it with multiples fleets
+;*******************************************************************************
+FarmPiratesMulti(PirateCount)
+{
+    global Pirates
+    global KilledCount
+	global StationX, StationY
+	global FleetPosX, FleetPosY
+    
+    Ret := 0
+	
+	
+	if (!ReadjustPosition())
+	{
+		LOG("ERROR : Failed to recenter position on station, exiting ...")
+		goto FarmPiratesMulti_End
+	}
+	
+	; we reset fleets position to station position
+	Loop, %MaxPlayerFleets%
+	{
+		FleetPosX[A_Index] := StationX
+		FleetPosY[A_Index] := StationY
+	}
+        
+    Log(Format("We have {1} pirate(s) to farm ({2}/{3})", PirateCount, PirateCount, Pirates.Length()))
+
+	   
+    KilledPirate := 0
+	AvailFleet := 0
+	
+    Loop
+	{
+        ; we reached the end of the pirates list, then exit
+        if (Pirates.Length() <= 0)
+        {
+            LOG("No more pirates to kill, exiting...")
+            Ret := 1
+            Goto FarmPiratesMulti_End
+        }
+        
+		; get first available fleet
+		
+		;if (!AvailFleet)
+		;{
+		;	AvailFleet := GetFirstIdleFleet(200)
+			 
+		;	if (!AvailFleet)
+		;	{
+		;		Log("ERROR : failed to wait for an available fleet, exiting")
+		;		Ret := 0
+		;		Goto FarmPiratesMulti_End
+		;	}
+		;}
+		
+		;Log(Format("Fleet #{1} is available...", AvailFleet))
+		CurrentX  := StationX
+		CurrentY  := StationY
+		
+        ; get the pirate coordinates
+        Log(Format("Processing pirate #{1}/{2} ({3} left)...", KilledPirate + 1 , PirateCount, Pirates.Length()))
+        RefValues := StrSplit(PeekClosestRes(Pirates, CurrentX, CurrentY) , ",")
+		
+		if (RefValues = "")
+		{
+			Log("No more pirates to kill, ending farming")
+			Ret := 1
+			goto FarmPiratesMulti_End
+		}
+		
+		ResX := RefValues[2]
+		ResY := RefValues[3]
+
+        ; try to kill pirate
+        if (!KillPirateMulti(ResX, ResY, AvailFleet, Killed))
+        {
+            Log(Format("ERROR : failed to kill pirates at ({1}, {2}).", ResX, ResY), 2)
+            Goto FarmPiratesMulti_End
+        }
+        		
+        ; check if it's been killed
+        if (Killed)
+        {
+		
+			AvailFleet := 0
+			
+			FleetPosX[AvailFleet] := ResX
+			FleetPosY[AvailFleet] := ResY
+			
+            KilledPirate := KilledPirate + 1
+            KilledCount  := KilledCount + 1
+            
+            if (KilledPirate >= PirateCount)
+            {
+                LOG(Format("Done with killing {1} pirates, Total={2}", PirateCount, KilledCount))
+                Ret := 1
+                Goto FarmPiratesMulti_End
+            }
+        }
+        
+    }
+    
+FarmPiratesMulti_End:
+
+	if (!WaitForFleetsIdle(60))
+    {
+        Log("ERROR : failed to wait for fleets to be idle before recalling, exiting.", 2)
+    }
+	
+    ; Recall fleets to station
+    if (!RecallAllFleets())
+    {
+        Log("ERROR : failed to recall fleets to station", 2)
+        return 0
+    }
+        
+    return Ret
+}
+
+;*******************************************************************************
+; KillPirateMulti : kill a pirate in multi Mode
+;*******************************************************************************
+KillPirateMulti(X,Y, Fleet, ByRef Killed)
+{
+    global MainWinW, MainWinH
+    global Pirates_BlackList
+	
+    Killed := 0
+
+	
+     ; go to the ressource position
+    Log(Format("Going to kill pirate at ({1:i}, {2:i}) ...", X, Y), 1)
+	MapMoveToXY(X, Y)
+	
+	;click on the pirate
+	NovaLeftMouseClick(WinCenterX, WinCenterY)
+	
+    ; validate if pirate is to be killed
+    if (!ValidatePirate(WinCenterX, WinCenterY, Valid))
+    {
+		NovaEscapeClick()
+        LOG("ERROR :Pirate Validation failed, exiting", 2)
+        return 0
+    }
+    
+    if (!Valid)
+    {
+		
+        LOG("Pirate is not valid, blacklisting and skipping")
+		Pirates_BlackList.insert(Format("PIRATE,{1},{2}", X, Y))
+		
+		NovaEscapeClick()
+		
+		; we need to reclaibrate position
+		return ReadjustPosition()
+    }
+   
+    ; attack the pirate
+	if (!NovaFindClick("buttons\attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
+    {
+        LOG("ERROR : Could Not find the menu image for attack, different menu popped up ?", 2)        
+    }
+	
+    
+	if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+	{
+		Log("Avengers trigger validation")
+	}
+		
+	
+	Count := 0
+Pick_Fleet:	
+	Picked := 0
+	
+	if NovaFindClick("buttons\attack_dock.png", 70, "n1", FoundX, FoundY, 950, 160, 1140, 900)
+	{
+		Picked := 1
+	}
+	else 
+	{
+		if NovaFindClick("buttons\attack_wait.png", 70, "n1", FoundX, FoundY, 950, 160, 1140, 900)
+		{
+			Picked := 1
+		}
+	}
+	
+	if !Picked
+	{
+		Sleep, 1000
+		Count := Count  + 1 
+		
+		if Count >= 120
+		{
+			LOG("ERROR : Timeout waiting to pick fleet, exiting")
+			return 0
+		}
+		
+		goto Pick_Fleet
+	}
+	
+	; we can have an heavy ennemy continue popup
+	if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+	{
+		Log("Validating heavy enemy continue")
+	}
+    
+    Killed := 1
+    return 1
+}
+
 ;*******************************************************************************
 ; ValidatePirate : Validate if the pirate is to be killed
 ; return 1 if pirate is valid, 0 otherwise
@@ -282,10 +494,6 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 ValidatePirate(X, Y, ByRef Valid)
 {
     Valid := 0
-    
-     ; Click on the pirate
-    NovaLeftMouseClick(X, Y)
-    
     ; now check if it's valid 
     
     ; we check if it's a pirate
@@ -295,7 +503,7 @@ ValidatePirate(X, Y, ByRef Valid)
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
 		{
 			FileName := "pirates\invalid\" . A_LoopFileName
-			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 589, 560, 740, 590))
+			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 600, 560, 780, 620))
 			{
 				Log(Format("Invalidating a pirate matching {1}", A_LoopFileName))
 				goto ValidatePirate_End
@@ -328,7 +536,6 @@ ValidatePirate(X, Y, ByRef Valid)
     
     ; close the popup
 ValidatePirate_End:
-    NovaEscapeMenu()
     
     return 1
 }

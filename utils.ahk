@@ -560,6 +560,7 @@ RecallAllFleets()
 	return 1    
 }
 
+
 ;*******************************************************************************
 ; WaitForFleetsIdle : wait for all fleets to be idle
 ;*******************************************************************************
@@ -646,6 +647,59 @@ WaitForFleetsIdle(TimeOut := 100)
 	PopRightMenu(0)	
     
     return 1  
+}
+
+;*******************************************************************************
+; GetFirstIdleFleet : Returns the index of first idle fleet (1 to 6), 0 if none 
+;*******************************************************************************
+GetFirstIdleFleet(TimeOut := 100)
+{
+	global MaxPlayerFleets, IdleFleet
+    
+	ZeroTimeCount := 0
+	StartY := 193
+	YStep := 122
+	
+    ; Open the fleets tab
+    if !PopRightMenu(1, "FLEETS")
+    {
+        Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+        return 0
+    }
+    
+	TimeLeft := TimeOut * 2
+	Loop
+	{
+		IdleFleet := 0
+		if NovaFindClick("buttons\manage_button.png", 70, "n0", FoundX, FoundY, 1320, 185, 1585, 920)
+		{
+			IdleFleet := Floor((FoundY - StartY) / YStep) + 1 
+			break
+		}
+		
+
+		if NovaFindClick("buttons\recall_button.png", 70, "n0", FoundX, FoundY, 1320, 185, 1585, 920)
+		{
+			IdleFleet := Floor((FoundY - StartY) / YStep) + 1 
+			break
+		}
+		
+		Sleep, 500
+		
+		TimeLeft := TimeLeft - 1
+        if (TimeLeft <= 0)
+        {
+            Log(Format("ERROR : timeout after {1} seconds waiting for first Idle fleet. exiting", TimeOut), 2)
+			PopRightMenu(0)	
+            return 0
+        }
+		
+	}
+
+    ; fold again right menu
+	PopRightMenu(0)	
+    
+    return IdleFleet  
 }
 
 ;*******************************************************************************
@@ -1036,7 +1090,7 @@ ReadjustPosition()
 		Log("Recentering on station ...")
 
 		; click on my station button
-		if NovaFindClick("screen_markers\my_station.png", 30, "n1", FoundX, FoundY, 270, 845, 420, 980)
+		if NovaFindClick("screen_markers\my_station.png", 50, "w2000 n1", FoundX, FoundY, 270, 845, 420, 980)
 		{
 			; wait until we find the station, but could be hard to detect
 			NovaFindClick("pirates\station.png", 50, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
@@ -1054,6 +1108,63 @@ ReadjustPosition()
 		}
 	}
 }
+
+;*******************************************************************************
+; RepairAllFleets() : Trigers all fleets repairs
+;*******************************************************************************
+RepairAllFleets()
+{
+
+	; we need to be in station screen
+	if !GotoScreen("STATION", 60)
+    {
+        return 0
+    }
+	
+	; Click on dock
+	if !NovaFindClick("buttons\dock.png", 30, "w1000 n1")
+	{
+		Log("ERROR : failed to find & click dock button, exiting")
+		return 0
+	}
+	
+	; Wait for dock screen to be here
+	if !NovaFindClick("buttons\quai.png", 30, "w5000 n0")
+	{
+		Log("ERROR : failed to wait for sock screen, exiting")
+		return 0
+	}
+	
+	Loop, %MaxPlayerFleets%
+	{
+		; select fleet Tab
+		LOG(Format("Selecting tab for Fleet {1}", A_Index))
+		NovaLeftMouseClick(264 * A_Index + 130, 180)
+		
+		if NovaFindClick("buttons\dock_repair.png", 30, "w1000 n1")
+		{
+			LOG(Format("Repairing Fleet {1}", A_Index))
+			
+			if NovaFindClick("buttons\dock_repair_free.png", 30, "w1000 n1")
+			{
+				LOG(Format("Finishing repair for Fleet {1} for free", A_Index))
+			}
+		}
+		
+		Sleep, 500
+	}
+	
+	; now get back from screen
+	LOG("Going out of dock screen ...")
+	if !NovaFindClick("buttons\dock_back.png", 30, "w5000 n1")
+	{
+		Log("ERROR : failed to get back from dock screen, exiting")
+		return 0
+	}
+		
+	return 1
+}
+
 
 ;*******************************************************************************
 ; FormatSeconds() : Convert the specified number of seconds to hh:mm:ss format.

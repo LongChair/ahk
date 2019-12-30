@@ -479,9 +479,10 @@ HandleScan(ResX, ResY)
     global MainWinW, MainWinH
     global Ressources, Collecting
 	global StationX, StationY
+	global WinBorderX, WinBorderY
     
-	ResX := (ResX - MainWinX - (MainWinW / 2)) + MapPosX 
-	ResY := MapPosY - (ResY - MainWinY - (MainWinH / 2))
+	ResX := (ResX - MainWinX - WinBorderX - (MainWinW / 2)) + MapPosX 
+	ResY := MapPosY - (ResY - MainWinY - WinBorderY - (MainWinH / 2))
 
 	if CurrentResType in ALLIUM,MINE,CRYSTALS,PIRATERES
 	{

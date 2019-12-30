@@ -85,13 +85,7 @@ CheckFreeResources()
         ResetStats()
         Sleep, 2000
 		
-        ; Now click on the return button
-        if !NovaFindClick("buttons\back.png", 80, "w1000 n1")
-        {
-            Log("ERROR : Failed to click the back button for daily mission, exiting", 2)
-            return 0
-        }
-        
+
         Log("Waiting to return to station screen ...")
         if !WaitNovaScreen("STATION", 10)
         {
