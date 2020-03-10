@@ -78,7 +78,7 @@ global IdleFleet := 0
 global RssDistThreshold := 15
 
 ; program loop period in s
-Global LoopPeriod := 3 * 60 + 30
+Global LoopPeriod := 1 * 60 + 30
 
 ; Amount of people helped
 global Helped := 0

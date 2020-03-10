@@ -437,7 +437,8 @@ KillPirateMulti(X,Y, Fleet, ByRef Killed)
     ; attack the pirate
 	if (!NovaFindClick("buttons\attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
     {
-        LOG("ERROR : Could Not find the menu image for attack, different menu popped up ?", 2)        
+        LOG("ERROR : Could Not find the menu image for attack, different menu popped up ?", 2)
+        return 0
     }
 	
     
@@ -497,7 +498,7 @@ ValidatePirate(X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 620, 470, 780, 540)
+    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
     {
 	    ; we check if it's know to be valid
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
@@ -512,12 +513,20 @@ ValidatePirate(X, Y, ByRef Valid)
 	
 		Valid := 1
 	}
-	else
+	else 
 	{
-		if NovaFindClick("pirates\valid\Crystals.png", 50, "w2000 n0", FoundX, FoundY, 620, 470, 780, 540)
-		{
-			Valid := 1
+		if (NovaFindClick("buttons\attack.png", 50, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
+		{			
+			if NovaFindClick("pirates\valid\Crystals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+			{
+				Valid := 1
+			}
+			else if NovaFindClick("pirates\valid\Minerals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+			{
+				Valid := 1
+			}
 		}
+	
 	}
         
     ; we check if it's know to be valid

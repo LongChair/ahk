@@ -279,11 +279,11 @@ ScanResourcesInSystem(SystemName)
 	CurrentSystem := SystemName
     
     ; then go in 2D Mode
-    if !Toggle2DMode()
-    {
-        Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
-        return 0
-    }
+    ;if !Toggle2DMode()
+    ;{
+    ;    Log("ERROR : Failed to toggle 2D mode, exiting.", 2)
+    ;    return 0
+    ;}
 
 	Ressources := []
 	Collecting := []

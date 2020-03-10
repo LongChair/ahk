@@ -221,7 +221,7 @@ DoSequence()
 		}
 		
 		Log("========= getFreeMecas Start =========")
-		if (!Farming3D)
+		if (!Farming3D and !FarmingMulti)
 		{
 			if !GetAvailableMecaCount(NumFreeMecas)
 			{
@@ -271,7 +271,7 @@ DoSequence()
 			{
 				if (NumFreeMecas > 0 )
 				{					
-					CollectResources()
+					;CollectResources()
 				}
 				Else
 				{
