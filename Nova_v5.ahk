@@ -280,6 +280,12 @@ DoSequence()
 			}
         }
         
+        
+        if (FarmingElites)
+        {
+            FarmElites()
+        }
+        
 DoSequence_Complete:	
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
@@ -357,7 +363,7 @@ ReadConfig()
     global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
 	global PlayerName
 	global KilledCount
-	global Farming, Farming3D, FarmingMulti
+	global Farming, Farming3D, FarmingMulti, FarmingElites
 	global CurrentSystem
 	global LastStartTime
 	global FrigateType
@@ -378,6 +384,8 @@ ReadConfig()
 	IniRead, Farming, %FullPath%, PARAMETERS, Farming, 0
 	IniRead, Farming3D, %FullPath%, PARAMETERS, Farming3D, 0
 	IniRead, FarmingMulti, %FullPath%, PARAMETERS, FarmingMulti, 0
+    IniRead, FarmingElites, %FullPath%, PARAMETERS, FarmingElites, 0
+    
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -432,6 +440,7 @@ WriteConfig()
 	IniWrite, %Farming%, %FullPath%, PARAMETERS, Farming
 	IniWrite, %Farming3D%, %FullPath%, PARAMETERS, Farming3D
 	IniWrite, %FarmingMulti%, %FullPath%, PARAMETERS, FarmingMulti
+    IniWrite, %FarmingElites%, %FullPath%, PARAMETERS, FarmingElites
 	
 	; Free resource counters
 	for i, res in PossibleRes

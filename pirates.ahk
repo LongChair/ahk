@@ -1,6 +1,94 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
+
+;*******************************************************************************
+; FarmElites : Will try to find elites in a gvien system and kill them
+;*******************************************************************************
+FarmElites()
+{
+    global StationX, StationY
+    global MainWinW, MainWinH
+    
+    Ret := 0
+    
+    if (!GotoScreen("SYSTEME", 60))
+    {
+        Log("ERROR : failed to go to system screen, exiting.", 2)
+        return 0
+    }
+	    
+    Loop
+	{
+        
+        ; Centers on station
+        if (!ReadjustPosition())
+        {
+            LOG("ERROR : Failed to recenter position on station, exiting ...")
+            goto FarmElites_End
+        }
+        
+               
+        ; try to find elite
+		if (NovaFindClick("buttons\Elite.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 950, 550))
+        {
+        
+            ; Click on the pirate
+            if (!ClickMenuImage(MainWinW / 2, MainWinH / 2 + 10 , "buttons\groupattack.png"))
+            {
+                Log("ERROR : failed to find click group attack, exiting.", 2)
+                return 0
+            }
+            
+            ; eventually acknowledge avengers
+            if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+            {
+                Log("Avengers trigger validation")
+            }
+		
+        
+            ; make sure we start the move
+            Sleep 3000
+            
+
+            ; now Wait for all fleets to be there
+            Log("Waiting for fleets to complete move...")
+            if (!WaitForFleetsIdle(60))
+            {
+                Log("ERROR : failed to wait for fleets to be idle before attack, exiting.", 2)
+                Ret := 0
+                goto FarmElites_End
+            }            
+            
+            ; recall all the fleets
+            if (!RecallAllFleets())
+            {
+                Log("ERROR : failed to recall fleets to station", 2)
+                Ret := 0
+                goto FarmElites_End
+            }
+                            
+        }
+        Else
+        {   
+            Sleep 10000
+        }       
+
+    }
+
+FarmElites_End:
+    ; Recall fleets to station
+    if (!RecallAllFleets())
+    {
+        Log("ERROR : failed to recall fleets to station", 2)
+        return 0
+    }
+        
+    return Ret
+    
+}
+
+
 ;*******************************************************************************
 ; FarmPirate : Will try to find a pirate, kill it and collect resource
 ;*******************************************************************************

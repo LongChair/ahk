@@ -9,6 +9,7 @@ global LoopTime := 0
 global Farming := 0
 global Farming3D := 0
 global FarmingMulti := 0
+global FarmingElites := 0
 global IterationTime := 0
 
 ; fleets position
