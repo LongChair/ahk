@@ -271,11 +271,18 @@ ScanResourcesInSystem(SystemName)
 	 Log(Format("Starting to scan map in {1} ...", SystemName))
 	
     ; we need the system screen
-    if !GotoSystem(SystemName)
+    ;if !GotoSystem(SystemName)
+    ;{
+    ;    return 0
+    ;}
+	
+	   
+    if (!GotoScreen("SYSTEME", 60))
     {
+        Log("ERROR : failed to go to system screen, exiting.", 2)
         return 0
     }
-	
+	    
 	CurrentSystem := SystemName
     
     ; then go in 2D Mode

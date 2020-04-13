@@ -9,8 +9,10 @@ FarmElites()
 {
     global StationX, StationY
     global MainWinW, MainWinH
+	global EliteKill
     
     Ret := 0
+	Count := 0
     
     if (!GotoScreen("SYSTEME", 60))
     {
@@ -30,11 +32,13 @@ FarmElites()
         
                
         ; try to find elite
-		if (NovaFindClick("buttons\Elite.png", 30, "w100 n0", FoundX, FoundY, 860, 450, 950, 550))
+		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 480, 650, 975, 910))
+		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 450, 1075, 950))
         {
         
+			Log("Found An elite, attacking ...")
             ; Click on the pirate
-            if (!ClickMenuImage(MainWinW / 2, MainWinH / 2 + 10 , "buttons\groupattack.png"))
+            if (!ClickMenuImage(FoundX, FoundY, "buttons\group_attack.png"))
             {
                 Log("ERROR : failed to find click group attack, exiting.", 2)
                 return 0
@@ -46,20 +50,37 @@ FarmElites()
                 Log("Avengers trigger validation")
             }
 		
+			Sleep 3000
+			
+			Log("Selecting all fleets ...")
+			; click the select all 
+			NovaLeftMouseClick(425, 820)
+			
+			Log("Selecting Ok button ...")
+			  ; try to find elite
+			if (!NovaFindClick("buttons\OKFleets.png", 50, "w1000 n1"))
+			{
+			    LOG("ERROR : Failed to find the OK button for fleets, exiting ...")
+				goto FarmElites_End
+			}
         
             ; make sure we start the move
             Sleep 3000
-            
+			FormatTime DayDate,, dd_MM_yyyy
+            FileLog(Format("Killed Elite #{1}", EliteKill), Format("Elites_{1}.txt",DayDate))
+			Log(Format("Killed Elite Count is {1}", EliteKill))
+			EliteKill := EliteKill + 1
 
             ; now Wait for all fleets to be there
-            Log("Waiting for fleets to complete move...")
+            Log("Waiting for fleets to be idle...")
             if (!WaitForFleetsIdle(60))
             {
-                Log("ERROR : failed to wait for fleets to be idle before attack, exiting.", 2)
+                Log("ERROR : failed to wait for fleets to be idle after attack, exiting.", 2)
                 Ret := 0
                 goto FarmElites_End
             }            
             
+			Log("recalling all fleets...")
             ; recall all the fleets
             if (!RecallAllFleets())
             {
@@ -72,7 +93,25 @@ FarmElites()
         Else
         {   
             Sleep 10000
-        }       
+			Count := Count + 1 
+        }
+		
+		; check for debris
+		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 450, 450, 1400, 1050))
+        {
+			LOG("We have a debris, trying to collect...")
+			; Click on the pirate
+            if (!ClickMenuImage(FoundX, FoundY, "buttons\collect.png"))
+            {
+                Log("ERROR : failed to find click collect, exiting.", 2)
+                return 0
+            }
+		}
+		
+		If (Count >= 50)
+		{
+			return 0
+		}
 
     }
 
@@ -964,4 +1003,25 @@ BackAndEnd:
 	}
 	
     return Ret
+}
+
+
+;*******************************************************************************
+; GetElitePower : returns Elite power or unknown
+;*******************************************************************************
+
+GetElitePower()
+{
+	; we check if it's know to be valid
+	Loop, Files, %A_ScriptDir%\images\pirates\elites\*.png"
+	{
+		FileName := "pirates\elites\" . A_LoopFileName
+		if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 600, 560, 780, 620))
+		{
+			return A_LoopFileName
+		}
+	}
+	
+	NovaGrab(600, 560, 180, 60)
+	return "Unknown"
 }

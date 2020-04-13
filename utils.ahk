@@ -522,10 +522,7 @@ RecallAllFleets()
 							NovaEscapeClick()
 							
 							; wait for window to vanish
-							while (!NovaFindClick("buttons\fleets_on.png", 30, "w100 n1"))
-							{
-								Sleep, 500
-							}
+							NovaFindClick("buttons\fleets_on.png", 30, "w5000 n1")
 						}					
 					}
 				}
@@ -1085,27 +1082,24 @@ ReadjustPosition()
 	global StationX, StationY
 	global CurrentSystem
 	
-	if (StationX <> 0) and (StationY <> 0)
-	{
-		Log("Recentering on station ...")
+	;Log("Recentering on station ...")
 
-		; click on my station button
-		if NovaFindClick("screen_markers\my_station.png", 50, "w2000 n1", FoundX, FoundY, 270, 845, 420, 980)
-		{
-			; wait until we find the station, but could be hard to detect
-			NovaFindClick("pirates\station.png", 50, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
+	; click on my station button
+	if NovaFindClick("screen_markers\my_station.png", 50, "w2000 n1", FoundX, FoundY, 270, 845, 420, 980)
+	{
+		; wait until we find the station, but could be hard to detect
+		NovaFindClick("pirates\station.png", 50, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
+	
+		MapPosX := StationX
+		MapPosY := StationY
 		
-			MapPosX := StationX
-			MapPosY := StationY
-			
-			Log("Recentering completed")
-			return 1	
-		}
-		Else
-		{
-			LOG("ERROR : Failed to find station button for recentering")
-			return 0
-		}
+		;Log("Recentering completed")
+		return 1	
+	}
+	Else
+	{
+		LOG("ERROR : Failed to find station button for recentering")
+		return 0
 	}
 }
 

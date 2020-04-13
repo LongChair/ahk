@@ -221,7 +221,7 @@ DoSequence()
 		}
 		
 		Log("========= getFreeMecas Start =========")
-		if (!Farming3D and !FarmingMulti)
+		if (!Farming3D and !FarmingMulti and !FarmingElites)
 		{
 			if !GetAvailableMecaCount(NumFreeMecas)
 			{
@@ -360,7 +360,7 @@ GetSummuary()
 ReadConfig()
 {
 	global FreeResCount, PossibleRes
-    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime 
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime, EliteKill
 	global PlayerName
 	global KilledCount
 	global Farming, Farming3D, FarmingMulti, FarmingElites
@@ -377,6 +377,8 @@ ReadConfig()
     IniRead, OtherResCollected, %FullPath%, COUNTERS, OtherResCollected , 0
     IniRead, FrigatesBuilt, %FullPath%, COUNTERS, FrigatesBuilt, 0
 	IniRead, LastStartTime, %FullPath%, COUNTERS, LastStartTime, 0
+	IniRead, EliteKill, %FullPath%, COUNTERS, EliteKill, 0
+	
     
     ;IniRead, FrigatesAmount, %FullPath%, PARAMETERS, FrigatesAmount, 0
 	IniRead, FrigatesAmount, %IniPath%, FRIGATES, %PlayerName%, 0
@@ -385,7 +387,9 @@ ReadConfig()
 	IniRead, Farming3D, %FullPath%, PARAMETERS, Farming3D, 0
 	IniRead, FarmingMulti, %FullPath%, PARAMETERS, FarmingMulti, 0
     IniRead, FarmingElites, %FullPath%, PARAMETERS, FarmingElites, 0
+	
     
+	
 	
 	; Free resource counters
 	for i, res in PossibleRes
@@ -421,7 +425,7 @@ ReadConfig()
 ;*******************************************************************************
 WriteConfig()
 {
-    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime
+    global FreeResCollected, OtherResCollected, FrigatesBuilt, FrigatesAmount, LoopTime, EliteKill
 	global PlayerName
     global KilledCount, Helped
 	global Farming, Farming3D, FarmingMulti
@@ -434,6 +438,7 @@ WriteConfig()
     IniWrite, %OtherResCollected%, %FullPath%, COUNTERS, OtherResCollected
     IniWrite, %FrigatesBuilt%, %FullPath%, COUNTERS, FrigatesBuilt
 	IniWrite, %LastStartTime%, %FullPath%, COUNTERS, LastStartTime
+	IniWrite, %EliteKill%, %FullPath%, COUNTERS, EliteKill
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
     IniWrite, %LoopTime%, %FullPath%, PARAMETERS, LoopTime
@@ -540,7 +545,7 @@ LaunchNova()
     {
 		
 		Log("Waiting for Nova welcome screen ...")
-		if !NovaFindClick("buttons\cross.png", 40, " w70000 n1")
+		if !NovaFindClick("buttons\cross.png", 40, " w100000 n1")
 		{
 			Log("No welcome screen found.")
 		}
