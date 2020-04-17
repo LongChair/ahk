@@ -843,7 +843,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
 		Count := 1
-        while (!NovaFindClick("buttons\ceg.png", 10, "n0", FoundX, FoundY, 1750, 50, 1850, 140))
+        while (!NovaFindClick("buttons\ceg.png", 50, "n0", FoundX, FoundY, 1750, 50, 1850, 140))
         {
 			; close teh menu
 			NovaEscapeClick()
@@ -1169,4 +1169,20 @@ FormatSeconds(NumberOfSeconds)
     time += %NumberOfSeconds%, seconds
     FormatTime, mmss, %time%, mm:ss
     return NumberOfSeconds//3600 ":" mmss
+}
+
+
+GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
+{
+	StartX := 697
+	EndX := 1143
+	StartY := 154
+	Height := 130
+	I := FleetIndex -1 
+	
+	X1 := StartX
+	X2 := EndX
+	Y1 := StartY + I*Height
+	Y2 := Y1 + Height
+	
 }

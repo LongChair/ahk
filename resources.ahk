@@ -438,10 +438,10 @@ FindRessources()
 	CurrentResType := "STATION"
 	NovaFindClick("pirates\station.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
-	if (Farming)
+	if (Farming Or FarmingMulti)
 	{
 		CurrentResType := "PIRATE"
-		NovaFindClick("pirates\pirate.png", 70, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		NovaFindClick("pirates\pirate.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
 		
 		;CurrentResType := "PIRATERES"
 		;NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
@@ -524,6 +524,8 @@ HandleScan(ResX, ResY)
 ;*******************************************************************************
 SortResList(Byref ResList)
 {
+
+global RssDistThreshold
 
 SortStart:
 	

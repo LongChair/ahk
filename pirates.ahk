@@ -32,8 +32,8 @@ FarmElites()
         
                
         ; try to find elite
-		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 480, 650, 975, 910))
-		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 450, 1075, 950))
+		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 480, 650, 975, 910))
+		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 250, 1075, 950))
         {
         
 			Log("Found An elite, attacking ...")
@@ -50,7 +50,7 @@ FarmElites()
                 Log("Avengers trigger validation")
             }
 		
-			Sleep 3000
+			Sleep 1000
 			
 			Log("Selecting all fleets ...")
 			; click the select all 
@@ -97,7 +97,7 @@ FarmElites()
         }
 		
 		; check for debris
-		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 450, 450, 1400, 1050))
+		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 450, 400, 1400, 1050))
         {
 			LOG("We have a debris, trying to collect...")
 			; Click on the pirate
@@ -404,14 +404,42 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 
 
 ;*******************************************************************************
+; GetClosestFleet : Return closest fleet from position
+;*******************************************************************************
+GetClosestFleet(X,Y)
+{
+   	global FleetPosX, FleetPosY	
+	global MaxPlayerFleets
+	
+	MinDist := 999999999999
+	FleetIndex := -1 
+	
+	Loop, %MaxPlayerFleets%
+	{
+		DX := FleetPosX[A_Index] - X
+		DY := FleetPosY[A_Index] - Y
+		
+		Dist := sqrt(DX*DX + DY*DY)
+		if (Dist < MinDist)
+		{
+			FleetIndex := A_Index
+			MinDist := Dist
+		}
+	}
+	
+	return FleetIndex
+}
+
+;*******************************************************************************
 ; FarmPiratesMulti : Will try to find a pirate & kill it with multiples fleets
 ;*******************************************************************************
-FarmPiratesMulti(PirateCount)
+FarmPiratesMulti(PirateCount, Recall)
 {
     global Pirates
     global KilledCount
 	global StationX, StationY
 	global FleetPosX, FleetPosY
+	global MaxPlayerFleets
     
     Ret := 0
 	
@@ -477,6 +505,10 @@ FarmPiratesMulti(PirateCount)
 		ResX := RefValues[2]
 		ResY := RefValues[3]
 
+
+		AvailFleet := GetClosestFleet(ResX, ResY)
+		Log(Format("Closest Fleet found is Fleet {1}"), AvailFleet)
+		
         ; try to kill pirate
         if (!KillPirateMulti(ResX, ResY, AvailFleet, Killed))
         {
@@ -488,14 +520,15 @@ FarmPiratesMulti(PirateCount)
         if (Killed)
         {
 		
-			AvailFleet := 0
+			;AvailFleet := 0
 			
 			FleetPosX[AvailFleet] := ResX
 			FleetPosY[AvailFleet] := ResY
 			
             KilledPirate := KilledPirate + 1
             KilledCount  := KilledCount + 1
-            
+            LOG(Format("One pirate killed , Count : {1} pirates", KilledCount))
+			
             if (KilledPirate >= PirateCount)
             {
                 LOG(Format("Done with killing {1} pirates, Total={2}", PirateCount, KilledCount))
@@ -508,17 +541,20 @@ FarmPiratesMulti(PirateCount)
     
 FarmPiratesMulti_End:
 
-	if (!WaitForFleetsIdle(60))
-    {
-        Log("ERROR : failed to wait for fleets to be idle before recalling, exiting.", 2)
-    }
-	
-    ; Recall fleets to station
-    if (!RecallAllFleets())
-    {
-        Log("ERROR : failed to recall fleets to station", 2)
-        return 0
-    }
+	if (Recall)
+	{	
+		if (!WaitForFleetsIdle(60))
+		{
+			Log("ERROR : failed to wait for fleets to be idle before recalling, exiting.", 2)
+		}
+		
+		; Recall fleets to station
+		if (!RecallAllFleets())
+		{
+			Log("ERROR : failed to recall fleets to station", 2)
+			return 0
+		}
+	}
         
     return Ret
 }
@@ -579,13 +615,20 @@ KillPirateMulti(X,Y, Fleet, ByRef Killed)
 Pick_Fleet:	
 	Picked := 0
 	
+	GetAttackFleetArea(Fleet, X1, Y1, X2, Y2)
+	X1 := 950
+	Y1 := 160
+	X2 := 1140
+	Y2 := 900
+	
+	
 	if NovaFindClick("buttons\attack_dock.png", 70, "n1", FoundX, FoundY, 950, 160, 1140, 900)
 	{
 		Picked := 1
 	}
 	else 
 	{
-		if NovaFindClick("buttons\attack_wait.png", 70, "n1", FoundX, FoundY, 950, 160, 1140, 900)
+		if NovaFindClick("buttons\attack_wait.png", 70, "n1", FoundX, FoundY, X1, Y1, X2, Y2)
 		{
 			Picked := 1
 		}
@@ -754,9 +797,13 @@ FarmPirates3D(PirateCount)
 	
 	Sleep ,3000
 	
-	Pirates    := []
 	
-	NovaFindClick("pirates\pirate3d.png", 80, "e n0 FuncHandlePirate", FoundX, FoundY, 340, 160, 1460, 820)
+	Loop
+	{
+		Pirates    := []
+		NovaFindClick("pirates\pirate3d.png", 80, "e n0 FuncHandlePirate", FoundX, FoundY, 340, 160, 1460, 820)
+		
+	}
 	
 	if (!NovaFindClick("buttons\station3d.png", 50, "w100 n0", FleetX, FleetY, 340, 160, 1460, 820))
 	{

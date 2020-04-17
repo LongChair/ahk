@@ -139,6 +139,7 @@ DoSequence()
     global IterationTime, LastStartTime
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	global LoopPeriod
+	global CurrentSystem
 	
     Fail := 1
     StartTime := A_TickCount
@@ -245,7 +246,7 @@ DoSequence()
 			if (FarmingMulti)
 			{
 			
-				if (!FarmPiratesMulti(25))
+				if (!FarmPiratesMulti(25, 1))
 				{
 					Log ("ERROR : Failed to farm pirates !", 2)
 					Goto TheEnd
@@ -269,14 +270,32 @@ DoSequence()
 			}
 			Else
 			{
-				if (NumFreeMecas > 0 )
-				{					
-					;CollectResources()
-				}
-				Else
+			
+				if (FarmingMulti)
 				{
-					LOG("No free meca, skipping, collect...")
-				}
+				
+					loop , 30 
+					{
+						if (Mod(A_Index, 2) = 0)
+							Recall := 1
+						Else
+							Recall := 0
+							
+						if (!ScanResourcesInSystem(""))
+						{
+							Log ("ERROR : Failed to scan system ressources !", 2)
+							Goto TheEnd
+						}
+						
+					
+						if (!FarmPiratesMulti(25,Recall))
+						{
+							Log ("ERROR : Failed to farm pirates !", 2)
+							Goto TheEnd
+						}
+					}
+					
+				}			
 			}
         }
         
@@ -551,14 +570,14 @@ LaunchNova()
 		}
 
 		Log("Waiting for Nova news screen ...")
-		if !NovaFindClick("buttons\news_cross.png", 0, " w5000 n1")
+		if !NovaFindClick("buttons\news_cross.png", 0, " w2000 n1")
 		{
 			Log(" No news screen found.")
 		}
 			
 		; check CEG button
 		Log("Waiting for Nova Main screen ...")   
-		if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
+		if !NovaFindClick("buttons\ceg.png", 30, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
 		{
 			Log("ERROR : Couldn't find CEG on start screen...", 2)
 			return 0
@@ -590,6 +609,8 @@ StopNova(CloseBluestacks := 1)
                 CloseBluestacks := 1
                 goto StopNova_Close
             }
+			
+
 
         }
         Log("Nova is closed.")
@@ -615,6 +636,8 @@ StopNova_Close:
 				
 				; try to click Button
 				NovaLeftMouseClick(980, 580) 
+				
+				sleep, 1000
 			}
 			Else
 			{

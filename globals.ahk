@@ -77,7 +77,7 @@ global Pirates_BlackList := []
 global IdleCounter := 0
 global IdleFleet := 0
 
-global RssDistThreshold := 15
+global RssDistThreshold := 25
 
 ; program loop period in s
 Global LoopPeriod := 1 * 60 + 30
