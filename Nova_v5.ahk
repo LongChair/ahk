@@ -26,8 +26,6 @@ Loop
 {
 	global PasteBinUser, PasteBinPassword
 	
-
-	
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
 	IniPath =  %A_ScriptDir%\PasteBin.ini

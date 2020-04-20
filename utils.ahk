@@ -1171,7 +1171,9 @@ FormatSeconds(NumberOfSeconds)
     return NumberOfSeconds//3600 ":" mmss
 }
 
-
+;*******************************************************************************
+; GetAttackFleetArea() : Gets the square coordinates for a fleet
+;*******************************************************************************
 GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
 {
 	StartX := 697
@@ -1183,6 +1185,21 @@ GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
 	X1 := StartX
 	X2 := EndX
 	Y1 := StartY + I*Height
-	Y2 := Y1 + Height
+	Y2 := Y1 + Height	
+}
+
+;*******************************************************************************
+; GetFleetDist() : Gets the distance from a fleet to a point
+;*******************************************************************************
+GetFleetDist(FleetIndex, PosX, PosY)
+{
+	global FleetPosX, FleetPosY
 	
+		
+	DX := FleetPosX[FleetIndex] - PosX
+	DY := FleetPosY[FleetIndex] - PosY
+		
+	Dist := sqrt(DX*DX + DY*DY)
+	
+	return Dist
 }
