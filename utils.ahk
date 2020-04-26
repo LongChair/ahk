@@ -824,7 +824,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 			
 			
 			Count := Count  + 1
-			if (Count > 30)
+			if (Count > 10)
 			{
 				LOG("ERROR : Timeout Waiting for right menu tab to show up")
 				return 0

@@ -33,12 +33,33 @@ FarmElites()
                
         ; try to find elite
 		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 480, 650, 975, 910))
-		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 250, 1075, 950))
+		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 250, 1500, 950))
         {
         
 			Log("Found An elite, attacking ...")
+			if 0
+			{
+				; Force first fleet to tank
+				if (!ClickMenuImage(FoundX, FoundY, "buttons\attack.png"))
+				{
+					Log("ERROR : failed to find click group attack, exiting.", 2)
+					return 0
+				}
+				
+				; eventually acknowledge avengers
+				if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+				{
+					Log("Avengers trigger validation")
+				}
+			
+				; click first fleet 
+				GetAttackFleetArea(1, X1, Y1, X2, Y2)
+				NovaLeftMouseClick((X1+X2)/2, (Y1+Y2)/2)
+			}
+			
             ; Click on the pirate
-            if (!ClickMenuImage(FoundX, FoundY, "buttons\group_attack.png"))
+            ;if (!ClickMenuImage(WinCenterX, WinCenterY, "buttons\group_attack.png"))
+			if (!ClickMenuImage(FoundX, FoundY, "buttons\group_attack.png"))
             {
                 Log("ERROR : failed to find click group attack, exiting.", 2)
                 return 0
@@ -50,7 +71,6 @@ FarmElites()
                 Log("Avengers trigger validation")
             }
 		
-			Sleep 1000
 			
 			Log("Selecting all fleets ...")
 			; click the select all 
@@ -65,7 +85,8 @@ FarmElites()
 			}
         
             ; make sure we start the move
-            Sleep 3000
+            Sleep 1000
+				
 			FormatTime DayDate,, dd_MM_yyyy
             FileLog(Format("Killed Elite #{1}", EliteKill), Format("Elites_{1}.txt",DayDate))
 			Log(Format("Killed Elite Count is {1}", EliteKill))
@@ -97,14 +118,13 @@ FarmElites()
         }
 		
 		; check for debris
-		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 450, 400, 1400, 1050))
+		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 250, 220, 1400, 1050))
         {
 			LOG("We have a debris, trying to collect...")
 			; Click on the pirate
             if (!ClickMenuImage(FoundX, FoundY, "buttons\collect.png"))
             {
                 Log("ERROR : failed to find click collect, exiting.", 2)
-                return 0
             }
 		}
 		
