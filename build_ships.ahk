@@ -21,14 +21,14 @@ HandleFreeSlot(X, Y)
 	Sleep, 500
 	
 	; make sure frigates are selected on that shipyard
-	if !NovaFindClick(Format("ships\{1}.png", FrigateType), 30, "w1000 n0")
+	if !NovaFindClick(Format("ships\{1}.png", FrigateType), 30, "w3000 n0")
 	{
 		Log("Could not find frigates as current ship, exiting.")
 		return
 	}
 	
 	; then click on build button
-	while (NovaFindClick("buttons\build.png", 30, "w1000 n1", FoundX, FoundY, 1480, 690, 1740, 790))
+	while (NovaFindClick("buttons\build.png", 30, "w3000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
 	{
 		FrigatesBuilt := FrigatesBuilt + 1
 		Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
@@ -42,7 +42,7 @@ HandleFreeSlot(X, Y)
 	;Sleep, 1000
 	
 	; then click on back button               
-	while NovaFindClick("buttons\back_ships.png", 30, "w1000 n1", FoundX, FoundY, 0, 40, 200, 140)
+	while NovaFindClick("buttons\back_ships.png", 50, "w1000 n1", FoundX, FoundY, 0, 40, 210, 160)
 	{
 		Log("Going back from shipyard screen")
 	}
@@ -84,7 +84,7 @@ BuildFrigates(Amount)
     }
     
 	;Look for a free slots
-	Loop, 5
+	Loop, 15
 	{
 		Log("Checking available shipyards slots ...")
 		while NovaFindClick("buttons\free_slot.png", 50, "n0 w1000 FuncHandleFreeSlot")
@@ -105,7 +105,7 @@ BuildFrigates(Amount)
 		}
 				
 		; move mouse on top of shipyards
-		NovaDragMouse(1073, 500, 0, -700)
+		NovaDragMouse(1073, 500, 0, -300)
 
 		Log("Dragged down")
 		;NovaMouseMove(1073, 906)
