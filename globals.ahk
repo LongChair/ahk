@@ -3,6 +3,7 @@ global Version := "5.0"
 
 ; Working directory
 global BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
+global Emulator = "BLUESTACKS"
 
 ; Loop time and activation
 global LoopTime := 0

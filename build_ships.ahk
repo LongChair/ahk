@@ -105,7 +105,7 @@ BuildFrigates(Amount)
 		}
 				
 		; move mouse on top of shipyards
-		NovaDragMouse(1073, 500, 0, -300)
+		NovaDragMouse(1073, 500, 0, -700, 50)
 
 		Log("Dragged down")
 		;NovaMouseMove(1073, 906)

@@ -490,7 +490,7 @@ LaunchNova()
 {
     global AppX, AppY, AppW, AppH
     global MainWinX, MainWinY, MainWinW, MainWinH, WinCenterX, WinCenterY, WinBorderX, WinBorderY
-    global CommandLine, WindowName
+    global CommandLine, WindowName, Emulator
 	global Window_ID
 	
 	SetTitleMatchMode 2
@@ -502,16 +502,16 @@ LaunchNova()
 	
     if (!WinExist(WindowName))
     {
-        Log("***** Launching BlueStacks...")
+        Log("***** Launching Emulator...")
         Run, %CommandLine%
         sleep, 1000
         WinWait, %WindowName%,, 100
     
-        Log("Waiting for BlueStacks to be fully started...")
+        Log("Waiting for Emulator to be fully started...")
     }
     else
     {
-        Log("BlueStacks is launched")
+        Log("Emulator is launched")
     }
     
     ; Activate BlueStacks Window
@@ -523,38 +523,58 @@ LaunchNova()
 	WinCenterY := (MainWinH - WinBorderY) / 2 + WinBorderY
    
     ; click home tab
-    Log("Waiting for BlueStacks home tab ...")
-    if !NovaFindClick("buttons\bs_home.png", 60, "w60000 n1")
-    {
-        Log("ERROR : Failed to select home screen, exiting...", 2)
-        return 0
-    }
-    
-    ; click nova app
-	
-    Log("Waiting for BlueStacks Nova icon ...")
-    if !NovaFindClick("buttons\nova_icon_big.png", 60, "w60000 n0")
-    {
-        Log("ERROR : Failed to find nova app icon, exiting...", 2)
-        return 0
-    }
-	
-	sleep, 1000
-    if !NovaFindClick("buttons\nova_icon_big.png", 60, "w1000 n1")
-    {
-        Log("ERROR : Failed to start nova app icon, exiting...", 2)
-        return 0
-    }
+	;if Emulator != BLUESTACKS
+	if 1
+	{
+		Log("Waiting for BlueStacks home tab ...")
+		if !NovaFindClick("buttons\bs_home.png", 60, "w60000 n1")
+		{
+			Log("ERROR : Failed to select home screen, exiting...", 2)
+			return 0
+		}
+		
+		; click nova app
+		
+		Log("Waiting for BlueStacks Nova icon ...")
+		if !NovaFindClick("buttons\nova_icon_big.png", 60, "w60000 n0")
+		{
+			Log("ERROR : Failed to find nova app icon, exiting...", 2)
+			return 0
+		}
+		
+		sleep, 1000
+		if !NovaFindClick("buttons\nova_icon_big.png", 60, "w1000 n1")
+		{
+			Log("ERROR : Failed to start nova app icon, exiting...", 2)
+			return 0
+		}
 
-    
-    ; click nova tab
-    Log("***** Launching Nova Empire...")
-    Log("Waiting for BlueStacks Nova tab ...")
-    if !NovaFindClick("buttons\nova_icon.png", 60, "w5000 n1")
-    {
-        Log("ERROR : Failed to find nova tab, exiting...", 2)
-        return 0
-    }
+		
+		; click nova tab
+		Log("***** Launching Nova Empire...")
+		Log("Waiting for BlueStacks Nova tab ...")
+		if !NovaFindClick("buttons\nova_icon.png", 60, "w5000 n1")
+		{
+			Log("ERROR : Failed to find nova tab, exiting...", 2)
+			return 0
+		}
+	}
+	Else
+	{
+		Log("Waiting for Memu home tab ...")
+		if !NovaFindClick("buttons\memu_home.png", 60, "w60000 n1")
+		{
+			Log("ERROR : Failed to select home screen, exiting...", 2)
+			return 0
+		}
+		
+		Log("***** Launching Nova Empire...")
+		if !NovaFindClick("buttons\memu_nova.png", 60, "w5000 n1")
+		{
+			Log("ERROR : Failed to find nova memu icon, exiting...", 2)
+			return 0
+		}
+	}
     
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   

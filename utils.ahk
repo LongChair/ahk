@@ -24,7 +24,7 @@ NovaLeftMouseClick(X,Y)
 ;*******************************************************************************
 ; NovaDragMouse : Spans the screen starting at X,Y for SpanX, SpanY
 ;*******************************************************************************
-NovaDragMouse(X, Y, SpanX, SpanY)
+NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
 {
 	XMargin := 100
 	YMargin := 100
