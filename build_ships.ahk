@@ -28,7 +28,7 @@ HandleFreeSlot(X, Y)
 	}
 	
 	; then click on build button
-	while (NovaFindClick("buttons\build.png", 30, "w3000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
+	while (NovaFindClick("buttons\build.png", 30, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
 	{
 		FrigatesBuilt := FrigatesBuilt + 1
 		Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
@@ -48,7 +48,7 @@ HandleFreeSlot(X, Y)
 	}
 	
 	; wait to come back to main screen with economy button highlighted
-	if !NovaFindClick("buttons\economy_on.png", 30, "w3000 n0", FoundX, FoundY, 1510, 170, 1750, 270)
+	if !NovaFindClick("buttons\economy_on.png", 30, "w3000 n0", FoundX, FoundY, 1510, 170, 1800, 270)
 	{
 		Log("Could not find economy tab, while getting back to main screen, exiting.")
 		return
@@ -84,7 +84,7 @@ BuildFrigates(Amount)
     }
     
 	;Look for a free slots
-	Loop, 15
+	Loop, 5
 	{
 		Log("Checking available shipyards slots ...")
 		while NovaFindClick("buttons\free_slot.png", 50, "n0 w1000 FuncHandleFreeSlot")
