@@ -128,7 +128,7 @@ FarmElites()
             }
 		}
 		
-		If (Count >= 10)
+		If (Count >= 30)
 		{
 			return 0
 		}
