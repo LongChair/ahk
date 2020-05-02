@@ -9,6 +9,7 @@
 #include screens.ahk
 #include resources.ahk
 #include pirates.ahk
+#include piratesv2.ahk
 #include free_resources.ahk
 #include build_ships.ahk
 
@@ -264,7 +265,8 @@ DoSequence()
         {
 			if (Farming3D)
 			{
-				FarmPirates3D(20)
+				;FarmPirates3D(20)
+                FarmPirates_v2()
 			}
 			Else
 			{

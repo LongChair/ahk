@@ -1,5 +1,34 @@
 ﻿#include globals.ahk
 #include libs\FindClick.ahk
+#include Screens.ahk
+
+range(start, stop:="", step:=1) {
+	static range := { _NewEnum: Func("_RangeNewEnum") }
+	if !step
+		throw "range(): Parameter 'step' must not be 0 or blank"
+	if (stop == "")
+		stop := start, start := 0
+	; Formula: r[i] := start + step*i ; r = range object, i = 0-based index
+	; For a postive 'step', the constraints are i >= 0 and r[i] < stop
+	; For a negative 'step', the constraints are i >= 0 and r[i] > stop
+	; No result is returned if r[0] does not meet the value constraint
+	if (step > 0 ? start < stop : start > stop) ;// start == start + step*0
+		return { base: range, start: start, stop: stop, step: step }
+}
+
+_RangeNewEnum(r) {
+	static enum := { "Next": Func("_RangeEnumNext") }
+	return { base: enum, r: r, i: 0 }
+}
+
+_RangeEnumNext(enum, ByRef k, ByRef v:="") {
+	stop := enum.r.stop, step := enum.r.step
+	, k := enum.r.start + step*enum.i
+	if (ret := step > 0 ? k < stop : k > stop)
+		enum.i += 1
+	return ret
+}
+
 
 ;*******************************************************************************
 ; NovaMouseMove : Moves the mouse in screen Coords relative to Nova screen
@@ -126,6 +155,35 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
 	if (C)
 		Sleep, 500
 		
+	return C
+}
+
+;*******************************************************************************
+; NovaFindClickAll : Find an image into the window
+; Filename : File Path realtive to  %A_ScriptDir%
+; Options : FindClick additionnal options
+; X1, Y1, X2, Y2 : Coordinates of the region to look in in window coordinates
+; FoundX, FoundY : Coordinates of the point found
+;*******************************************************************************
+NovaFindClickAll(FileName, Variation, Options:="", Byref FoundX := 0 , Byref FoundY := 0 , X1 := 0, Y1 := 0, X2 := -1, Y2 := -1)
+{   
+	global WindowName, Window_ID
+	global MainWinW, MainWinH
+	
+    if (X2 = -1)
+        X2 := MainWinW - 1
+    if (Y2 = -1)
+        Y2 := MainWinH - 1
+    
+    W := X2 - X1 + 1
+    H := Y2 - Y1 + 1
+    
+	;Opts := "r""" . WindowName . """ oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . "e a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+    FullPath = %A_ScriptDir%\images\%FileName%
+    
+	C := FindClick(FullPath, Opts)
+	
 	return C
 }
 
@@ -561,7 +619,7 @@ RecallAllFleets()
 ;*******************************************************************************
 ; WaitForFleetsIdle : wait for all fleets to be idle
 ;*******************************************************************************
-WaitForFleetsIdle(TimeOut := 100)
+WaitForFleetsIdle(TimeOut := 100, StartFleet:=1, EndFleet:=6)
 {
 	global MaxPlayerFleets
     
@@ -574,12 +632,16 @@ WaitForFleetsIdle(TimeOut := 100)
         return 0
     }
     
+    
+    GetFleetArea(StartFleet, X1, Y1, Dummy, Dummy)
+    GetFleetArea(EndFleet, Dummy, Dummy, X2, Y2)
+    
 	TimeLeft := TimeOut * 2
 	Loop
 	{
 		IdleCounter := 0
-		NovaFindClick("buttons\recall_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1585, 920)
-		NovaFindClick("buttons\manage_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, 1320, 185, 1585, 920)
+		NovaFindClick("buttons\recall_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, X1, Y1, X2, Y2)
+		NovaFindClick("buttons\manage_button.png", 70, "e n0 FuncHandleIdleCount", FoundX, FoundY, X1, Y1, X2, Y2)
 		
 		if (IdleCounter >= MaxPlayerFleets)
 		{
@@ -612,33 +674,6 @@ WaitForFleetsIdle(TimeOut := 100)
             return 0
 		}
 	}
-		
-		
-		
-    ; wait for all fleets to be idle
-    ;TimeLeft := TimeOut * 10
-	;
-	;Log("Waiting for all fleets to be idle ...")
-    ;Loop
-    ;{	
-		;Idle := CountFleetsState("buttons\EnAttente.png")
-		;
-		;if (Idle >= MaxPlayerFleets)
-		;{
-			;break
-		;}
-          ;
-        ;Sleep, 100
-        ;TimeLeft := TimeLeft - 1
-        ;
-        ;if (TimeLeft <= 0)
-        ;{
-            ;Log(Format("ERROR : timeout after {1} seconds waiting for fleets to be int state {2}. exiting", TimeOut, ImageState), 2)
-			;PopRightMenu(0)	
-            ;return 0
-        ;}
-    ;}
-	
 
     ; fold again right menu
 	PopRightMenu(0)	
