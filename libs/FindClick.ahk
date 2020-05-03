@@ -1,7 +1,6 @@
 ﻿FindClick(ImageFile="", Options="", ByRef FoundX="", ByRef FoundY="") ; updated March 15, 2019 ... https://autohotkey.com/boards/viewtopic.php?f=6&t=18719
 {
-
-Static Cache
+	Static Cache
 	, Center, Silent, Delim, Count, CharX, CharY, CharN, Sleep, Stay, Func, dx, d, m, x, y, o, n, k, r, e, a, w, t, f
 	, ImageW, ImageH, LastX1, LastY1, ImageFilePath ; (xxx Does LastX/Y use the static ability?)
  	, LastOptions, LastImageFile, MonitorInfo, DxInfo

@@ -118,6 +118,7 @@ DoAccount(Account)
     Log("Reading Configuration...")
     ReadConfig()
 	
+	
     DoSequence()
      
     ; Write Configuration
@@ -187,7 +188,7 @@ DoSequence()
         Log("========= BuildFrigates End   =========")
 		                      
 		; check if tank is fresh
-        if (Farming Or Farming3D)
+        if (Farming)
 			if (!FarmingMulti)
 				TankFresh := IsTankFresh()
 			Else
@@ -221,7 +222,7 @@ DoSequence()
 		}
 		
 		Log("========= getFreeMecas Start =========")
-		if (!Farming3D and !FarmingMulti and !FarmingElites)
+		if (!FarmingMulti and !FarmingElites and !Farming3D)
 		{
 			if !GetAvailableMecaCount(NumFreeMecas)
 			{
@@ -436,7 +437,8 @@ ReadConfig()
 	; Get the current system we are in
 	IniRead, CurrentSystem, %FullPath%, SYSTEMS, Current, ""
    
-    
+	LoadFleetPosFromFile(Format("{1}\{2}-Fleets.ini", A_ScriptDir, PlayerName))
+	
 }
 
 ;*******************************************************************************
@@ -482,6 +484,9 @@ WriteConfig()
     ; stats
 	IniWrite, %KilledCount%, %FullPath%, STATS, KilledCount
 	IniWrite, %Helped%, %FullPath%, STATS, Helped
+	
+	SaveFleetPosToFile(Format("{1}\{2}-Fleets.ini", A_ScriptDir, PlayerName))
+	
 }
 
 ;*******************************************************************************

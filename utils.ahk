@@ -179,7 +179,7 @@ NovaFindClickAll(FileName, Variation, Options:="", Byref FoundX := 0 , Byref Fou
     H := Y2 - Y1 + 1
     
 	;Opts := "r""" . WindowName . """ oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
-	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . "e a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . " e a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
 	C := FindClick(FullPath, Opts)
@@ -825,11 +825,11 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     {
         Log("Showing Main right menu ...")
 		Count := 1
-		while (NovaFindClick("buttons\ceg.png", 50, "w2000 n0", FoundX, FoundY, 1750, 50, 1850, 140))
+		while (NovaFindClick("buttons\ceg.png", 50, "w500 n0", FoundX, FoundY, 1750, 50, 1850, 140))
         {
 			; click the button to show up the menu
 			NovaLeftMouseClick(1780, 525)
-			Sleep, 1000
+			Sleep, 500
 			
 			Count := Count  + 1
 			if (Count > 10)
@@ -1089,7 +1089,6 @@ NovaEscapeMenu()
     if (NovaFindClick("buttons\favori.png", 50, "n0", FoundX, FoundY, 500,175, 1600, 875))
     {
         NovaEscapeClick()
-		Sleep, 2000
     }
 	
 	Count := 0
@@ -1237,4 +1236,85 @@ GetFleetDist(FleetIndex, PosX, PosY)
 	Dist := sqrt(DX*DX + DY*DY)
 	
 	return Dist
+}
+
+
+;*******************************************************************************
+; RemoveListFromList : Removes items from a given list to the other list
+;*******************************************************************************
+RemoveListFromList(Byref RemoveList, List)
+{
+	
+	RemoveListIndex := 1
+	Loop, % RemoveList.Length()
+	{
+		RemoveValues := StrSplit(Blacklist[RemoveListIndex], ",")
+		RemoveX := RemoveValues[2]
+		RemoveY := RemoveValues[3]
+		
+		ListIndex := 1
+		Remove := 0
+		Loop, % List.Length()
+		{
+			Values := StrSplit(List[ListIndex], ",")
+			X := Values[2]
+			Y := Values[3]
+			
+			if ((X = RemoveX) AND (Y = RemoveY))
+			{
+				Remove := 1
+				break
+			}
+			
+			ListIndex := ListIndex + 1
+		}
+		
+		if (Remove)
+		{
+			Log(Format("Removing {1} from black ist as it looks obsolete", RemoveList[RemoveListIndex]))
+			RemoveList.RemoveAt(RemoveListIndex)
+		}
+		Else
+			RemoveListIndex := RemoveListIndex + 1
+		
+	}
+}
+
+;*******************************************************************************
+; SaveFleetPosToFile : Saves the fleets position to a given file
+;*******************************************************************************
+SaveFleetPosToFile(OutputFile)
+{
+	global MaxPlayerFleets
+	global FleetPosX, FleetPosY
+	   
+	Loop, % MaxPlayerFleets
+	{
+		Section := Format("FLEET{1}", A_Index)
+		X := FleetPosX[A_Index]
+		Y := FleetPosY[A_Index]
+		IniWrite, %X%, %OutputFile%, %Section%, X
+		IniWrite, %Y%, %OutputFile%, %Section%, Y
+	}
+    
+}
+
+;*******************************************************************************
+; LoadFleetPosFromFile : Load the fleets position from a given file
+;*******************************************************************************
+LoadFleetPosFromFile(InputFile)
+{
+	global MaxPlayerFleets
+	global FleetPosX, FleetPosY
+	
+   	Loop, % MaxPlayerFleets
+	{
+		Section := Format("FLEET{1}", A_Index)
+		IniRead, X, %InputFile%, %Section%, X, 0
+		IniRead, Y, %InputFile%, %Section%, Y, 0
+		
+		FleetPosX[A_Index] := X
+		FleetPosY[A_Index] := Y
+	}
+
 }
