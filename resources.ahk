@@ -377,7 +377,7 @@ ScanResourcesInSystem(SystemName)
 ; CollectResourcesByType : browse the map and collect a ressource from The
 ; given type
 ;*******************************************************************************
-ScanMap(SystemName)
+ScanMap(SystemName, ScanStation:=1)
 {
     global Ressources, PlayerName, CurrentSystem
 		
@@ -409,7 +409,7 @@ ScanMap(SystemName)
 		{
 			MapMoveToXY(CurrentX, CurrentY)
 
-			FindRessources()
+			FindRessources(ScanStation)
 		
 			CurrentX := CurrentX + MapStepX
 	
@@ -429,16 +429,19 @@ ScanMap(SystemName)
 ; Will return the number of ressources found and update teh ressources 
 ; global info
 ;*******************************************************************************
-FindRessources()
+FindRessources(ScanStation:=1)
 {
 	global CurrentResType
     global AreaX1, AreaY1, AreaX2, AreaY2
-	global Farming
+	global Farming, FarmingMulti, Farming3D
     
-	CurrentResType := "STATION"
-	NovaFindClick("pirates\station.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	if (ScanStation)
+	{
+		CurrentResType := "STATION"
+		NovaFindClick("pirates\station.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	}
 		
-	if (Farming Or FarmingMulti)
+	if (Farming Or FarmingMulti Or Farming3D)
 	{
 		CurrentResType := "PIRATE"
 		NovaFindClick("pirates\pirate.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)

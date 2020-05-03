@@ -1,6 +1,7 @@
 ﻿#include globals.ahk
 #include utils.ahk
 #include pirates.ahk
+#include resources.ahk
 
 
 ;*******************************************************************************
@@ -12,6 +13,7 @@ FarmPirates_v2()
     global MaxPlayerFleets, Window_ID
 	global WinCenterX, WinCenterY
     global KilledCount
+	Global Pirates, CurrentResType
 	
     FleetsSpan := Object( 1, 3, 4, 6)
     FleetAvailable := []
@@ -23,6 +25,52 @@ FarmPirates_v2()
 		for StartFleet, EndFleet in FleetsSpan
 		{
 		   
+			; Open the fleets tab
+			if !PopRightMenu(1, "FLEETS")
+			{
+				Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+				return 0
+			}
+			
+			
+			; click the startfleet
+			LOG(Format("Switching to Fleet {1} system ...",StartFleet))
+			GetFleetArea(StartFleet, X1, Y1, X2, Y2)
+			NovaLeftMouseClick((X1+X2)/2, (Y1+Y2)/2)
+			
+							
+			; click the "Voir" Menu
+			if (!NovaFindClick("buttons\voir.png", 40, "w5000 n1", FoundX, FoundY, 1050, 880, 1250, 950))
+			{
+				Log("ERROR : failed to find the Voir button. exiting", 2)
+				return 0
+			}
+			
+			; wait for screen system to be leaoded
+			if (!WaitNovaScreen("SYSTEME", 30))
+			{
+				Log("ERROR : failed wait for system screen. exiting", 2)
+				return 0
+			}
+			
+
+			Sleep, 1000	
+				
+			; Center on system
+			if (!RecenterOnSystem())
+			{
+				Log("ERROR : failed to recenter on system. exiting", 2)
+				return 0
+			}
+			
+			; scan system 
+			CurrentResType := "PIRATE"
+			Pirates := []
+			ScanMap("", 0)
+			SortResList(Pirates)
+			Log(Format("We found {1} Pirates", Pirates.Length()))
+			
+
 			; Open the fleets tab
 			if !PopRightMenu(1, "FLEETS")
 			{
@@ -56,67 +104,9 @@ FarmPirates_v2()
 			   }
 			}
 			Log(StrStatus)
+			PopRightMenu(0)
 			
 			
-			; click the startfleet
-			LOG(Format("Switching to Fleet {1} system ...",StartFleet))
-			GetFleetArea(StartFleet, X1, Y1, X2, Y2)
-			NovaLeftMouseClick((X1+X2)/2, (Y1+Y2)/2)
-			
-							
-			; click the "Voir" Menu
-			if (!NovaFindClick("buttons\voir.png", 40, "w5000 n1", FoundX, FoundY, 1050, 880, 1250, 950))
-			{
-				Log("ERROR : failed to find the Voir button. exiting", 2)
-				return 0
-			}
-			
-			; wait for screen system to be leaoded
-			if (!WaitNovaScreen("SYSTEME", 30))
-			{
-				Log("ERROR : failed wait for system screen. exiting", 2)
-				return 0
-			}
-			
-
-			Sleep, 1000	
-			ZoomOut()
-			Sleep, 1000
-			
-			; Center on system
-			if (!RecenterOnSystem())
-			{
-				Log("ERROR : failed to recenter on system. exiting", 2)
-				return 0
-			}
-			
-			; scan system 
-			Pirates := NovaFindClickAll("pirates\pirate3d3.png", 100, "n0", FoundX, FoundY, 380, 260, 1450, 850)
-			
-			
-			CoordsArray := StrSplit(Pirates, "`n")
-			Log(Format("We Found {1} pirates", CoordsArray.Length()))
-
-			;While (CoordsArray.Length() > 0)
-			;{
-				;PiratesCoords := StrSplit(CoordsArray.RemoveAt(1) , ",")
-				;
-				;PirateX := PiratesCoords[1]
-				;PirateY := PiratesCoords[2]
-				;
-				;NovaMouseMove(PirateX, PirateY)
-				;Sleep 1000
-			;}
-
-			PirateList := []
-			Loop % CoordsArray.MaxIndex()
-			{
-			   PirateList.Insert(Format("PIRATE,{1}", CoordsArray[A_Index]))
-			}
-			
-			RemoveListFromList(KilledList, PirateList)
-			
-
 			for iFleet in range(StartFleet, EndFleet + 1, 1)
 			{
 				
@@ -124,7 +114,7 @@ FarmPirates_v2()
 				{
 				
 FarmPirates_v2_New_Pirate:
-					if (PirateList.Length() <= 0)
+					if (Pirates.Length() <= 0)
 					{
 						LOG("No more pirates to kill, exiting...")
 						Ret := 1
@@ -134,7 +124,7 @@ FarmPirates_v2_New_Pirate:
 					FleetX := FleetPosX[iFleet]
 					FleetY := FleetPosY[iFleet]
 
-					PiratesCoords := StrSplit(PeekClosestRes(PirateList, FleetX, FleetY) , ",")
+					PiratesCoords := StrSplit(PeekClosestRes(Pirates, FleetX, FleetY) , ",")
 
 					PirateX := PiratesCoords[2]
 					PirateY := PiratesCoords[3]
@@ -142,9 +132,9 @@ FarmPirates_v2_New_Pirate:
 					Log(Format("Closest pirates to fleet {1} at ({2}, {3}) is at ({4}, {5})", iFleet, FleetX, FleetY, PirateX, PirateY))
 					
 					; Click Pirate
-					
-					NovaLeftMouseClick(PirateX, PirateY)
-					
+					MapMoveToXY(PirateX, PirateY)
+					NovaLeftMouseClick(WinCenterX, WinCenterY)
+
 					; Validate it's a pirate
 					if (!ValidatePirate(WinCenterX, WinCenterY, Valid))
 					{
@@ -195,20 +185,7 @@ FarmPirates_v2_New_Pirate:
 					
 	FarmPirates_v2_NextPirate:
 					
-					; Center on system
-					Sleep, 1000
-					if (!RecenterOnSystem())
-					{
-						Log("ERROR : failed to recenter on system. exiting", 2)
-						return 0
-					}
-			
-					KilledList.Insert(Format("PIRATES,{1},{2}", PirateX, PirateY))
-					While (KilledList.Length() > 10)
-					{
-						KilledList.RemoveAt(1)
-					}
-					
+				
 					if (!WaitNovaScreen("SYSTEME", 30))
 					{
 						Log("ERROR : failed wait for system screen. exiting", 2)
@@ -235,7 +212,9 @@ FarmPirates_v2_New_Pirate:
 ;*******************************************************************************
 RecenterOnSystem()
 {
-
+	global MapPosX, MapPosY
+	
+	ZoomOut()
 			
 	if (NovaFindClick("pirates\center_system1.png", 60, "w3000 n1", FoundX, FoundY, 380, 260, 1450, 850))
 		Goto RecenterOnSystem_Escape
@@ -257,6 +236,11 @@ RecenterOnSystem()
 RecenterOnSystem_Escape:	
 	if (!NovaEscapeMenu())
 		return 0
+		
+	ZoomIn()
+	
+	MapPosX := 0
+	MapPosY := 0
 		
 	return 1
 }
