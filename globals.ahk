@@ -91,3 +91,6 @@ global FleetY := 0
 global PirateX := 0
 global PirateY := 0
 
+global CenterScreenX := 0
+global CenterScreenY := 0
+
