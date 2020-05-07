@@ -694,15 +694,17 @@ StopNova(CloseBluestacks := 1)
 StopNova_Close:    
     if (CloseBluestacks)
     {
-        ; Now Close BlueStacks
-        Log("Closing BlueStacks...")
-        WinClose, %WindowName%
-        sleep, 2000
+        
         
         ; Wait for it to close
         Log("Waiting for BlueStacks to close...")    
         while WinExist(WindowName)
         {
+            ; Now Close BlueStacks
+            Log("Closing BlueStacks...")
+            WinClose, %WindowName%
+            sleep, 2000
+        
 			; Click on the confirm button
 			if !NovaFindClick("buttons\yes.png", 70, "w20000 n1")
 			{
