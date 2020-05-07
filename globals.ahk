@@ -29,6 +29,8 @@ global WinCenterY := 0
 global AppX := 0
 global AppY := 0
 
+global RunMode := ""
+
 ; free resources collected
 global FreeResCollected := 0
 global MaxFreeRes := 30

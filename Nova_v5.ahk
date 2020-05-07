@@ -140,6 +140,7 @@ DoSequence()
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	global LoopPeriod
 	global CurrentSystem
+	global RunMode
 	
     Fail := 1
     StartTime := A_TickCount
@@ -169,142 +170,188 @@ DoSequence()
 	;LoadBlackLists()
 	
     if LaunchNova()
-    {   			
-        Log("========= CheckFreeResources Start =========")
-        if !CheckFreeResources()
-        {
-            Log ("ERROR : Failed to collect free resources !", 2)
-            Goto TheEnd
-        }
-        Log("========= CheckFreeResources End   =========")
+    {
 	
-    
-		Log("========= BuildFrigates Start =========")
-        if !BuildFrigates(FrigatesAmount)
-        {
-            Log ("ERROR : Failed to build frigates !", 2)
-            Goto TheEnd
-        }
-        Log("========= BuildFrigates End   =========")
-		                      
-		; check if tank is fresh
-        if (Farming)
-			if (!FarmingMulti)
-				TankFresh := IsTankFresh()
-			Else
-			{
-				;if (!RepairAllFleets())
-				;{
-				;	Log ("ERROR : Failed to repair fleets !", 2)
-				;	Goto TheEnd
-				;}
+		Log("========= CheckFreeResources Start =========")
+		if !CheckFreeResources()
+		{
+			Log ("ERROR : Failed to collect free resources !", 2)
+			Goto TheEnd
+		}
+		Log("========= CheckFreeResources End   =========")
+	
+			
+		Switch RunMode
+		{
+			case "BUILD" :
+				Loop
+				{
+					if !BuildFrigates(FrigatesAmount)
+					{
+						Log ("ERROR : Failed to build frigates !", 2)
+						Goto TheEnd
+					}
+					
+					Sleep, 30000
+				}
+				Return
 				
-				TankFresh := 1
-			}
+			case "FARMING_PIRATES" :
+			
+				Loop , 30 
+				{
+					if (Mod(A_Index, 2) = 0)
+						Recall := 1
+					Else
+						Recall := 0
+						
+					if (!ScanResourcesInSystem(""))
+					{
+						Log ("ERROR : Failed to scan system ressources !", 2)
+						Goto TheEnd
+					}
+					
+				
+					if (!FarmPiratesMulti(25,Recall))
+					{
+						Log ("ERROR : Failed to farm pirates !", 2)
+						Goto TheEnd
+					}
+				}
+							
+				Return
+				
+			case "FARMING_ELITES" :
+				FarmElites()
+				
+				
+			default:
+			
 			
 
-		; scan pirates ressources in system if farming
-        if (Farming and TankFresh)
-        {
-			if (!ScanResourcesInSystem(""))
-			{
-				Log ("ERROR : Failed to scan system ressources !", 2)
-				Goto TheEnd
-			}
-			
-			Log("Filtering with blacklists and cleaning up ...")
-			;RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
-			;RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
-			;FilterListwithBlackList(Ressources, Ressources_BlackList)
-			;FilterListwithBlackList(Pirates, Pirates_BlackList)
-			Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
-			Log(Format("We have {1} pirates and {2} ressources in blacklist...", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
-		}
-		
-		Log("========= getFreeMecas Start =========")
-		if (!FarmingMulti and !FarmingElites and !Farming3D)
-		{
-			if !GetAvailableMecaCount(NumFreeMecas)
-			{
-				Log ("ERROR : Failed to get available mecas count !", 2)
-				Goto TheEnd
-			}
-			Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
-			StartFreeMecas := NumFreeMecas
-			
-			if (NumFreeMecas = 0 and Farming = 0)
-			{
-				Log("Looks like we have no more mecas, skipping")
-				Goto DoSequence_Complete
-			}
-		}
-		Log("========= getFreeMecas End =========")
-		
-		if (Farming and TankFresh)
-		{
-  
-			if (FarmingMulti)
-			{
-			
-				if (!FarmPiratesMulti(25, 1))
-				{
-					Log ("ERROR : Failed to farm pirates !", 2)
-					Goto TheEnd
-				}
-			}
-			Else
-			{
-				if (!FarmPirates(25))
-				{
-					Log ("ERROR : Failed to farm pirates !", 2)
-					Goto TheEnd
-				}
-			}
-	
-        }
-        Else
-        {
-			if (Farming3D)
-			{
-				;FarmPirates3D(20)
-                FarmPirates_v2()
-			}
-			Else
-			{
-			
-				if (FarmingMulti)
-				{
-				
-					loop , 30 
+				Log("========= BuildFrigates End   =========")
+									  
+				; check if tank is fresh
+				if (Farming)
+					if (!FarmingMulti)
+						TankFresh := IsTankFresh()
+					Else
 					{
-						if (Mod(A_Index, 2) = 0)
-							Recall := 1
-						Else
-							Recall := 0
-							
-						if (!ScanResourcesInSystem(""))
-						{
-							Log ("ERROR : Failed to scan system ressources !", 2)
-							Goto TheEnd
-						}
+						;if (!RepairAllFleets())
+						;{
+						;	Log ("ERROR : Failed to repair fleets !", 2)
+						;	Goto TheEnd
+						;}
 						
+						TankFresh := 1
+					}
 					
-						if (!FarmPiratesMulti(25,Recall))
+
+				; scan pirates ressources in system if farming
+				if (Farming and TankFresh)
+				{
+					if (!ScanResourcesInSystem(""))
+					{
+						Log ("ERROR : Failed to scan system ressources !", 2)
+						Goto TheEnd
+					}
+					
+					Log("Filtering with blacklists and cleaning up ...")
+					;RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
+					;RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
+					;FilterListwithBlackList(Ressources, Ressources_BlackList)
+					;FilterListwithBlackList(Pirates, Pirates_BlackList)
+					Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
+					Log(Format("We have {1} pirates and {2} ressources in blacklist...", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
+				}
+				
+				Log("========= getFreeMecas Start =========")
+				if (!FarmingMulti and !FarmingElites and !Farming3D)
+				{
+					if !GetAvailableMecaCount(NumFreeMecas)
+					{
+						Log ("ERROR : Failed to get available mecas count !", 2)
+						Goto TheEnd
+					}
+					Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
+					StartFreeMecas := NumFreeMecas
+					
+					if (NumFreeMecas = 0 and Farming = 0)
+					{
+						Log("Looks like we have no more mecas, skipping")
+						Goto DoSequence_Complete
+					}
+				}
+				Log("========= getFreeMecas End =========")
+				
+				if (Farming and TankFresh)
+				{
+		  
+					if (FarmingMulti)
+					{
+					
+						if (!FarmPiratesMulti(25, 1))
 						{
 							Log ("ERROR : Failed to farm pirates !", 2)
 							Goto TheEnd
 						}
 					}
+					Else
+					{
+						if (!FarmPirates(25))
+						{
+							Log ("ERROR : Failed to farm pirates !", 2)
+							Goto TheEnd
+						}
+					}
+			
+				}
+				Else
+				{
+					if (Farming3D)
+					{
+						;FarmPirates3D(20)
+						FarmPirates_v2()
+					}
+					Else
+					{
 					
-				}			
-			}
-        }
-        
-        
-        if (FarmingElites)
-        {
-            FarmElites()
-        }
+						if (FarmingMulti)
+						{
+						
+							loop , 30 
+							{
+								if (Mod(A_Index, 2) = 0)
+									Recall := 1
+								Else
+									Recall := 0
+									
+								if (!ScanResourcesInSystem(""))
+								{
+									Log ("ERROR : Failed to scan system ressources !", 2)
+									Goto TheEnd
+								}
+								
+							
+								if (!FarmPiratesMulti(25,Recall))
+								{
+									Log ("ERROR : Failed to farm pirates !", 2)
+									Goto TheEnd
+								}
+							}
+							
+						}			
+					}
+				}
+				
+				
+				if (FarmingElites)
+				{
+					FarmElites()
+				}
+		
+		}
+      
         
 DoSequence_Complete:	
 		; compute iteration time
@@ -387,7 +434,8 @@ ReadConfig()
 	global CurrentSystem
 	global LastStartTime
 	global FrigateType
-    
+    global RunMode
+	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
 	IniPath =  %A_ScriptDir%\PasteBin.ini
 	
@@ -424,6 +472,7 @@ ReadConfig()
 	IniRead, WindowName, %FullPath%, GENERAL, WindowName, ""
 	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
 	IniRead, FrigateType, %FullPath%, GENERAL, FrigateType, ""
+	IniRead, RunMode, %FullPath%, GENERAL, RunMode, ""
 	
 	; ressources Priority
 	IniRead, ResPriority1, %FullPath%, PRIORITIES, ResPriority1, "MINE"
