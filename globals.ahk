@@ -20,7 +20,7 @@ global FleetPosY := []
 ; Window Size
 global AppW := 1920
 global AppH := 1080
-global WinBorderY = 40
+global WinBorderY = 32
 global WinBorderX = 0
 global WinCenterX := 0
 global WinCenterY := 0

@@ -28,21 +28,15 @@ HandleFreeSlot(X, Y)
 	}
 	
 	; then click on build button
-	while (NovaFindClick("buttons\build.png", 30, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
+	while (NovaFindClick("buttons\build_ships.png", 30, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
 	{
 		FrigatesBuilt := FrigatesBuilt + 1
 		Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
 		Sleep, 500
 	}
-	;if (NovaFindClick("buttons\build.png", 30, "w1000 n1"))
-	;{
-	;	FrigatesBuilt := FrigatesBuilt + 1
-	;}
-		
-	;Sleep, 1000
 	
 	; then click on back button               
-	while NovaFindClick("buttons\back_ships.png", 50, "w1000 n1", FoundX, FoundY, 0, 40, 210, 160)
+	while NovaFindClick("buttons\back_ships.png", 50, "w500 n1", FoundX, FoundY, 0, 40, 210, 160)
 	{
 		Log("Going back from shipyard screen")
 	}

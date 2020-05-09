@@ -8,13 +8,13 @@
 ;*******************************************************************************
 GetNovaScreen()
 {   
-	if NovaFindClick("screen_markers\daily_mission.png", 30, "n0", FoundX, FoundY, 205, 880, 305, 1000)
+	if NovaFindClick("screen_markers\daily_mission.png", 10, "n0", FoundX, FoundY, 205, 900, 350, 1065)
 		return "STATION"
 	
-	if NovaFindClick("screen_markers\galaxy_qmark.png", 30, "n0", FoundX, FoundY, 20, 920, 105, 1050)
+	if NovaFindClick("screen_markers\galaxy_qmark.png", 10, "n0", FoundX, FoundY, 20, 920, 135, 1065)
 		return "GALAXIE"
 	
-	if NovaFindClick("screen_markers\my_station.png", 30, "n0", FoundX, FoundY, 270, 845, 420, 980)
+	if NovaFindClick("screen_markers\my_station.png", 10, "n0", FoundX, FoundY, 270, 845, 425, 990)
 		return "SYSTEME"
 	
     return "UNKNOWN"
@@ -39,6 +39,7 @@ WaitNovaScreen(Screen, Timeout)
     if (Remaining > 0)
     {
         Log("Screen "  . Screen . " is up.")
+		Sleep, 500
         return 1
     }
     else
@@ -60,7 +61,6 @@ GotoScreen(TargetScreen, Timeout)
     
 	; Wait to have a known screen
 	Log("Identifying screen ...")
-    sleep, 500
     
     While (CurrentScreen = "UNKNOWN") AND (Remaining > 0)
     {
@@ -132,6 +132,7 @@ GotoScreen(TargetScreen, Timeout)
              return 0
         }
     }
+
 	
     Log("Navigation Complete.")
     return 1

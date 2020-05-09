@@ -20,6 +20,8 @@ FarmElites(X1, Y1, X2, Y2, ValidationImage)
         Log("ERROR : failed to go to system screen, exiting.", 2)
         return 0
     }
+	
+	Sleep, 1000
 	    
     Loop
 	{
@@ -636,13 +638,13 @@ Pick_Fleet:
 	Picked := 0
 	
 	GetAttackFleetArea(Fleet, X1, Y1, X2, Y2)
-	X1 := 950
-	Y1 := 160
-	X2 := 1140
-	Y2 := 900
+	X1 := 716
+	Y1 := 146
+	X2 := 1162
+	Y2 := 916
 	
 	
-	if NovaFindClick("buttons\attack_dock.png", 70, "n1", FoundX, FoundY, 950, 160, 1140, 900)
+	if NovaFindClick("buttons\attack_dock.png", 70, "n1", FoundX, FoundY, X1, Y1, X2, Y2)
 	{
 		Picked := 1
 	}
@@ -718,13 +720,13 @@ ValidateTarget(TargetImage, X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick(TargetImage, 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+    if NovaFindClick(TargetImage, 50, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540)
     {
 	    ; we check if it's know to be valid
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
 		{
 			FileName := "pirates\invalid\" . A_LoopFileName
-			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 600, 560, 780, 620))
+			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 600, 470, 790, 540))
 			{
 				Log(Format("Invalidating a pirate matching {1}", A_LoopFileName))
 				goto ValidatePirate_End
@@ -737,7 +739,7 @@ ValidateTarget(TargetImage, X, Y, ByRef Valid)
 	{
 		if (NovaFindClick("buttons\attack.png", 50, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
 		{			
-			if NovaFindClick("pirates\valid\Crystals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+			if NovaFindClick("pirates\valid\Crystals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540)
 			{
 				Valid := 1
 			}

@@ -115,22 +115,10 @@ CheckFreeResources()
 			Log("ERROR : Failed to find the crate, exiting", 2)
             return 0
 		}
-        
-		; indentify what we got
-		if !IdentifyFreeResource(ResDescription, ResIndex)
-		{
-			Log("ERROR : Could not retrieve free ressource information. exiting", 2)
-		}
+    	
+		Log("Collecting free resources ... YEAH!", 1)
 		
-		FreeResCount[ResIndex] := FreeResCount[ResIndex] + 1
-		
-		Log("Collecting free resources ... got '" . ResDescription . "', YEAH!", 1)
-		
-		; Grab a screenshot of the resource
-        ;NovaGrab(740, 350, 300, 365)
-        ;Sleep, 1000
-        
-        ; look for the grab button
+	    ; look for the grab button
         Log("Clicking on grab button...")
         if !NovaFindClick("buttons\recuperer.png", 80, "w5000 n1", FoundX, FoundY, 800, 800, 1250, 1000)
         {
@@ -145,20 +133,8 @@ CheckFreeResources()
         {
             Log("ERROR : Failed to click the reward button for free resources, could be that we got them all ?", 2)
         }
-        
-        ; click below the popup to make it vanish
-        ; TODO : reworks here
-        Log("Waiting for reward screen to get away ...")
-        LoopCount := 0
-        Loop
-        {
-			NovaFindClick("buttons\reward.png", 80, "w5000 n1")
-			
-            LoopCount := LoopCount + 1
-            Sleep, 1000
-        } Until WaitNovaScreen("STATION", 1) or LoopCount > 5
-        
-        if LoopCount > 5 
+                
+        if (!WaitNovaScreen("STATION", 1))
         {
             Log("ERROR : Timeout waiting for station screen, stopping", 2)
             return 0

@@ -149,11 +149,12 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
 	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
-	C := FindClick(FullPath, Opts, FoundX, FoundY)
+	if (!FileExist(FullPath))
+	{
+		Sleep, 100
+	}
 	
-	; in case we clicked, wait a bit 
-	if (C)
-		Sleep, 500
+	C := FindClick(FullPath, Opts, FoundX, FoundY)
 		
 	return C
 }
@@ -558,6 +559,7 @@ RecallAllFleets()
 				{
 					; fleet is already docked
 					Recalled[FleetIndex] := 1
+					Sleep, 500
 				}
 				Else
 				{				
@@ -565,6 +567,7 @@ RecallAllFleets()
 					if (NovaFindClick("buttons\recall_button.png", 50, "n1", FoundX, FoundY, X1, Y1 , X2, Y2))
 					{
 						Recalled[FleetIndex] := 1
+						Sleep, 500
 					}
 					Else
 					{
@@ -657,15 +660,6 @@ WaitForFleetsIdle(TimeOut := 100, StartFleet:=1, EndFleet:=6)
 			PopRightMenu(0)	
             return 0
         }
-		
-		if (NovaFindClick("buttons\zerotime.png", 30, "n0", FoundX, FoundY, 1000, 185, 1350, 880))
-		{
-			ZeroTimeCount := ZeroTimeCount + 1
-		}
-		Else
-		{
-			ZeroTimeCount := 0
-		}
 		
 		if (ZeroTimeCount >= 10)
 		{
@@ -825,12 +819,8 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
     {
         Log("Showing Main right menu ...")
 		Count := 1
-		while (NovaFindClick("buttons\ceg.png", 50, "w500 n0", FoundX, FoundY, 1750, 50, 1850, 140))
-        {
-			; click the button to show up the menu
-			NovaLeftMouseClick(1780, 525)
-			Sleep, 500
-			
+		while (!NovaFindClick("buttons\ceg.png", 50, "w500 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+        {			
 			Count := Count  + 1
 			if (Count > 10)
 			{
@@ -838,6 +828,11 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
 				return 0
 			}
 		}
+		
+		; click the button to show up the menu
+		NovaLeftMouseClick(1780, 525)
+		Sleep, 500
+
         
 		Count := 1
 		Loop 
@@ -878,7 +873,7 @@ PopRightMenu(Visible, TabPage := "ECONOMY")
         ; make sure we don't have the menu bar again
         ; For this we check if we find the CEG icon which is behind
 		Count := 1
-        while (!NovaFindClick("buttons\ceg.png", 50, "n0", FoundX, FoundY, 1750, 50, 1850, 140))
+        while (!NovaFindClick("buttons\ceg.png", 50, "n0", FoundX, FoundY, 1700, 40, 1960, 150))
         {
 			; close teh menu
 			NovaEscapeClick()
@@ -951,13 +946,13 @@ GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
 	}
 	Else
 	{
-		X1 := 760
-		Y1 := 193
-		X2 := 1580
+		X1 := 792
+		Y1 := 185
+		X2 := 1590
 		Y2 := 300
 		
-		Y1 := Y1 + (122 * (FleetIndex - 1))
-		Y2 := Y2 + (122 * (FleetIndex - 1))
+		Y1 := Y1 + (126 * (FleetIndex - 1))
+		Y2 := Y2 + (126 * (FleetIndex - 1))
 	}
 	
 }
@@ -1067,6 +1062,7 @@ ClickMenuImage(X,Y, Image, ValidateFunction := "")
     if (!NovaFindClick(Image, 70, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
     {
         LOG("ERROR : Could Not find the menu image " . Image . ", different menu popped up ?", 2)        
+		NovaEscapeMenu()
     }
     Else
     {
@@ -1074,8 +1070,6 @@ ClickMenuImage(X,Y, Image, ValidateFunction := "")
     }
     
 ClickMenuImage_End:  
-    ; wait for menu to vanish
-	NovaEscapeMenu()
 	
     return Ret
 }
@@ -1122,7 +1116,7 @@ ReadjustPosition()
 	if NovaFindClick("screen_markers\my_station.png", 50, "w2000 n1", FoundX, FoundY, 270, 845, 420, 980)
 	{
 		; wait until we find the station, but could be hard to detect
-		NovaFindClick("pirates\station.png", 50, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
+		NovaFindClick("pirates\station.png", 80, "w4000 n0", FoundX, FoundY, 840, 490, 960, 600)
 	
 		MapPosX := StationX
 		MapPosY := StationY
@@ -1210,10 +1204,10 @@ FormatSeconds(NumberOfSeconds)
 ;*******************************************************************************
 GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
 {
-	StartX := 697
-	EndX := 1143
-	StartY := 154
-	Height := 130
+	StartX := 714
+	EndX := 1166
+	StartY := 148
+	Height := 142
 	I := FleetIndex -1 
 	
 	X1 := StartX

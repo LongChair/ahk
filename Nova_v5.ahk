@@ -141,6 +141,7 @@ DoSequence()
 	global LoopPeriod
 	global CurrentSystem
 	global RunMode
+	global FarmingMulti
 	
     Fail := 1
     StartTime := A_TickCount
@@ -204,13 +205,24 @@ DoSequence()
 						Recall := 1
 					Else
 						Recall := 0
-						
-					if (!ScanResourcesInSystem(""))
+			
+					if (!GotoScreen("GALAXIE", 60))
 					{
-						Log ("ERROR : Failed to scan system ressources !", 2)
-						Goto TheEnd
+						Log("ERROR : failed to go to system screen, exiting.", 2)
+						return 0
 					}
 					
+					if (!GotoScreen("SYSTEME", 60))
+					{
+						Log("ERROR : failed to go to system screen, exiting.", 2)
+						return 0
+					}
+
+					FarmingMulti := 1
+					Pirates    := []
+					ScanMap(SystemName)
+					SortResList(Pirates)
+	
 				
 					if (!FarmPiratesMulti(25,Recall))
 					{
@@ -224,13 +236,32 @@ DoSequence()
 			case "FARMING_ELITES" :
 				Loop , 10
 				{
-					FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png")
+					if (!FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png"))
+					{
+						Log ("ERROR : Failed to farm pirates !", 2)
+						Goto TheEnd
+					}
 				}
 				
 			case "FARMING_KRAKEN" :
 				Loop , 10
 				{
-					FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png")
+					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png"))
+					{
+						Log ("ERROR : Failed to farm pirates !", 2)
+						Goto TheEnd
+					}
+				}
+				
+			case "FARMING_MULTI" :
+
+				Loop, 500
+				{
+					if (!FarmPirates_v2())
+					{
+						Log ("ERROR : Failed to farm pirates !", 2)
+						Goto TheEnd
+					}
 				}
 				
 			default:
@@ -564,20 +595,14 @@ LaunchNova()
 	SetBatchLines -1
 	
 	
-    if (!WinExist(WindowName))
-    {
-        Log("***** Launching Emulator...")
-        Run, %CommandLine%
-        sleep, 1000
-        WinWait, %WindowName%,, 100
-    
-        Log("Waiting for Emulator to be fully started...")
-    }
-    else
-    {
-        Log("Emulator is launched")
-    }
-    
+	Log("***** Launching Emulator...")
+	Run, %CommandLine%
+	while !WinExist(WindowName)
+	{
+		Sleep, 1000
+	}
+    Log("Emulator Launched...")
+	
     ; Activate BlueStacks Window
 	Window_ID := WinExist(WindowName)
     WinActivate, ahk_id %Window_ID%
@@ -586,87 +611,37 @@ LaunchNova()
 	WinCenterX := (MainWinW - WinBorderX) / 2 + WinBorderX
 	WinCenterY := (MainWinH - WinBorderY) / 2 + WinBorderY
    
-    ; click home tab
-	;if Emulator != BLUESTACKS
-	if 1
-	{
-		Log("Waiting for BlueStacks home tab ...")
-		if !NovaFindClick("buttons\bs_home.png", 60, "w60000 n1")
-		{
-			Log("ERROR : Failed to select home screen, exiting...", 2)
-			return 0
-		}
-		
-		; click nova app
-		
-		Log("Waiting for BlueStacks Nova icon ...")
-		if !NovaFindClick("buttons\nova_icon_big.png", 60, "w60000 n0")
-		{
-			Log("ERROR : Failed to find nova app icon, exiting...", 2)
-			return 0
-		}
-		
-		sleep, 1000
-		if !NovaFindClick("buttons\nova_icon_big.png", 60, "w1000 n1")
-		{
-			Log("ERROR : Failed to start nova app icon, exiting...", 2)
-			return 0
-		}
-
-		
-		; click nova tab
-		Log("***** Launching Nova Empire...")
-		Log("Waiting for BlueStacks Nova tab ...")
-		if !NovaFindClick("buttons\nova_icon.png", 60, "w5000 n1")
-		{
-			Log("ERROR : Failed to find nova tab, exiting...", 2)
-			return 0
-		}
-	}
-	Else
-	{
-		Log("Waiting for Memu home tab ...")
-		if !NovaFindClick("buttons\memu_home.png", 60, "w60000 n1")
-		{
-			Log("ERROR : Failed to select home screen, exiting...", 2)
-			return 0
-		}
-		
-		Log("***** Launching Nova Empire...")
-		if !NovaFindClick("buttons\memu_nova.png", 60, "w5000 n1")
-		{
-			Log("ERROR : Failed to find nova memu icon, exiting...", 2)
-			return 0
-		}
-	}
-    
+ 
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-    if !NovaFindClick("buttons\ceg.png", 30, "w1000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
-    {
-		
-		Log("Waiting for Nova welcome screen ...")
-		if !NovaFindClick("buttons\cross.png", 40, " w100000 n1")
-		{
-			Log("No welcome screen found.")
-		}
-
-		Log("Waiting for Nova news screen ...")
-		if !NovaFindClick("buttons\news_cross.png", 0, " w2000 n1")
-		{
-			Log(" No news screen found.")
-		}
-			
-		; check CEG button
-		Log("Waiting for Nova Main screen ...")   
-		if !NovaFindClick("buttons\ceg.png", 30, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150)
-		{
-			Log("ERROR : Couldn't find CEG on start screen...", 2)
-			return 0
-		}
-	}
-    
+	if (!NovaFindClick("buttons\ceg.png", 30, "w100000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+	{
+		 Log("ERROR : Failed to wait for CEG on start screen, exiting...", 2)
+		 return 0
+	}	
     Log("***** Nova is up and running.")
+	
+	; we need to make the cross get away
+	Sleep, 500
+	if (!NovafindClick("Buttons\player.png", 30, "w1000 n1"))
+	{
+		 Log("ERROR : Failed to wait player on start screen, exiting...", 2)
+		 return 0
+	}
+	
+	if (!NovafindClick("Buttons\apercu.png", 30, "w5000 n1"))
+	{
+		 Log("ERROR : Failed to wait player previewscreen, exiting...", 2)
+		 return 0
+	}
+
+	; now escape from player Screen
+	NovaEscapeClick()
+	
+	; and click the cross
+	NovafindClick("Buttons\start_cross.png", 30, "w2000 n1")
+	Log("Nova Init sequence complete.", 2)
+	
     return 1
 }
 
@@ -675,60 +650,18 @@ LaunchNova()
 ;*******************************************************************************
 StopNova(CloseBluestacks := 1)
 {
-	global Window_ID, WindowName 
- 
-    if (!CloseBluestacks)
-    {
-        Log("Closing Nova ...")
-        
-        Log("Waiting for BlueStacks Nova tab ...")
-        while (NovaFindClick("buttons\nova_icon.png", 30, "w500 n1 Stay"))
-        {
-            Log("Closing Nova tab ...")
-            if !NovaFindClick("buttons\tab_cross.png", 60, "w1000 n1")
-            {
-                Log("ERROR : Failed to find nova tab cross to close, exiting...", 2)
-                CloseBluestacks := 1
-                goto StopNova_Close
-            }
-			
+	global WindowName 
+  
+	; Wait for it to close
+	Log("Waiting for BlueStacks to close...")    
+	while WinExist(WindowName)
+	{
+		; Now Close BlueStacks
+		Log("Closing Emulator...")
+		WinClose, %WindowName%
+		sleep, 1000
+	}
+	
+	Log("Emulator is closed.")
 
-
-        }
-        Log("Nova is closed.")
-    }
-    
-    
-StopNova_Close:    
-    if (CloseBluestacks)
-    {
-        
-        
-        ; Wait for it to close
-        Log("Waiting for BlueStacks to close...")    
-        while WinExist(WindowName)
-        {
-            ; Now Close BlueStacks
-            Log("Closing BlueStacks...")
-            WinClose, %WindowName%
-            sleep, 2000
-        
-			; Click on the confirm button
-			if !NovaFindClick("buttons\yes.png", 70, "w20000 n1")
-			{
-				Log("ERROR : Could not find exit confirm button, exiting...", 2)
-				
-				; try to click Button
-				NovaLeftMouseClick(980, 580) 
-				
-				sleep, 1000
-			}
-			Else
-			{
-				break
-			}
-        }
-        
-        Log("BlueStacks is closed.")
-    }
 }
