@@ -222,8 +222,16 @@ DoSequence()
 				Return
 				
 			case "FARMING_ELITES" :
-				FarmElites()
+				Loop , 10
+				{
+					FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png")
+				}
 				
+			case "FARMING_KRAKEN" :
+				Loop , 10
+				{
+					FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png")
+				}
 				
 			default:
 			
@@ -347,7 +355,7 @@ DoSequence()
 				
 				if (FarmingElites)
 				{
-					FarmElites()
+					FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png")
 				}
 		
 		}

@@ -5,11 +5,12 @@
 ;*******************************************************************************
 ; FarmElites : Will try to find elites in a gvien system and kill them
 ;*******************************************************************************
-FarmElites()
+FarmElites(X1, Y1, X2, Y2, ValidationImage)
 {
     global StationX, StationY
     global MainWinW, MainWinH
 	global EliteKill
+	global WinCenterX, WinCenterY
     
     Ret := 0
 	Count := 0
@@ -32,46 +33,45 @@ FarmElites()
         
                
         ; try to find elite
-		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 480, 650, 975, 910))
-		;if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, 280, 250, 1500, 950))
+		if (NovaFindClick("pirates\Elite.png", 50, "w1000 n0", FoundX, FoundY, X1, Y1, X2, Y2))
         {
         
 			Log("Found An elite, attacking ...")
-			if 0
-			{
-				; Force first fleet to tank
-				if (!ClickMenuImage(FoundX, FoundY, "buttons\attack.png"))
-				{
-					Log("ERROR : failed to find click group attack, exiting.", 2)
-					return 0
-				}
-				
-				; eventually acknowledge avengers
-				if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
-				{
-					Log("Avengers trigger validation")
-				}
 			
-				; click first fleet 
-				GetAttackFleetArea(1, X1, Y1, X2, Y2)
-				NovaLeftMouseClick((X1+X2)/2, (Y1+Y2)/2)
+			;click on the pirate
+			NovaLeftMouseClick(FoundX, FoundY)
+			
+			; validate if pirate is to be killed
+			if (!ValidateTarget(ValidationImage, WinCenterX, WinCenterY, Valid))
+			{
+				NovaEscapeClick()
+				LOG("ERROR : Target Validation failed, exiting", 2)
+				return 0
 			}
 			
-            ; Click on the pirate
-            ;if (!ClickMenuImage(WinCenterX, WinCenterY, "buttons\group_attack.png"))
-			if (!ClickMenuImage(FoundX, FoundY, "buttons\group_attack.png"))
-            {
-                Log("ERROR : failed to find click group attack, exiting.", 2)
-                return 0
-            }
-            
-            ; eventually acknowledge avengers
-            if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
-            {
-                Log("Avengers trigger validation")
-            }
-		
+			if (!Valid)
+			{
+				
+				NovaEscapeClick()
+				
+				; we need to reclaibrate position
+				return ReadjustPosition()
+			}
+		   
+			; attack the pirate
+			if (!NovaFindClick("buttons\group_attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
+			{
+				LOG("ERROR : Could Not find the menu image for group attack, different menu popped up ?", 2)
+				return 0
+			}
 			
+			
+			if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
+			{
+				Log("Avengers trigger validation")
+			}
+	
+
 			Log("Selecting all fleets ...")
 			; click the select all 
 			NovaLeftMouseClick(425, 820)
@@ -684,11 +684,41 @@ Pick_Fleet:
 ;*******************************************************************************
 ValidatePirate(X, Y, ByRef Valid)
 {
+	return ValidateTarget("pirates\valid\Pirate.png", X, Y, Valid)
+}
+
+
+;*******************************************************************************
+; ValidateElite : Validate if the pirate is to be killed
+; return 1 if pirate is valid, 0 otherwise
+;*******************************************************************************
+ValidateElite(X, Y, ByRef Valid)
+{
+	return ValidateTarget("pirates\valid\Elite.png", X, Y, Valid)
+}
+
+
+;*******************************************************************************
+; ValidatePirate : Validate if the pirate is to be killed
+; return 1 if pirate is valid, 0 otherwise
+;*******************************************************************************
+ValidateKraken(X, Y, ByRef Valid)
+{
+	return ValidateTarget("pirates\valid\kraken.png", X, Y, Valid)
+}
+
+
+;*******************************************************************************
+; ValidateTarget : Validate on the basis of a check image
+; return 1 if pirate is valid, 0 otherwise
+;*******************************************************************************
+ValidateTarget(TargetImage, X, Y, ByRef Valid)
+{
     Valid := 0
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick("pirates\valid\Pirate.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+    if NovaFindClick(TargetImage, 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
     {
 	    ; we check if it's know to be valid
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
@@ -719,19 +749,6 @@ ValidatePirate(X, Y, ByRef Valid)
 	
 	}
         
-    ; we check if it's know to be valid
-    ;Loop, Files, %A_ScriptDir%\images\pirates\valid\pirate_*.png"
-    ;{
-		;FileName := "pirates\valid\" . A_LoopFileName
-        ;if NovaFindClick(FileName, 50, "w100 n0")
-		;{
-			;Log(Format("Validated a pirate matching {1}", A_LoopFileName))
-            ;goto ValidatePirate_End
-		;}
-    ;}
-    
-    ; if we come here, then we haven't found any valid
-    ;return 0
     
     ; close the popup
 ValidatePirate_End:
