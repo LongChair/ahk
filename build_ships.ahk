@@ -81,7 +81,7 @@ BuildFrigates(Amount)
 	Loop, 5
 	{
 		Log("Checking available shipyards slots ...")
-		while NovaFindClick("buttons\free_slot.png", 50, "n0 w1000 FuncHandleFreeSlot")
+		while NovaFindClick("buttons\free_slot.png", 50, "n0 w1000 FuncHandleFreeSlot", FoundX, FoundY, 830, 130, 1435, 910)
 		{
 			if (Build_error)
 			{
