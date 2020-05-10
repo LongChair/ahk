@@ -22,7 +22,7 @@ FarmPirates_v2()
 	{
 	
 	    ; Go to the proper system
-	    if (!GoToFavorite(1))
+	    if (!GoToFavorite(A_Index))
 		{
 			Log(Format("ERROR : failed to favorite {1}. exiting", A_Index), 2)
 			return 0
@@ -37,7 +37,6 @@ FarmPirates_v2()
 		Pirates    := []
 		ScanMap(Format("FarmSystem{1}", A_Index))
 		SortResList(Pirates)
-		RemoveListFromList(KilledList, Pirates)
 		LOG(Format("We have now {1} Pirates found.", Pirates.Length()))		
 		
 		; Open the fleets tab
@@ -150,13 +149,6 @@ FarmPirates_v2_New_Pirate:
 				
 				
 FarmPirates_v2_NextPirate:
-				
-		
-				KilledList.Insert(Format("PIRATES,{1},{2}", PirateX, PirateY))
-				While (KilledList.Length() > 10)
-				{
-					KilledList.RemoveAt(1)
-				}
 				
 				; Wait a bit 
 				Sleep, 1000
