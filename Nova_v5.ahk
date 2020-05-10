@@ -173,6 +173,8 @@ DoSequence()
     if LaunchNova()
     {
 	
+		RecallAllFleets()
+		
 		Log("========= CheckFreeResources Start =========")
 		if !CheckFreeResources()
 		{
@@ -244,6 +246,9 @@ DoSequence()
 				}
 				
 			case "FARMING_KRAKEN" :
+			
+			    
+			
 				Loop , 10
 				{
 					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png", 0))
@@ -622,7 +627,8 @@ LaunchNova()
     Log("***** Nova is up and running.")
 	
 	; we need to make the cross get away
-	Sleep, 500
+	Sleep, 1000
+	
 	if (!NovafindClick("Buttons\player.png", 30, "w1000 n1"))
 	{
 		 Log("ERROR : Failed to wait player on start screen, exiting...", 2)

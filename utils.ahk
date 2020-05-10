@@ -945,13 +945,13 @@ GetFleetArea(FleetIndex, ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
 	}
 	Else
 	{
-		X1 := 792
+		X1 := 783
 		Y1 := 185
 		X2 := 1590
 		Y2 := 300
 		
-		Y1 := Y1 + (126 * (FleetIndex - 1))
-		Y2 := Y2 + (126 * (FleetIndex - 1))
+		Y1 := Y1 + (124 * (FleetIndex - 1))
+		Y2 := Y2 + (124 * (FleetIndex - 1))
 	}
 	
 }
