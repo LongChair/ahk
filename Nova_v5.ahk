@@ -236,7 +236,7 @@ DoSequence()
 			case "FARMING_ELITES" :
 				Loop , 10
 				{
-					if (!FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png"))
+					if (!FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png", 1))
 					{
 						Log ("ERROR : Failed to farm pirates !", 2)
 						Goto TheEnd
@@ -246,7 +246,7 @@ DoSequence()
 			case "FARMING_KRAKEN" :
 				Loop , 10
 				{
-					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png"))
+					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png", 0))
 					{
 						Log ("ERROR : Failed to farm pirates !", 2)
 						Goto TheEnd

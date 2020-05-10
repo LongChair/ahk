@@ -5,7 +5,7 @@
 ;*******************************************************************************
 ; FarmElites : Will try to find elites in a gvien system and kill them
 ;*******************************************************************************
-FarmElites(X1, Y1, X2, Y2, ValidationImage)
+FarmElites(X1, Y1, X2, Y2, ValidationImage, CollectDebris:=1)
 {
     global StationX, StationY
     global MainWinW, MainWinH
@@ -120,14 +120,17 @@ FarmElites(X1, Y1, X2, Y2, ValidationImage)
         }
 		
 		; check for debris
-		if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 250, 220, 1400, 1050))
-        {
-			LOG("We have a debris, trying to collect...")
-			; Click on the pirate
-            if (!ClickMenuImage(FoundX, FoundY, "buttons\collect.png"))
-            {
-                Log("ERROR : failed to find click collect, exiting.", 2)
-            }
+		if (CollectDebris)
+		{
+			if (NovaFindClick("pirates\debris.png", 50, "w1000 n0", FoundX, FoundY, 250, 220, 1400, 1050))
+			{
+				LOG("We have a debris, trying to collect...")
+				; Click on the pirate
+				if (!ClickMenuImage(FoundX, FoundY, "buttons\collect.png"))
+				{
+					Log("ERROR : failed to find click collect, exiting.", 2)
+				}
+			}
 		}
 		
 		If (Count >= 30)
