@@ -742,11 +742,15 @@ ValidateTarget(TargetImage, X, Y, ByRef Valid)
 	{
 		if (NovaFindClick("buttons\attack.png", 50, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
 		{			
-			if NovaFindClick("pirates\valid\Crystals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540)
+			if NovaFindClick("pirates\valid\Cristaux.png", 50, "n0", FoundX, FoundY, 600, 470, 790, 540)
 			{
 				Valid := 1
 			}
-			else if NovaFindClick("pirates\valid\Minerals.png", 50, "w1000 n0", FoundX, FoundY, 600, 470, 780, 540)
+			else if NovaFindClick("pirates\valid\Mineraux.png", 50, "n0", FoundX, FoundY, 600, 470, 790, 540)
+			{
+				Valid := 1
+			} 
+			else if NovaFindClick("pirates\valid\Allium.png", 50, "n0", FoundX, FoundY, 600, 470, 790, 540)
 			{
 				Valid := 1
 			}

@@ -14,7 +14,8 @@ FarmPirates_v2()
     global KilledCount
 	global MapPosX, MapPosY
 	
-    FleetsSpan := Object( 1, 3, 4, 6)
+    ;FleetsSpan := Object( 1, 3, 4, 6)
+	FleetsSpan := Object( 1, 6)
     FleetAvailable := []
     KilledList := []
 	
@@ -53,14 +54,14 @@ FarmPirates_v2()
 		{
 		   GetFleetArea(iFleet, X1, Y1, X2, Y2)
 		   
-		   if NovaFindClick("buttons\manage_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
+		   if NovaFindClick("buttons\recall_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
 		   {
 				FleetAvailable[iFleet] := 1
 				StrStatus := Format("{1} {2}", strStatus, iFleet)
 		   }
 		   Else
 		   {
-				if NovaFindClick("buttons\recall_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
+				if NovaFindClick("buttons\manage_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
 				{
 					FleetAvailable[iFleet] := 1
 					StrStatus := Format("{1} {2}", strStatus, iFleet)

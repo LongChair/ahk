@@ -66,7 +66,7 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
 	Sleep, 100
 	MouseMove, X + SpanX, Y + SpanY, 10
 	SendEvent {click up}
-	Sleep, 300
+	Sleep, 400
 }
 
 ;*******************************************************************************

@@ -149,10 +149,8 @@ DoSequence()
 	; wait for period to be done
 	if  (LastStartTime > A_TickCount)
 		LastStartTime := A_TickCount - (LoopPeriod * 1000)
-	if (Farming)
-		MinTime := LastStartTime + (1000 * LoopPeriod)
-	Else
-		MinTime := LastStartTime + (1000 * 3 * 60)
+
+	MinTime := LastStartTime + (1000 * LoopPeriod)
 	
 	; wait for it
 	if (MinTime > A_TickCount)
@@ -171,10 +169,7 @@ DoSequence()
 	;LoadBlackLists()
 	
     if LaunchNova()
-    {
-	
-		RecallAllFleets()
-		
+    {		
 		Log("========= CheckFreeResources Start =========")
 		if !CheckFreeResources()
 		{
@@ -619,7 +614,7 @@ LaunchNova()
  
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-	if (!NovaFindClick("buttons\ceg.png", 30, "w100000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+	if (!NovaFindClick("buttons\ceg.png", 50, "w100000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
 	{
 		 Log("ERROR : Failed to wait for CEG on start screen, exiting...", 2)
 		 return 0
