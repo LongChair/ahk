@@ -1,4 +1,7 @@
 *.ahk.bak
 *-Fleets.ini
+Nova.ini
 *.txt
 *.lnk
+/Nova.ini
+*.ini
