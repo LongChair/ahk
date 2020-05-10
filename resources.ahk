@@ -394,7 +394,7 @@ ScanMap(SystemName)
     CurrentX := -(SystemWidth / 2)
     CurrentY :=  (SystemHeight / 2)
 	MapStepX := 1000
-    MapStepY := 500
+    MapStepY := 600
 	LoopY := (SystemHeight / MapStepY) + 1 
     LoopX := (SystemWidth / MapStepX) + 1 
 

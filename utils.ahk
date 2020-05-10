@@ -326,12 +326,11 @@ MapMoveToXY(X, Y)
     global MainWinW, MainWinH
 	
     StepX := 1000
-    StepY := 500
+    StepY := 600
 	MoveX := 0
     MoveY := 0
 	MoveXDir := 0
     MoveYDir := 0
-	
 	
 	Loop 
 	{
@@ -1204,10 +1203,10 @@ FormatSeconds(NumberOfSeconds)
 ;*******************************************************************************
 GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
 {
-	StartX := 714
-	EndX := 1166
-	StartY := 148
-	Height := 142
+	StartX := 705
+	EndX := 1155
+	StartY := 145
+	Height := 137
 	I := FleetIndex -1 
 	
 	X1 := StartX
@@ -1311,4 +1310,62 @@ LoadFleetPosFromFile(InputFile)
 		FleetPosY[A_Index] := Y
 	}
 
+}
+
+;*******************************************************************************
+; GoToFavorite : Goes to the favorite location indicated with index
+;*******************************************************************************
+GoToFavorite(Index)
+{
+	; click the "+" Menu
+	if (!NovaFindClick("buttons\plus_menu.png", 50, "w5000 n1"))
+	{
+		Log("ERROR : failed to find the plus menu button. exiting", 2)
+		return 0
+	}
+
+	; now scroll down and click the 
+	FavoriteFound := 0
+	Loop, 4 
+	{
+		if (!NovaFindClick("buttons\menu_favoris.png", 30, "w1000 n1"))
+		{
+			NovaDragMouse(1600, 550, 0 , -750)
+		}
+		Else
+		{
+			FavoriteFound := 1
+			goto GoToFavorite_Found
+		}
+	}
+
+GoToFavorite_Found:
+	if (!FavoriteFound)
+	{
+		Log("ERROR : failed to find the favorites menu", 2)
+		return 0
+	}
+
+
+	if (!NovaFindClick("buttons\favorite_voir.png", 30, "w2000 n0"))
+	{
+		Log("ERROR : favorite window did not show up", 2)
+		return 0
+	}
+
+	X := 1440
+	Y := 339 + ((Index-1) * 107)
+	
+	NovaLeftMouseClick(X,Y)
+	Sleep, 1000
+	
+	if (!WaitNovaScreen("SYSTEME", 30))
+	{
+		Log("ERROR : failed wait for system screen. exiting", 2)
+		return 0
+	}
+	
+	Sleep, 1000
+	
+	return 1
 }

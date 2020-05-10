@@ -1,29 +1,7 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
-global PossibleRes := ["1k Allium", "2k Cristals", "10k experience", "20k energy", "20k Minerals", "100 CEG", "Turbo 3h", "Accel 50 percent", "Accel 100 percent", "10k energy", "500 allium", "10k minerals", "Turbo 1h", "1k Crystals"]
 global FreeResCount := []
-
-;*******************************************************************************
-; IdentifyFreeResource : Grabs the name of the free resoure on screen
-;*******************************************************************************
-IdentifyFreeResource(ByRef description, Byref index)
-{
-	global PossibleRes
-	
-	for i, element in PossibleRes
-	{
-		if NovaFindClick("free_res\" . element . ".png", 30, "n0", FoundX, FoundY, 740, 350, 1040, 750)
-		{
-			description := element
-			index := i
-			return 1
-		}
-			
-	}
-	
-	return 0
-}
 
 ;*******************************************************************************
 ; ResetStats : Resets the global stats variable
@@ -36,11 +14,6 @@ ResetStats()
 
 	FreeResCollected := 0
 	OtherResCollected := 0
-	for i, res in PossibleRes
-	{
-		FreeResCount[i] := 0
-	}
-	
 	KilledCount := 0
 	Helped := 0
 }
@@ -71,7 +44,6 @@ CheckFreeResources()
             return 0
         }
 		
-	 
 		 ; look for the reward screen
         if !NovaFindClick("buttons\reward.png", 30, "w5000 n1")
         {

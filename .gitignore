@@ -1,4 +1,4 @@
 *.ahk.bak
-*.ini
+*-Fleets.ini
 *.txt
 *.lnk
