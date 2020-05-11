@@ -300,13 +300,6 @@ KillPirate(X,Y, ByRef Killed, ByRef Moved)
 		DeltaX := -DeltaX
 	}
 	
-	;random, rnd, 0.0, 2.0 
-	;if (rnd < 1.0)
-	;{
-	;	DeltaY := -DeltaY
-	;}
-
-	
 	if (!ClickMenuImage((MainWinW / 2) + DeltaX, (MainWinH / 2) + DeltaY + 10 , "buttons\GroupMove.png"))
 	{
 		Log("ERROR : failed to start group move", 2)
