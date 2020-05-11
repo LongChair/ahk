@@ -233,7 +233,7 @@ DoSequence()
 			case "FARMING_ELITES" :
 				Loop , 10
 				{
-					if (!FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png", 1))
+					if (!FarmElites(610, 575, 1060, 910, "pirates\valid\Elite.png", 1))
 					{
 						Log ("ERROR : Failed to farm pirates !", 2)
 						Goto TheEnd
@@ -241,9 +241,6 @@ DoSequence()
 				}
 				
 			case "FARMING_KRAKEN" :
-			
-			    
-			
 				Loop , 10
 				{
 					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png", 0))
@@ -621,26 +618,33 @@ LaunchNova()
 	}	
     Log("***** Nova is up and running.")
 	
-	; we need to make the cross get away
-	Sleep, 1000
-	
-	if (!NovafindClick("Buttons\player.png", 30, "w1000 n1"))
+	; we need to make the cross get away	
+	Count := 0
+	while (!NovafindClick("Buttons\apercu.png", 30, "w1000 n1"))
 	{
-		 Log("ERROR : Failed to wait player on start screen, exiting...", 2)
-		 return 0
+		if (NovafindClick("Buttons\player.png", 50, "w1000 n1"))
+		{
+			Goto LaunchNova_Continue
+		}
+		Else
+		{
+			Count := Count + 1
+		}
+		
+		If (Count > 10)
+		{
+			Log("ERROR : Failed to wait for player screen, exiting...", 2)
+			return 0
+		}
 	}
 	
-	if (!NovafindClick("Buttons\apercu.png", 30, "w5000 n1"))
-	{
-		 Log("ERROR : Failed to wait player previewscreen, exiting...", 2)
-		 return 0
-	}
-
+	
+LaunchNova_Continue:
 	; now escape from player Screen
 	NovaEscapeClick()
 	
 	; and click the cross
-	NovafindClick("Buttons\start_cross.png", 30, "w2000 n1")
+	NovafindClick("Buttons\start_cross.png", 30, "w3000 n1")
 	Log("Nova Init sequence complete.", 2)
 	
     return 1
