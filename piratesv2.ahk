@@ -14,8 +14,8 @@ FarmPirates_v2()
     global KilledCount
 	global MapPosX, MapPosY
 	
-    ;FleetsSpan := Object( 1, 3, 4, 6)
-	FleetsSpan := Object( 1, 6)
+    FleetsSpan := Object( 1, 3, 4, 6)
+	;FleetsSpan := Object( 1, 6)
     FleetAvailable := []
     KilledList := []
 	
@@ -101,7 +101,7 @@ FarmPirates_v2_New_Pirate:
 				Log(Format("Closest pirates to fleet {1} at ({2}, {3}) is at ({4}, {5})", iFleet, FleetX, FleetY, PirateX, PirateY))
 				MapMoveToXY(PirateX, PirateY)
 				
-				if (!NovaFindClick("pirates\pirate.png", 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
+				if (!NovaFindClick("pirates\pirate.png", 110, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
 				{
 					LOG("ERROR : Could Not find the pirate for attack, terminating round", 2)
 					Goto FarmPirates_v2_Next_group
