@@ -184,9 +184,10 @@ DoSequence()
 			case "BUILD" :
 				Loop
 				{
-					if !BuildFrigates(FrigatesAmount)
+					;if !BuildFrigates(FrigatesAmount)
+					if !BuildShips(FrigatesAmount)
 					{
-						Log ("ERROR : Failed to build frigates !", 2)
+						Log ("ERROR : Failed to build ships !", 2)
 						Goto TheEnd
 					}
 					
@@ -624,6 +625,7 @@ LaunchNova()
 	{
 		if (NovafindClick("Buttons\player.png", 50, "w1000 n1"))
 		{
+			Sleep, 500
 			Goto LaunchNova_Continue
 		}
 		Else

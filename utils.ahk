@@ -64,7 +64,7 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
 	MouseMove, X, Y
 	SendEvent {Click down}
 	Sleep, 100
-	MouseMove, X + SpanX, Y + SpanY, 10
+	MouseMove, X + SpanX, Y + SpanY, Speed
 	SendEvent {click up}
 	Sleep, 400
 }
@@ -146,7 +146,7 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
     H := Y2 - Y1 + 1
     
 	;Opts := "r""" . WindowName . """ oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
-	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . " Count a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
+	Opts := "r" . Window_ID . " Silent oTransBlack," . Variation . " a" . X1 . "," . Y1 . "," . W . "," . H . " " . Options
     FullPath = %A_ScriptDir%\images\%FileName%
     
 	if (!FileExist(FullPath))
@@ -156,6 +156,10 @@ NovaFindClick(FileName, Variation, Options, Byref FoundX := 0 , Byref FoundY := 
 	
 	C := FindClick(FullPath, Opts, FoundX, FoundY)
 		
+	if (C != 0)
+		return 1
+	Else
+		return 0
 	return C
 }
 
@@ -1323,14 +1327,20 @@ GoToFavorite(Index)
 		Log("ERROR : failed to find the plus menu button. exiting", 2)
 		return 0
 	}
-
+	
+	if (!NovaFindClick("buttons\menu_academie.png", 50, "w5000 n0"))
+	{
+		Log("ERROR : failed to find the academy button. exiting", 2)
+		return 0
+	}
+	
 	; now scroll down and click the 
 	FavoriteFound := 0
 	Loop, 4 
 	{
-		if (!NovaFindClick("buttons\menu_favoris.png", 30, "w1000 n1"))
+		if (!NovaFindClick("buttons\menu_favoris.png", 30, "w500 n1"))
 		{
-			NovaDragMouse(1600, 550, 0 , -750)
+			NovaDragMouse(1600, 520, 0 , -750, 10)
 		}
 		Else
 		{
