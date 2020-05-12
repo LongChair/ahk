@@ -16,6 +16,10 @@ global IterationTime := 0
 ; fleets position
 global FleetPosX := []
 global FleetPosY := []
+
+; user credentital
+global UserName := ""
+global PassWord := ""
     
 ; Window Size
 global AppW := 1920

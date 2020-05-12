@@ -6,7 +6,7 @@
 ;*******************************************************************************
 ; FarmPirates_v2 : Will try to find a pirate, kill it and collect resource
 ;*******************************************************************************
-FarmPirates_v2()
+FarmPirates_v2(FleetsSpan)
 {
     global FleetPosX, FleetPosY
     global MaxPlayerFleets, Window_ID
@@ -14,8 +14,6 @@ FarmPirates_v2()
     global KilledCount
 	global MapPosX, MapPosY
 	
-    FleetsSpan := Object( 1, 3, 4, 6)
-	;FleetsSpan := Object( 1, 6)
     FleetAvailable := []
     KilledList := []
 	

@@ -251,11 +251,17 @@ DoSequence()
 					}
 				}
 				
-			case "FARMING_MULTI" :
+			case "FARMING_MULTI_1", "FARMING_MULTI_2":
 
 				Loop, 500
 				{
-					if (!FarmPirates_v2())
+					if (RunMode = "FARMING_MULTI_1")
+						FleetsSpan := Object( 1, 6)
+					else
+						FleetsSpan := Object( 1, 3, 4, 6)
+
+
+					if (!FarmPirates_v2(FleetsSpan))
 					{
 						Log ("ERROR : Failed to farm pirates !", 2)
 						Goto TheEnd
@@ -348,7 +354,8 @@ DoSequence()
 					if (Farming3D)
 					{
 						;FarmPirates3D(20)
-						FarmPirates_v2()
+						FleetsSpan := Object( 1, 6)
+						FarmPirates_v2(FleetsSpan)
 					}
 					Else
 					{
@@ -472,6 +479,7 @@ ReadConfig()
 	global LastStartTime
 	global FrigateType
     global RunMode
+	global UserName, PassWord
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
 	IniPath =  %A_ScriptDir%\PasteBin.ini
@@ -507,9 +515,12 @@ ReadConfig()
 	; General info
 	IniRead, CommandLine, %FullPath%, GENERAL, CommandLine, ""
 	IniRead, WindowName, %FullPath%, GENERAL, WindowName, ""
+	IniRead, UserName, %FullPath%, GENERAL, UserName, ""
+	IniRead, PassWord, %FullPath%, GENERAL, PassWord, ""
 	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
 	IniRead, FrigateType, %FullPath%, GENERAL, FrigateType, ""
 	IniRead, RunMode, %FullPath%, GENERAL, RunMode, ""
+	
 	
 	; ressources Priority
 	IniRead, ResPriority1, %FullPath%, PRIORITIES, ResPriority1, "MINE"
@@ -612,11 +623,63 @@ LaunchNova()
  
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-	if (!NovaFindClick("buttons\ceg.png", 50, "w100000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+	Loop, 20
 	{
-		 Log("ERROR : Failed to wait for CEG on start screen, exiting...", 2)
-		 return 0
-	}	
+		if (!NovaFindClick("buttons\ceg.png", 50, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+		{
+			 if (NovaFindClick("buttons\game_login.png", 50, "w1000 n1", FoundX, FoundY, 610, 230, 1270, 870))
+			 {
+				Log("Found Login menu...")
+				
+				if (!NovaFindClick("buttons\login_connexion.png", 50, "w3000 n0", FoundX, FoundY, 610, 230, 1270, 870))
+				{
+					Log("ERROR : Failed to wait for login prompt, exiting...", 2)
+					return 0
+				}
+				
+				Log("Entering UserName...")
+				Sleep, 1000
+				NovaLeftMouseClick(910,350)
+				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
+				{
+					Log("ERROR : Failed to wait for input zone, exiting...", 2)
+					return 0
+				}
+				
+				Send %UserName%
+				Send, {Enter}
+
+				Log("Entering Password...")
+				Sleep, 1000
+				NovaLeftMouseClick(910,460)
+				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
+				{
+					Log("ERROR : Failed to wait for input zone, exiting...", 2)
+					return 0
+				}
+				Send %PassWord%
+				Send, {Enter}
+				
+				if (!NovaFindClick("buttons\login_connexion.png", 50, "w3000 n1", FoundX, FoundY, 610, 230, 1270, 870))
+				{
+					Log("ERROR : Failed to find connexion button, exiting...", 2)
+					return 0
+				}
+
+				Goto LaunchNova_Running		
+			 }
+			 
+		}
+		Else
+		{
+			Goto LaunchNova_Running
+		}
+	}
+	
+	Log("ERROR : Failed to wait for CEG on start screen, exiting...", 2)
+	return 0
+	
+LaunchNova_Running:
     Log("***** Nova is up and running.")
 	
 	; we need to make the cross get away	
