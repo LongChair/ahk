@@ -640,6 +640,7 @@ LaunchNova()
 				Log("Entering UserName...")
 				Sleep, 1000
 				NovaLeftMouseClick(910,350)
+                Sleep, 1000
 				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
 				{
 					Log("ERROR : Failed to wait for input zone, exiting...", 2)
@@ -647,17 +648,20 @@ LaunchNova()
 				}
 				
 				Send %UserName%
+                Sleep, 1000
 				Send, {Enter}
 
 				Log("Entering Password...")
 				Sleep, 1000
 				NovaLeftMouseClick(910,460)
+                Sleep, 1000
 				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
 				{
 					Log("ERROR : Failed to wait for input zone, exiting...", 2)
 					return 0
 				}
 				Send %PassWord%
+                Sleep, 1000
 				Send, {Enter}
 				
 				if (!NovaFindClick("buttons\login_connexion.png", 50, "w3000 n1", FoundX, FoundY, 610, 230, 1270, 870))
