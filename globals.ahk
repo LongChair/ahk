@@ -10,6 +10,7 @@ global LoopTime := 0
 global Farming := 0
 global Farming3D := 0
 global FarmingMulti := 0
+global FarmingWhales := 0
 global FarmingElites := 0
 global IterationTime := 0
 
@@ -74,7 +75,14 @@ global ResPriority3 := ""
 global StationX := 0
 global StationY := 0
 
+global WhaleX := 0
+global WhaleY := 0
+
 global LastStartTime := 0
+global LastWhalekillTime := 0
+
+global WhaleKillCount :=0
+global MaxWhaleKillCount :=0
 
 ; blacklists
 global Ressources_BlackList := []
@@ -99,4 +107,7 @@ global PirateY := 0
 
 global CenterScreenX := 0
 global CenterScreenY := 0
+
+global VoidCollected := 0
+global discord
 

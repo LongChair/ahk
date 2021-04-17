@@ -41,7 +41,7 @@ BuildShips(Amount)
             }
             
             ; then click on build button
-            while (NovaFindClick("buttons\build_ships.png", 30, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
+            while (NovaFindClick("buttons\build_ships.png", 20, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
             {
                 FrigatesBuilt := FrigatesBuilt + 1
                 Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))

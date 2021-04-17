@@ -19,6 +19,7 @@ global RemainingMecas := 0
 global Ressources := []
 global Collecting := []
 global Pirates := []
+global Voids := []
 
 ; ressources counters
 global ScanAvailMine := 0
@@ -418,10 +419,7 @@ ScanMap(SystemName)
 		CurrentX := CurrentX - MapStepX
 		MapStepX := -MapStepX
 		CurrentY := CurrentY - MapStepY
-	}
-	
-	Log("ScanMap found " . Ressources.Length() . " Ressources")
-	
+	}	
 }
 
 ;*******************************************************************************
@@ -434,15 +432,25 @@ FindRessources()
 	global CurrentResType
     global AreaX1, AreaY1, AreaX2, AreaY2
 	global Farming
+	global FarmingWhales
     
 	CurrentResType := "STATION"
 	NovaFindClick("pirates\station.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	
+	if (FarmingWhales)
+	{
+		CurrentResType := "WHALE"
+		NovaFindClick("pirates\whale.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+		
+		CurrentResType := "VOID"
+		NovaFindClick("pirates\void.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
+	}
 		
 	if (Farming Or FarmingMulti)
 	{
 		CurrentResType := "PIRATE"
 		NovaFindClick("pirates\pirate.png", 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)
-		
+				
 		;CurrentResType := "PIRATERES"
 		;NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
 	}
@@ -486,34 +494,56 @@ HandleScan(ResX, ResY)
     global MainWinW, MainWinH
     global Ressources, Collecting
 	global StationX, StationY
+	global WhaleX, WhaleY
 	global WinBorderX, WinBorderY
     
 	ResX := (ResX - MainWinX - WinBorderX - (MainWinW / 2)) + MapPosX 
 	ResY := MapPosY - (ResY - MainWinY - WinBorderY - (MainWinH / 2))
+	
+	Verbose := 1
 
 	if CurrentResType in ALLIUM,MINE,CRYSTALS,PIRATERES
 	{
-        Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
+		if (Verbose)
+			Log(Format("Found a resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Ressources.Length()))
 		Ressources.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY))
 	}
 
 	if CurrentResType in  MINING,CRYSTALING,ALLIUMING
 	{
 		Collecting.Insert(Ressources.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY)))
-		Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
+		if (Verbose)
+			Log(Format("Found a meca collecting resource at ({1:i},{2:i}) with type {3}, Total={4}", ResX, ResY, CurrentResType, Collecting.Length()))
 	}
 	
 	if CurrentResType in PIRATE
     {
-        Log(Format("Found a Pirate at ({1:i},{2:i}) Total={3}", ResX, ResY, Pirates.Length()))
+		if (Verbose)
+			Log(Format("Found a Pirate at ({1:i},{2:i}) Total={3}", ResX, ResY, Pirates.Length()))
 		Pirates.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY))
     }
 	
 	if CurrentResType in STATION
     {
-        Log(Format("Found STATION at ({1:i},{2:i})", ResX, ResY))
+		if (Verbose)
+			Log(Format("Found STATION at ({1:i},{2:i})", ResX, ResY))
 		StationX := ResX
 		StationY := ResY
+    }
+	
+	if CurrentResType in WHALE
+    {
+		if (Verbose)
+			Log(Format("Found whale at ({1:i},{2:i})", ResX, ResY))
+		WhaleX := ResX
+		WhaleY := ResY
+    }
+	
+	if CurrentResType in VOID
+    {
+		if (Verbose)
+			Log(Format("Found void at ({1:i},{2:i})", ResX, ResY))
+		Voids.Insert(Format("{1},{2:i},{3:i}", CurrentResType, ResX, ResY))
     }
 	
 }

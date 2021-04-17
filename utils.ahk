@@ -66,7 +66,7 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
 	Sleep, 100
 	MouseMove, X + SpanX, Y + SpanY, Speed
 	SendEvent {click up}
-	Sleep, 400
+	Sleep, 100
 }
 
 ;*******************************************************************************
@@ -1207,16 +1207,16 @@ FormatSeconds(NumberOfSeconds)
 ;*******************************************************************************
 GetAttackFleetArea(FleetIndex, ByRef X1, ByRef Y1, Byref X2, ByRef Y2)
 {
-	StartX := 705
-	EndX := 1155
-	StartY := 145
-	Height := 137
+	StartX := 156
+	StartY := 240
+	EndY := 700
+	Width := 260
 	I := FleetIndex -1 
 	
-	X1 := StartX
-	X2 := EndX
-	Y1 := StartY + I*Height
-	Y2 := Y1 + Height	
+	X1 := StartX + I * Width
+	X2 := X1 + Width  
+	Y1 := StartY 
+	Y2 := EndY
 }
 
 ;*******************************************************************************
@@ -1336,16 +1336,41 @@ GoToFavorite(Index)
 	
 	; now scroll down and click the 
 	FavoriteFound := 0
-	Loop, 4 
+	if (0)
 	{
-		if (!NovaFindClick("buttons\menu_favoris.png", 30, "w500 n1"))
+		Loop, 4 
 		{
-			NovaDragMouse(1600, 520, 0 , -750, 10)
+			if (!NovaFindClick("buttons\menu_favoris.png", 30, "w500 n1"))
+			{
+				NovaDragMouse(1600, 520, 0 , -750, 10)
+			}
+			Else
+			{
+				FavoriteFound := 1
+				goto GoToFavorite_Found
+			}
 		}
-		Else
+	}
+	Else
+	{
+		Loop, 3
 		{
-			FavoriteFound := 1
-			goto GoToFavorite_Found
+			if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n1"))
+			{
+				Log("ERROR : failed to find the menu scroller. exiting", 2)
+				return 0
+			}
+			
+			if (!NovaFindClick("buttons\menu_favoris.png", 50, "w500 n1"))
+			{
+				
+			}
+			Else
+			{
+				Sleep, 500
+				FavoriteFound := 1
+				goto GoToFavorite_Found
+			}
 		}
 	}
 
@@ -1357,7 +1382,7 @@ GoToFavorite_Found:
 	}
 
 
-	if (!NovaFindClick("buttons\favorite_voir.png", 30, "w2000 n0"))
+	if (!NovaFindClick("buttons\favorite_voir.png", 50, "w2000 n0"))
 	{
 		Log("ERROR : favorite window did not show up", 2)
 		return 0
@@ -1378,4 +1403,10 @@ GoToFavorite_Found:
 	Sleep, 1000
 	
 	return 1
+}
+
+SendDiscord(Text)
+{
+	global discord
+	discord.SendMessage("832981146807173191", Text)
 }

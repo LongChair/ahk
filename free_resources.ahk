@@ -11,10 +11,12 @@ ResetStats()
 	global FreeResCollected, OtherResCollected
 	global FreeResCount, PossibleRes
 	global KilledCount
+	global EliteKill
 
 	FreeResCollected := 0
 	OtherResCollected := 0
 	KilledCount := 0
+	EliteKill := 0
 	Helped := 0
 }
 
@@ -69,12 +71,6 @@ CheckFreeResources()
         Log("No Day 1 button found, checking free resources")
     }
  
- 	; check if we have collected all the 32 free resources
-	if (FreeResCollected >= MaxFreeRes)
-	{
-		Log(Format("All free ressources have been collected ({1}/{2}}), skipping ...", FreeResCollected, MaxFreeRes))
-		return 1
-	}
 
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
@@ -84,8 +80,8 @@ CheckFreeResources()
 		; Wait for the carte to show up
 		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 850, 300, 1150, 650)
 		{
-			Log("ERROR : Failed to find the crate, exiting", 2)
-            return 0
+			Log("ERROR : Failed to find the crate, maybe we have completed all daylies", 2)
+            return 1
 		}
     	
 		Log("Collecting free resources ... YEAH!", 1)

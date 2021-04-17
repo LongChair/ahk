@@ -71,6 +71,7 @@ FarmElites(X1, Y1, X2, Y2, ValidationImage, CollectDebris:=1)
 			if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
 			{
 				Log("Avengers trigger validation")
+				Sleep, 2000
 			}
 	
 
@@ -130,6 +131,8 @@ FarmElites(X1, Y1, X2, Y2, ValidationImage, CollectDebris:=1)
 				{
 					Log("ERROR : failed to find click collect, exiting.", 2)
 				}
+				
+				
 			}
 		}
 		
@@ -688,7 +691,7 @@ ValidatePirate(X, Y, ByRef Valid)
 
 ;*******************************************************************************
 ; ValidateElite : Validate if the pirate is to be killed
-; return 1 if pirate is valid, 0 otherwise
+; return 1 if elite is valid, 0 otherwise
 ;*******************************************************************************
 ValidateElite(X, Y, ByRef Valid)
 {
@@ -697,12 +700,30 @@ ValidateElite(X, Y, ByRef Valid)
 
 
 ;*******************************************************************************
-; ValidatePirate : Validate if the pirate is to be killed
-; return 1 if pirate is valid, 0 otherwise
+; ValidateKraken : Validate if the pirate is to be killed
+; return 1 if kraken is valid, 0 otherwise
 ;*******************************************************************************
 ValidateKraken(X, Y, ByRef Valid)
 {
 	return ValidateTarget("pirates\valid\kraken.png", X, Y, Valid)
+}
+
+;*******************************************************************************
+; ValidateWhale : Validate if the pirate is to be killed
+; return 1 if whale is valid, 0 otherwise
+;*******************************************************************************
+ValidateWhale(X, Y, ByRef Valid)
+{
+	return ValidateTarget("pirates\valid\whale.png", X, Y, Valid)
+}
+
+;*******************************************************************************
+; ValidateWhale : Validate if the pirate is to be killed
+; return 1 if whale is valid, 0 otherwise
+;*******************************************************************************
+ValidateVoid(X, Y, ByRef Valid)
+{
+	return ValidateTarget("pirates\valid\void.png", X, Y, Valid)
 }
 
 
@@ -716,13 +737,13 @@ ValidateTarget(TargetImage, X, Y, ByRef Valid)
     ; now check if it's valid 
     
     ; we check if it's a pirate
-    if NovaFindClick(TargetImage, 50, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540)
+    if NovaFindClick(TargetImage, 50, "w1000 n0", FoundX, FoundY, 500, 470, 790, 540)
     {
 	    ; we check if it's know to be valid
 		Loop, Files, %A_ScriptDir%\images\pirates\invalid\*.png"
 		{
 			FileName := "pirates\invalid\" . A_LoopFileName
-			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 600, 470, 790, 540))
+			if (NovaFindClick(FileName, 50, "n0", FoundX, FoundY, 500, 470, 790, 540))
 			{
 				Log(Format("Invalidating a pirate matching {1}", A_LoopFileName))
 				goto ValidatePirate_End
@@ -733,7 +754,7 @@ ValidateTarget(TargetImage, X, Y, ByRef Valid)
 	}
 	else 
 	{
-		if (NovaFindClick("buttons\attack.png", 50, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
+		if (NovaFindClick("buttons\group_attack.png", 50, "w2000 n0", FoundX, FoundY, 500,175, 1600, 875))
 		{			
 			if NovaFindClick("pirates\valid\Cristaux.png", 50, "n0", FoundX, FoundY, 600, 470, 790, 540)
 			{

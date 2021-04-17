@@ -10,9 +10,11 @@
 #include resources.ahk
 #include pirates.ahk
 #include piratesv2.ahk
+#include elitesv2.ahk
 #include free_resources.ahk
 #include build_ships.ahk
-
+#include whales.ahk
+#include discord.ahk
 
 #NoEnv
 SetWorkingDir %A_ScriptDir%
@@ -26,6 +28,7 @@ SetTitleMatchMode 2
 Loop
 {
 	global PasteBinUser, PasteBinPassword
+	global discord
 	
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
@@ -36,13 +39,15 @@ Loop
 	IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
 	IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
     IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
-	
+	IniRead, DiscordToken, %FullPath%, DISCORD, DiscordToken
 	; get pasteBinconfig
 	if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
 	{
 		LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
 		return
 	}
+	
+	discord := new Discord(DiscordToken)
 	
 	
 	; Loops players
@@ -169,7 +174,8 @@ DoSequence()
 	;LoadBlackLists()
 	
     if LaunchNova()
-    {		
+    {	
+		
 		Log("========= CheckFreeResources Start =========")
 		if !CheckFreeResources()
 		{
@@ -178,7 +184,9 @@ DoSequence()
 		}
 		Log("========= CheckFreeResources End   =========")
 	
-			
+	
+		SendDiscord(Format("Started and running in {1} mode", RunMode))
+		
 		Switch RunMode
 		{
 			case "BUILD" :
@@ -241,6 +249,30 @@ DoSequence()
 					}
 				}
 				
+			case "FARMING_ELITES_V2" :
+				Loop , 60
+				{
+					if (!FarmElites_v2(1, 1))
+					{
+						Log ("ERROR : Failed to farm Elites !", 2)
+						Goto TheEnd
+					}
+					Sleep, 60
+				}
+				
+			case "FARMING_KRAKEN_V2" :
+				Loop , 60
+				{
+					if (!FarmElites_v2(1, 2))
+					{
+						Log ("ERROR : Failed to farm Krakens !", 2)
+						Goto TheEnd
+					}
+					Sleep, 60
+				}
+				
+				
+				
 			case "FARMING_KRAKEN" :
 				Loop , 10
 				{
@@ -251,19 +283,52 @@ DoSequence()
 					}
 				}
 				
-			case "FARMING_MULTI_1", "FARMING_MULTI_2":
+			case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
 
 				Loop, 500
 				{
 					if (RunMode = "FARMING_MULTI_1")
 						FleetsSpan := Object( 1, 6)
-					else
+					else if (RunMode = "FARMING_MULTI_2")
 						FleetsSpan := Object( 1, 3, 4, 6)
+					else 
+						FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
 
 
 					if (!FarmPirates_v2(FleetsSpan))
 					{
 						Log ("ERROR : Failed to farm pirates !", 2)
+						Goto TheEnd
+					}
+				}
+				
+			case "WHALE_ASSIST" :
+				Loop, 500
+				{
+					Loop, 20 
+					{
+						if (!Whale_Assist())
+						{
+							Log ("ERROR : Failed assist on whales !", 2)
+							Goto TheEnd
+						}
+					}
+					
+					if !BuildShips(FrigatesAmount)
+					{
+						Log ("ERROR : Failed to build ships !", 2)
+						Goto TheEnd
+					}
+					
+				}
+				
+				
+			case "FARMING_WHALES" :
+				Loop, 500
+				{
+					if (!Whale_Farming())
+					{
+						Log ("ERROR : Failed farming whales !", 2)
 						Goto TheEnd
 					}
 				}
@@ -477,9 +542,11 @@ ReadConfig()
 	global Farming, Farming3D, FarmingMulti, FarmingElites
 	global CurrentSystem
 	global LastStartTime
+	global LastWhalekillTime
 	global FrigateType
     global RunMode
 	global UserName, PassWord
+	global WhaleKillCount, MaxWhaleKillCount
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
 	IniPath =  %A_ScriptDir%\PasteBin.ini
@@ -490,6 +557,9 @@ ReadConfig()
     IniRead, OtherResCollected, %FullPath%, COUNTERS, OtherResCollected , 0
     IniRead, FrigatesBuilt, %FullPath%, COUNTERS, FrigatesBuilt, 0
 	IniRead, LastStartTime, %FullPath%, COUNTERS, LastStartTime, 0
+	IniRead, LastWhalekillTime, %FullPath%, COUNTERS, LastWhalekillTime, 0
+	IniRead, WhaleKillCount, %FullPath%, COUNTERS, WhaleKillCount, 0
+	IniRead, MaxWhaleKillCount, %FullPath%, COUNTERS, MaxWhaleKillCount, 0
 	IniRead, EliteKill, %FullPath%, COUNTERS, EliteKill, 0
 	
     
@@ -548,6 +618,8 @@ WriteConfig()
     global KilledCount, Helped
 	global Farming, Farming3D, FarmingMulti
 	global LastStartTime
+	global LastWhalekillTime
+	global WhaleKillCount, MaxWhaleKillCount
 	
     FullPath =  %A_ScriptDir%\%PlayerName%.ini
     
@@ -556,6 +628,9 @@ WriteConfig()
     IniWrite, %OtherResCollected%, %FullPath%, COUNTERS, OtherResCollected
     IniWrite, %FrigatesBuilt%, %FullPath%, COUNTERS, FrigatesBuilt
 	IniWrite, %LastStartTime%, %FullPath%, COUNTERS, LastStartTime
+	IniWrite, %LastWhalekillTime%, %FullPath%, COUNTERS, LastWhalekillTime
+	IniWrite, %WhaleKillCount%, %FullPath%, COUNTERS, WhaleKillCount
+	IniWrite, %MaxWhaleKillCount%, %FullPath%, COUNTERS, MaxWhaleKillCount
 	IniWrite, %EliteKill%, %FullPath%, COUNTERS, EliteKill
     
     IniWrite, %FrigatesAmount%, %FullPath%, PARAMETERS, FrigatesAmount
@@ -623,9 +698,9 @@ LaunchNova()
  
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-	Loop, 20
+	Loop, 15
 	{
-		if (!NovaFindClick("buttons\ceg.png", 50, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
+		if (!NovaFindClick("buttons\ceg.png", 60, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
 		{
 			 if (NovaFindClick("buttons\game_login.png", 50, "w1000 n1", FoundX, FoundY, 610, 230, 1270, 870))
 			 {
@@ -638,30 +713,39 @@ LaunchNova()
 				}
 				
 				Log("Entering UserName...")
-				Sleep, 1000
+				Sleep, 3000
 				NovaLeftMouseClick(910,350)
-                Sleep, 1000
-				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
+				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1650, 950, 1820, 1050))
 				{
 					Log("ERROR : Failed to wait for input zone, exiting...", 2)
 					return 0
 				}
 				
-				Send %UserName%
-                Sleep, 1000
+				Sleep, 1000
+				Loop, Parse, UserName
+				{
+   				  Send %A_LoopField%
+				  Sleep, 100
+				}
 				Send, {Enter}
 
 				Log("Entering Password...")
-				Sleep, 1000
+				Sleep, 3000
 				NovaLeftMouseClick(910,460)
-                Sleep, 1000
 				if (!NovaFindClick("buttons\OK_input.png", 50, "w3000 n0", FoundX, FoundY, 1700, 990, 1820, 1050))
 				{
 					Log("ERROR : Failed to wait for input zone, exiting...", 2)
 					return 0
 				}
-				Send %PassWord%
-                Sleep, 1000
+				Sleep, 1000
+				Loop, Parse, PassWord
+				{
+				  if InStr(A_LoopField ,"#") then
+					Send {#}
+				  else
+					Send %A_LoopField%
+				  Sleep, 100
+				}
 				Send, {Enter}
 				
 				if (!NovaFindClick("buttons\login_connexion.png", 50, "w3000 n1", FoundX, FoundY, 610, 230, 1270, 870))
@@ -700,7 +784,7 @@ LaunchNova_Running:
 			Count := Count + 1
 		}
 		
-		If (Count > 10)
+		If (Count > 50)
 		{
 			Log("ERROR : Failed to wait for player screen, exiting...", 2)
 			return 0
@@ -727,15 +811,29 @@ StopNova(CloseBluestacks := 1)
 	global WindowName 
   
 	; Wait for it to close
-	Log("Waiting for BlueStacks to close...")    
-	while WinExist(WindowName)
-	{
-		; Now Close BlueStacks
-		Log("Closing Emulator...")
-		WinClose, %WindowName%
-		sleep, 1000
-	}
 	
-	Log("Emulator is closed.")
+	if (0)
+	{		
+		Log("Waiting for BlueStacks to close...")    
+		while WinExist(WindowName)
+		{
+			; Now Close BlueStacks
+			Log("Closing Emulator...")
+			WinClose, %WindowName%	
+			sleep, 1000
+		}
+		Log("Emulator is closed.")
+	}
+	Else
+	{
+		Log("Closing Nova Empire...")
+		while (NovafindClick("Buttons\close_nova.png", 50, "w100 n1", FoundX, FoundY, 0, 0, 600, 50))
+		{
+			NovaLeftMouseClick(FoundX +50, FoundY)
+			sleep, 1000
+		}
+		Log("Nova Empire is closed.")
+
+	}	
 
 }

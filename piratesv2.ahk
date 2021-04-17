@@ -39,45 +39,48 @@ FarmPirates_v2(FleetsSpan)
 		LOG(Format("We have now {1} Pirates found.", Pirates.Length()))		
 		
 		; Open the fleets tab
-		if !PopRightMenu(1, "FLEETS")
+		if (0)
 		{
-			Log("ERROR : failed to popup main menu for fleets. exiting", 2)
-			return 0
-		}
-		
-		; check the fleets status
-		Log(Format("Checking available fleets for {1} to {2} ...",StartFleet, EndFleet))
-		StrStatus := "Fleets available : "
-		for iFleet in range(StartFleet, EndFleet + 1, 1)
-		{
-		   GetFleetArea(iFleet, X1, Y1, X2, Y2)
-		   
-		   if NovaFindClick("buttons\recall_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
-		   {
-				FleetAvailable[iFleet] := 1
-				StrStatus := Format("{1} {2}", strStatus, iFleet)
-		   }
-		   Else
-		   {
-				if NovaFindClick("buttons\manage_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
-				{
+			if !PopRightMenu(1, "FLEETS")
+			{
+				Log("ERROR : failed to popup main menu for fleets. exiting", 2)
+				return 0
+			}
+			
+			; check the fleets status
+			Log(Format("Checking available fleets for {1} to {2} ...",StartFleet, EndFleet))
+			StrStatus := "Fleets available : "
+			for iFleet in range(StartFleet, EndFleet + 1, 1)
+			{
+			   GetFleetArea(iFleet, X1, Y1, X2, Y2)
+			   
+			   if NovaFindClick("buttons\recall_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
+			   {
 					FleetAvailable[iFleet] := 1
 					StrStatus := Format("{1} {2}", strStatus, iFleet)
-				}
-				else
-				{
-					FleetAvailable[iFleet] := 0
-				}
-		   }
+			   }
+			   Else
+			   {
+					if NovaFindClick("buttons\manage_button.png", 70, "n0", FoundX, FoundY, X1, Y1, X2, Y2)
+					{
+						FleetAvailable[iFleet] := 1
+						StrStatus := Format("{1} {2}", strStatus, iFleet)
+					}
+					else
+					{
+						FleetAvailable[iFleet] := 0
+					}
+			   }
+			}
+			
+			PopRightMenu(0)
+			Log(StrStatus)
 		}
-		
-		PopRightMenu(0)
-		Log(StrStatus)
 
 		for iFleet in range(StartFleet, EndFleet + 1, 1)
 		{
 			
-			if (FleetAvailable[iFleet])
+			;if (FleetAvailable[iFleet])
 			{
 			
 FarmPirates_v2_New_Pirate:
@@ -99,10 +102,10 @@ FarmPirates_v2_New_Pirate:
 				Log(Format("Closest pirates to fleet {1} at ({2}, {3}) is at ({4}, {5})", iFleet, FleetX, FleetY, PirateX, PirateY))
 				MapMoveToXY(PirateX, PirateY)
 				
-				if (!NovaFindClick("pirates\pirate.png", 110, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
+				if (!NovaFindClick("pirates\pirate.png", 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
 				{
-					LOG("ERROR : Could Not find the pirate for attack, terminating round", 2)
-					Goto FarmPirates_v2_Next_group
+					LOG("ERROR : Could Not find the pirate for attack, trying to find another one", 2)
+					Goto FarmPirates_v2_New_Pirate
 				}
 				
 				; Validate it's a pirate
@@ -123,7 +126,7 @@ FarmPirates_v2_New_Pirate:
 				}
 	   
 				; attack the pirate
-				if (!NovaFindClick("buttons\attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
+				if (!NovaFindClick("buttons\group_attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
 				{
 					LOG("ERROR : Could Not find the menu image for attack, different menu popped up ?", 2)
 					return 0
@@ -133,13 +136,36 @@ FarmPirates_v2_New_Pirate:
 				if (NovaFindClick("buttons\red_continue.png", 50, "w1000 n1"))
 				{
 					Log("Avengers trigger validation")
+					Sleep, 2000
 				}
 				
 				; Select the proper fleet
 				Log(Format("Attacking pirate with Fleet {1}", iFleet))
 				GetAttackFleetArea(iFleet, X1, Y1, X2, Y2)
-				NovaLeftMouseClick((X1+X2)/2, (Y1+Y2)/2)
 				
+				; check fleet status
+				if (!NovaFindClick("buttons\fleetstatus_idle.png", 80, "w1000 n0", FoundX, FoundY, X1, Y1, X2, Y1 + 50))
+				{
+					if (!NovaFindClick("buttons\fleetstatus_docked.png", 80, "w1000 n0", FoundX, FoundY, X1, Y1, X2, Y1 + 50))
+					{
+
+						LOG("Fleet is not idle, skipping to next pirate ...")
+						NovaEscapeClick()
+						goto FarmPirates_v2_NextPirate
+					}
+				}
+
+				NovaLeftMouseClick(X1+100, (Y1+Y2)/2)
+
+				
+				Log("Selecting Ok button ...")
+				; try to find elite
+				if (!NovaFindClick("buttons\OKFleets.png", 50, "w1000 n1", FoundX, FoundY, 1390, 760, 1633, 850))
+				{
+					LOG("ERROR : Failed to find the OK button for fleets, exiting ...")
+					return 0
+				}
+			
 				FleetPosX[iFleet] := PirateX
 				FleetPosY[iFleet] := PirateY
 				SaveFleetPosToFile(Format("{1}\{2}-Fleets.ini", A_ScriptDir, PlayerName))
