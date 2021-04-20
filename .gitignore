@@ -1,9 +1,5 @@
 *.ahk.bak
 *-Fleets.ini
-Nova.ini
-LongChair.ini
+*.ini
 *.txt
 *.lnk
-/Nova.ini
-*.ini
-/LongChair.ini
