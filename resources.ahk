@@ -454,7 +454,8 @@ FindRessources()
 		;CurrentResType := "PIRATERES"
 		;NovaFindClick("resources\pirate.png", 30, "e0.5 n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	
 	}
-	Else
+	
+	if (0)
 	{
 		CurrentResType := "ALLIUM"
 		NovaFindClick("resources\HD_Allium.png", 50, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)	

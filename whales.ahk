@@ -240,6 +240,7 @@ Whale_Farming()
 		return 0
 	}
 	
+	
 	; Scan the whale system
 	FarmingWhales := 1
 	Farming := 0
@@ -250,6 +251,7 @@ Whale_Farming()
 	WhaleY := 0
 	WhaleSize := 0
 	Voids := []
+	VoidCount := 0
 	
 	Log("Scanning map for whale ...")
 	ScanMap("WhaleSystem")
@@ -264,7 +266,7 @@ Whale_Farming()
 		if (!NovaFindClick("pirates\whale.png", 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
 		{
 			LOG("ERROR : Could Not find the whale", 2)
-			return 0
+			goto Whale_Farming_End
 		}
 			
 		; Validate it's a whale
@@ -272,14 +274,14 @@ Whale_Farming()
 		{
 			NovaEscapeClick()
 			LOG("ERROR : whale Validation failed, exiting", 2)
-			return 0
+			goto Whale_Farming_End
 		}
 		
 		if (!Valid)
 		{
 			NovaEscapeMenu()
 			LOG("Whale is not valid, exiting")
-			return 0
+			goto Whale_Farming_End
 		}
 		
 		; we check whale size
@@ -290,17 +292,31 @@ Whale_Farming()
 		if NovaFindClick("pirates\valid\6M.png", 50, "w1000 n0", FoundX, FoundY, 450, 550, 820, 640)
 			WhaleSize := 6
 		
-		Log(Format("We seem to have a {1}M Whale, Count {2}/{3}", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
-		SendDiscord("We seem to have a {1}M Whale, Count {2}/{3}", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
+		Log(Format("We seem to have a {1}M Whale, Count {2}M / {3}M", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
+		SendDiscord(Format(":whale: We seem to have a **{1}M** Whale, Count {2}M / {3}M", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
 		
-		if (WhaleSize == 20)
+		; Monitor the whale for some time and leave others a chance to kill it
+		NovaEscapeMenu()
+		
+		Loop, 100
 		{
-			NovaEscapeMenu()
-			LOG("Whale is too big (20M)), exiting")
-			return 0
+			if (!NovaFindClick("pirates\whale.png", 80, "w1000 n0", FoundX, FoundY, 860, 470, 1020, 630))
+			{
+				LOG("whale is gone or was killed", 1)
+				SendDiscord(":thumbsdown: whale is gone or was killed")
+				goto Whale_Farming_End
+			}
+			Else
+				Sleep, 1000
 		}
 
-
+		; now kill it.
+		if (!NovaFindClick("pirates\whale.png", 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
+		{
+			LOG("ERROR : Could Not find the whale to kill", 2)
+			goto Whale_Farming_End
+		}
+			
 		; attack the whale
 		if (!NovaFindClick("buttons\group_attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
 		{
@@ -315,7 +331,7 @@ Whale_Farming()
 			Sleep, 2000
 		}
 				
-		Sleep, 2000
+		Sleep, 1000
 		
 		Log("Selecting all fleets ...")
 		; click on select All
@@ -327,7 +343,7 @@ Whale_Farming()
 		Sleep, 1000
 		
 		Log("Waiting for fleets to be idle...")
-		if (!WaitForFleetsIdle(180))
+		if (!WaitForFleetsIdle(240))
 		{
 			LOG("ERROR : while waiting for fleets to be idle", 2)
 			return 0
@@ -338,16 +354,18 @@ Whale_Farming()
 		RecallAllFleets()
 		
 		LastWhalekillTime := A_TickCount
-		WhaleKillCount := WhaleKillCount+1
-		SendDiscord("Whale Killed.")
+		WhaleKillCount := WhaleKillCount + WhaleSize
+		SendDiscord(Format(":thumbsup: Whale Killed. (Total power = {1}M / {2}M)", WhaleKillCount, MaxWhaleKillCount))
+		
+		WriteConfig()
 	}
 	Else
 	{
 		Delay := (A_TickCount - LastWhalekillTime) / 1000
 		Log(Format("it's been {1} secs since last whale kill", Delay))
 		
-		;if (Delay < (20 * 60) )
-		if (1)
+		if (Delay < (30 * 60) )
+		;if (1)
 		{
 			; no whales, do we have voids
 			while (Voids.Length() > 0)
@@ -356,17 +374,17 @@ Whale_Farming()
 				VoidX := VoidCoords[2]
 				VoidY := VoidCoords[3]
 				
-				Log(Format("Going to pick void at ({1}, {2}...)", VoidX, VoidY))
+				Log(Format("Going to pick void at ({1}, {2}... {3} left})", VoidX, VoidY, Voids.Length()))
 				MapMoveToXY(VoidX, VoidY)
 				
-				if (!NovaFindClick("pirates\void.png", 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
+				if (!NovaFindClick("pirates\void.png", 80, "w1000 n1", FoundX, FoundY, 830, 430, 1100, 700))
 				{
 					LOG("ERROR : Could Not find the void to collect, trying to find another one", 2)
 					Goto Whale_Farming_NextVoid
 				}
 				
 				; Validate it's a pirate
-				if (!ValidateVoid(WinCenterX, WinCenterY, Valid))
+				if (!ValidateVoid(FoundX, FoundY, Valid))
 				{
 					NovaEscapeClick()
 					LOG("ERROR : Void Validation failed, exiting", 2)
@@ -374,27 +392,35 @@ Whale_Farming()
 					Goto Whale_Farming_NextVoid
 				}
 		
-				if (!Valid)
-				{
-					LOG("Void is not valid, skipping")
-					NovaEscapeMenu()
-					
-					Goto Whale_Farming_NextVoid
-				}
 							
 				; collect the void
-				if (!NovaFindClick("buttons\collect.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
+				if (!NovaFindClick("buttons\collect.png", 80, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
 				{
 					NovaEscapeMenu()
 					LOG("ERROR : Could Not find the menu image for collect, different menu popped up ?", 2)
+					goto Whale_Farming_NextVoid
 				}
 				
-				VoidCollected := VoidCollected + 1
-				LOG(format("Void collected ({1} Total)",VoidCollected))				SendDiscord(format("Void collected ({1} Total)",VoidCollected))
+
+				if (Valid)
+				{
+					VoidCollected := VoidCollected + 1
+					VoidCount := VoidCount +1
+					LOG(format("Void collected +{1}, ({2} Total)",VoidCount, VoidCollected))
+				}
+				Else
+				{
+					LOG(format("RSS collected ({1} Total)",VoidCollected))
+				}
 	
+				
+				Sleep, 1000
 				
 				Whale_Farming_NextVoid:
 			}
+			
+			if (VoidCount > 0)
+				SendDiscord(Format("Void collected +{1}, ({2} Total)", VoidCount, VoidCollected))
 		}
 		Else
 			Log("It's been too long since last whale kill, not collecting.")

@@ -111,3 +111,10 @@ global CenterScreenY := 0
 global VoidCollected := 0
 global discord
 
+global StartH := 0
+global StartM := 0
+global EndH := 0
+global EndM := 0
+
+global DiscordWebhooKURL
+

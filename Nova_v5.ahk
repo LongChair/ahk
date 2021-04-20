@@ -29,6 +29,7 @@ Loop
 {
 	global PasteBinUser, PasteBinPassword
 	global discord
+	global DiscordWebhooKURL
 	
 	; global Nova config file
     FullPath =  %A_ScriptDir%\Nova.ini
@@ -36,18 +37,20 @@ Loop
     
     ; Read Player Count
     IniRead, PlayerCount, %FullPath%, GENERAL, PlayerCount, 0
-	IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
+	
+    IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
 	IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
     IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
-	IniRead, DiscordToken, %FullPath%, DISCORD, DiscordToken
+	
+    IniRead, DiscordToken, %FullPath%, DISCORD, DiscordToken
+	IniRead, DiscordWebhooKURL, %FullPath%, DISCORD, DiscordWebhooKURL
+	
 	; get pasteBinconfig
 	if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
 	{
 		LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
 		return
 	}
-	
-	discord := new Discord(DiscordToken)
 	
 	
 	; Loops players
@@ -112,17 +115,15 @@ StorePasteBinConfig(Link, FileName)
 DoAccount(Account)
 {
 	global PlayerName
+	global StartH, StartM, EndH, EndM
 	
 	PlayerName := Account
 	
 	Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
 
-
-	
 	; Read Configureation
     Log("Reading Configuration...")
     ReadConfig()
-	
 	
     DoSequence()
      
@@ -171,10 +172,11 @@ DoSequence()
 	
 	
     Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")	
-	;LoadBlackLists()
 	
     if LaunchNova()
     {	
+		
+		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", RunMode))
 		
 		Log("========= CheckFreeResources Start =========")
 		if !CheckFreeResources()
@@ -183,285 +185,69 @@ DoSequence()
 			Goto TheEnd
 		}
 		Log("========= CheckFreeResources End   =========")
-	
-	
-		SendDiscord(Format("Started and running in {1} mode", RunMode))
 		
-		Switch RunMode
-		{
-			case "BUILD" :
-				Loop
-				{
-					;if !BuildFrigates(FrigatesAmount)
-					if !BuildShips(FrigatesAmount)
-					{
-						Log ("ERROR : Failed to build ships !", 2)
-						Goto TheEnd
-					}
-					
-					Sleep, 30000
-				}
-				Return
-				
-			case "FARMING_PIRATES" :
-			
-				Loop , 30 
-				{
-					if (Mod(A_Index, 2) = 0)
-						Recall := 1
-					Else
-						Recall := 0
-			
-					if (!GotoScreen("GALAXIE", 60))
-					{
-						Log("ERROR : failed to go to system screen, exiting.", 2)
-						return 0
-					}
-					
-					if (!GotoScreen("SYSTEME", 60))
-					{
-						Log("ERROR : failed to go to system screen, exiting.", 2)
-						return 0
-					}
+        Loop, 500 
+        {
+            Switch RunMode
+            {
+                case "BUILD" :
+                    if !BuildShips(FrigatesAmount)
+                    {
+                        Log ("ERROR : Failed to build ships !", 2)
+                        Goto TheEnd
+                    }
+                                        
+                case "FARMING_ELITES_V2" :
+                    if (!FarmElites_v2(1, 1))
+                    {
+                        Log ("ERROR : Failed to farm Elites !", 2)
+                        Goto TheEnd
+                    }
+                    
+                case "FARMING_KRAKEN_V2" :
+                    if (!FarmElites_v2(1, 2))
+                    {
+                        Log ("ERROR : Failed to farm Krakens !", 2)
+                        Goto TheEnd
+                    }
+                    
+                case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
 
-					FarmingMulti := 1
-					Pirates    := []
-					ScanMap(SystemName)
-					SortResList(Pirates)
-	
-				
-					if (!FarmPiratesMulti(25,Recall))
-					{
-						Log ("ERROR : Failed to farm pirates !", 2)
-						Goto TheEnd
-					}
-				}
-							
-				Return
-				
-			case "FARMING_ELITES" :
-				Loop , 10
-				{
-					if (!FarmElites(610, 575, 1060, 910, "pirates\valid\Elite.png", 1))
-					{
-						Log ("ERROR : Failed to farm pirates !", 2)
-						Goto TheEnd
-					}
-				}
-				
-			case "FARMING_ELITES_V2" :
-				Loop , 60
-				{
-					if (!FarmElites_v2(1, 1))
-					{
-						Log ("ERROR : Failed to farm Elites !", 2)
-						Goto TheEnd
-					}
-					Sleep, 60
-				}
-				
-			case "FARMING_KRAKEN_V2" :
-				Loop , 60
-				{
-					if (!FarmElites_v2(1, 2))
-					{
-						Log ("ERROR : Failed to farm Krakens !", 2)
-						Goto TheEnd
-					}
-					Sleep, 60
-				}
-				
-				
-				
-			case "FARMING_KRAKEN" :
-				Loop , 10
-				{
-					if (!FarmElites(280, 250, 1500, 950, "pirates\valid\kraken.png", 0))
-					{
-						Log ("ERROR : Failed to farm pirates !", 2)
-						Goto TheEnd
-					}
-				}
-				
-			case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
+                    switch RunMode
+                    {
+                        case "FARMING_MULTI_1":                 
+                            FleetsSpan := Object( 1, 6)
+                        case "FARMING_MULTI_2":
+                            FleetsSpan := Object( 1, 3, 4, 6)
+                        default:
+                            FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
+                    }
 
-				Loop, 500
-				{
-					if (RunMode = "FARMING_MULTI_1")
-						FleetsSpan := Object( 1, 6)
-					else if (RunMode = "FARMING_MULTI_2")
-						FleetsSpan := Object( 1, 3, 4, 6)
-					else 
-						FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
-
-
-					if (!FarmPirates_v2(FleetsSpan))
-					{
-						Log ("ERROR : Failed to farm pirates !", 2)
-						Goto TheEnd
-					}
-				}
-				
-			case "WHALE_ASSIST" :
-				Loop, 500
-				{
-					Loop, 20 
-					{
-						if (!Whale_Assist())
-						{
-							Log ("ERROR : Failed assist on whales !", 2)
-							Goto TheEnd
-						}
-					}
-					
-					if !BuildShips(FrigatesAmount)
-					{
-						Log ("ERROR : Failed to build ships !", 2)
-						Goto TheEnd
-					}
-					
-				}
-				
-				
-			case "FARMING_WHALES" :
-				Loop, 500
-				{
-					if (!Whale_Farming())
-					{
-						Log ("ERROR : Failed farming whales !", 2)
-						Goto TheEnd
-					}
-				}
-				
-			default:
-			
-			
-
-				Log("========= BuildFrigates End   =========")
-									  
-				; check if tank is fresh
-				if (Farming)
-					if (!FarmingMulti)
-						TankFresh := IsTankFresh()
-					Else
-					{
-						;if (!RepairAllFleets())
-						;{
-						;	Log ("ERROR : Failed to repair fleets !", 2)
-						;	Goto TheEnd
-						;}
-						
-						TankFresh := 1
-					}
-					
-
-				; scan pirates ressources in system if farming
-				if (Farming and TankFresh)
-				{
-					if (!ScanResourcesInSystem(""))
-					{
-						Log ("ERROR : Failed to scan system ressources !", 2)
-						Goto TheEnd
-					}
-					
-					Log("Filtering with blacklists and cleaning up ...")
-					;RemoveObosoleteBlackList(Ressources_BlackList, Ressources)
-					;RemoveObosoleteBlackList(Pirates_BlackList, Pirates)
-					;FilterListwithBlackList(Ressources, Ressources_BlackList)
-					;FilterListwithBlackList(Pirates, Pirates_BlackList)
-					Log(Format("We have {1} pirates and {2} ressources left...", Pirates.Length(), Ressources.Length()))
-					Log(Format("We have {1} pirates and {2} ressources in blacklist...", Pirates_BlackList.Length(), Ressources_BlackList.Length()))
-				}
-				
-				Log("========= getFreeMecas Start =========")
-				if (!FarmingMulti and !FarmingElites and !Farming3D)
-				{
-					if !GetAvailableMecaCount(NumFreeMecas)
-					{
-						Log ("ERROR : Failed to get available mecas count !", 2)
-						Goto TheEnd
-					}
-					Log("We have " . NumFreeMecas . "/" . MaxPlayerMecas . " mecas left")
-					StartFreeMecas := NumFreeMecas
-					
-					if (NumFreeMecas = 0 and Farming = 0)
-					{
-						Log("Looks like we have no more mecas, skipping")
-						Goto DoSequence_Complete
-					}
-				}
-				Log("========= getFreeMecas End =========")
-				
-				if (Farming and TankFresh)
-				{
-		  
-					if (FarmingMulti)
-					{
-					
-						if (!FarmPiratesMulti(25, 1))
-						{
-							Log ("ERROR : Failed to farm pirates !", 2)
-							Goto TheEnd
-						}
-					}
-					Else
-					{
-						if (!FarmPirates(25))
-						{
-							Log ("ERROR : Failed to farm pirates !", 2)
-							Goto TheEnd
-						}
-					}
-			
-				}
-				Else
-				{
-					if (Farming3D)
-					{
-						;FarmPirates3D(20)
-						FleetsSpan := Object( 1, 6)
-						FarmPirates_v2(FleetsSpan)
-					}
-					Else
-					{
-					
-						if (FarmingMulti)
-						{
-						
-							loop , 30 
-							{
-								if (Mod(A_Index, 2) = 0)
-									Recall := 1
-								Else
-									Recall := 0
-									
-								if (!ScanResourcesInSystem(""))
-								{
-									Log ("ERROR : Failed to scan system ressources !", 2)
-									Goto TheEnd
-								}
-								
-							
-								if (!FarmPiratesMulti(25,Recall))
-								{
-									Log ("ERROR : Failed to farm pirates !", 2)
-									Goto TheEnd
-								}
-							}
-							
-						}			
-					}
-				}
-				
-				
-				if (FarmingElites)
-				{
-					FarmElites(480, 650, 975, 910, "pirates\valid\Elite.png")
-				}
-		
-		}
-      
-        
+                    if (!FarmPirates_v2(FleetsSpan))
+                    {
+                        Log ("ERROR : Failed to farm pirates !", 2)
+                        Goto TheEnd
+                    }
+                    
+                case "WHALE_ASSIST" :
+                    if (!Whale_Assist())
+                    {
+                        Log ("ERROR : Failed assist on whales !", 2)
+                        Goto TheEnd
+                    }                    
+                    
+                case "FARMING_WHALES" :
+                    if (!Whale_Farming())
+                    {
+                        Log ("ERROR : Failed farming whales !", 2)
+                        Goto TheEnd
+                    }
+                    
+                default:
+                
+            }
+          
+        }    
 DoSequence_Complete:	
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
@@ -480,6 +266,7 @@ DoSequence_Complete:
     }
     
     TheEnd:
+	SendDiscord(Format(":stop_button: Stopped Sequence for {1} ", PlayerName))
 	Fail := 1
     StopNova(Fail)
     Log("------------------------------ Stopping Sequence for " . PlayerName . " ------------------------------")
@@ -606,6 +393,11 @@ ReadConfig()
    
 	LoadFleetPosFromFile(Format("{1}\{2}-Fleets.ini", A_ScriptDir, PlayerName))
 	
+	. read the work frame
+	IniRead, StartH, %FullPath%, TIME, StartH, 0
+	IniRead, StartM, %FullPath%, TIME, StartM, 0
+	IniRead, EndH, %FullPath%, TIME, EndH, 0
+	IniRead, EndM, %FullPath%, TIME, EndM, 0
 }
 
 ;*******************************************************************************

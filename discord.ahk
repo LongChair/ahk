@@ -30,10 +30,7 @@
 			Http.Open(Method, this.BaseURL . Endpoint)
 			Http.SetRequestHeader("Authorization", "Bot " this.Token)
 			Http.SetRequestHeader("Content-Type", "application/json")
-			if (Data)
-				Http.Send(this.Jxon_Dump(Data)) 
-			Else 
-				Http.Send()
+			(Data ? Http.Send(this.Jxon_Dump(Data)) : Http.Send())
 			
 			; Handle rate limiting
 			if (Http.status == 429)

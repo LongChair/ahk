@@ -558,7 +558,7 @@ RecallAllFleets()
 			
 			if (!Recalled[FleetIndex])
 			{
-				if (NovaFindClick("buttons\AQuai.png", 50, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
+				if (NovaFindClick("buttons\AQuai.png", 80, "w100 n0", FoundX, FoundY, X1, Y1 , X2, Y2))
 				{
 					; fleet is already docked
 					Recalled[FleetIndex] := 1
@@ -567,12 +567,14 @@ RecallAllFleets()
 				Else
 				{				
 					; first try to click recall Button
-					if (NovaFindClick("buttons\recall_button.png", 50, "n1", FoundX, FoundY, X1, Y1 , X2, Y2))
+					while (NovaFindClick("buttons\recall_button.png", 80, "n1", FoundX, FoundY, X1, Y1 , X2, Y2))
 					{
 						Recalled[FleetIndex] := 1
 						Sleep, 500
 					}
-					Else
+					
+					
+					if (!Recalled[FleetIndex])
 					{
 						; click on the fleet
 						NovaLeftMouseClick(X1 + 20, Y1 +20)
@@ -587,7 +589,13 @@ RecallAllFleets()
 							
 							; wait for window to vanish
 							NovaFindClick("buttons\fleets_on.png", 30, "w5000 n1")
-						}					
+						}
+						Else
+						{
+							
+							NovaEscapeClick()
+							Sleep, 500
+						}
 					}
 				}
 			}
@@ -918,7 +926,7 @@ PeekClosestRes(ByRef ResList, X, Y)
 		Dist := sqrt(DX*DX + DY*DY)
 		Radius := sqrt(ResX*ResX + ResY*ResY)
         
-		if ((Dist < MinDist) and (Radius < 1800))
+		if ((Dist < MinDist) and (Radius < 2300))
 		{
 			MinDist := Dist
 			FoundIndex := CurrentRes
@@ -1407,6 +1415,23 @@ GoToFavorite_Found:
 
 SendDiscord(Text)
 {
-	global discord
-	discord.SendMessage("832981146807173191", Text)
+	global DiscordWebhooKURL
+	;global discord
+	;discord.SendMessage("832981146807173191", Text)
+	
+	Http := ComObjCreate("WinHTTP.WinHTTPRequest.5.1")
+	
+	; Send the request
+	Http.Open("POST", DiscordWebhooKURL, false)
+	Http.SetRequestHeader("Content-Type", "application/json")
+	postdata = 
+		( LTrim Join
+		 {  
+			"username": "NovaBot",
+			"content": "%Text%"
+		 } 
+		)
+		
+	Http.Send(postdata)
 }
+
