@@ -35,6 +35,7 @@ global AppX := 0
 global AppY := 0
 
 global RunMode := ""
+global Sequence := ""
 
 ; free resources collected
 global FreeResCollected := 0

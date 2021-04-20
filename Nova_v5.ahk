@@ -46,11 +46,11 @@ Loop
 	IniRead, DiscordWebhooKURL, %FullPath%, DISCORD, DiscordWebhooKURL
 	
 	; get pasteBinconfig
-	if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
-	{
-		LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
-		return
-	}
+	;if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
+	;{
+	;	LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
+	;	return
+	;}
 	
 	
 	; Loops players
@@ -146,7 +146,7 @@ DoSequence()
 	global Ressources, Pirates, Ressources_BlackList, Pirates_BlackList
 	global LoopPeriod
 	global CurrentSystem
-	global RunMode
+	global RunMode, Sequence
 	global FarmingMulti
 	
     Fail := 1
@@ -178,18 +178,34 @@ DoSequence()
 		
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", RunMode))
 		
-		Log("========= CheckFreeResources Start =========")
-		if !CheckFreeResources()
-		{
-			Log ("ERROR : Failed to collect free resources !", 2)
-			Goto TheEnd
-		}
-		Log("========= CheckFreeResources End   =========")
+		;Log("========= CheckFreeResources Start =========")
+		;if !CheckFreeResources()
+		;{
+		;	Log ("ERROR : Failed to collect free resources !", 2)
+		;	Goto TheEnd
+		;}
+		;Log("========= CheckFreeResources End   =========")
 		
-        Loop, 500 
+		Seq := StrSplit(Sequence, ",")
+		SeqIndex := 0
+		
+		
+		Sequence_start:
+		RunMode := Trim(Seq[2*SeqIndex+1])
+		RunCount := Trim(Seq[2*SeqIndex+2])
+		
+		
+        Loop, %RunCount% 
         {
             Switch RunMode
             {
+				case "RESSOURCES" :
+					if !CheckFreeResources()
+					{
+						Log ("ERROR : Failed to collect free resources !", 2)
+						Goto TheEnd
+					}
+						
                 case "BUILD" :
                     if !BuildShips(FrigatesAmount)
                     {
@@ -244,10 +260,14 @@ DoSequence()
                     }
                     
                 default:
-                
+					Goto DoSequence_Complete
             }
           
-        }    
+        }
+		
+		SeqIndex := SeqIndex + 1
+		Goto Sequence_start
+		
 DoSequence_Complete:	
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
@@ -331,7 +351,7 @@ ReadConfig()
 	global LastStartTime
 	global LastWhalekillTime
 	global FrigateType
-    global RunMode
+    global RunMode, Sequence
 	global UserName, PassWord
 	global WhaleKillCount, MaxWhaleKillCount
 	
@@ -377,6 +397,7 @@ ReadConfig()
 	IniRead, MaxPlayerMecas, %FullPath%, GENERAL, MaxPlayerMecas, ""
 	IniRead, FrigateType, %FullPath%, GENERAL, FrigateType, ""
 	IniRead, RunMode, %FullPath%, GENERAL, RunMode, ""
+	IniRead, Sequence, %FullPath%, GENERAL, Sequence, ""
 	
 	
 	; ressources Priority
