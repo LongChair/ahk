@@ -5,6 +5,7 @@
 #include globals.ahk
 #include libs\FindClick.ahk
 #include libs\PasteBin.ahk
+#include libs\JSON.ahk
 #Include utils.ahk
 #include screens.ahk
 #include resources.ahk
@@ -175,99 +176,26 @@ DoSequence()
 	
     if LaunchNova()
     {	
-		
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", RunMode))
 		
-		;Log("========= CheckFreeResources Start =========")
-		;if !CheckFreeResources()
-		;{
-		;	Log ("ERROR : Failed to collect free resources !", 2)
-		;	Goto TheEnd
-		;}
-		;Log("========= CheckFreeResources End   =========")
-		
-		Seq := StrSplit(Sequence, ",")
-		SeqIndex := 0
-		
-		
-		Sequence_start:
-		RunMode := Trim(Seq[2*SeqIndex+1])
-		RunCount := Trim(Seq[2*SeqIndex+2])
-		
-		
-        Loop, %RunCount% 
+        ; reads the config file text
+		FileRead json_str, RunMode . ".json"
+        if (json_str="")
         {
-            Switch RunMode
-            {
-				case "RESSOURCES" :
-					if !CheckFreeResources()
-					{
-						Log ("ERROR : Failed to collect free resources !", 2)
-						Goto TheEnd
-					}
-						
-                case "BUILD" :
-                    if !BuildShips(FrigatesAmount)
-                    {
-                        Log ("ERROR : Failed to build ships !", 2)
-                        Goto TheEnd
-                    }
-                                        
-                case "FARMING_ELITES_V2" :
-                    if (!FarmElites_v2(1, 1))
-                    {
-                        Log ("ERROR : Failed to farm Elites !", 2)
-                        Goto TheEnd
-                    }
-                    
-                case "FARMING_KRAKEN_V2" :
-                    if (!FarmElites_v2(1, 2))
-                    {
-                        Log ("ERROR : Failed to farm Krakens !", 2)
-                        Goto TheEnd
-                    }
-                    
-                case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
-
-                    switch RunMode
-                    {
-                        case "FARMING_MULTI_1":                 
-                            FleetsSpan := Object( 1, 6)
-                        case "FARMING_MULTI_2":
-                            FleetsSpan := Object( 1, 3, 4, 6)
-                        default:
-                            FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
-                    }
-
-                    if (!FarmPirates_v2(FleetsSpan))
-                    {
-                        Log ("ERROR : Failed to farm pirates !", 2)
-                        Goto TheEnd
-                    }
-                    
-                case "WHALE_ASSIST" :
-                    if (!Whale_Assist())
-                    {
-                        Log ("ERROR : Failed assist on whales !", 2)
-                        Goto TheEnd
-                    }                    
-                    
-                case "FARMING_WHALES" :
-                    if (!Whale_Farming())
-                    {
-                        Log ("ERROR : Failed farming whales !", 2)
-                        Goto TheEnd
-                    }
-                    
-                default:
-					Goto DoSequence_Complete
-            }
-          
+            LOG(Format("ERROR : Failed to read {1}.json file, stopping", 2)
+            goto TheEnd
         }
-		
-		SeqIndex := SeqIndex + 1
-		Goto Sequence_start
-		
+        
+        ; parse the json string
+        config := JSON.Load(json_str)
+        
+        ; process the config object
+        if (!ProcessOperations(config.operations))
+        {
+            LOG(Format("ERROR : Failed to process command lists, stopping", 2)
+            goto TheEnd
+        }
+
 DoSequence_Complete:	
 		; compute iteration time
 		ElapsedTime := A_TickCount - StartTime
@@ -649,4 +577,104 @@ StopNova(CloseBluestacks := 1)
 
 	}	
 
+}
+
+;*******************************************************************************
+; ProcessOperations : Will process the full json sequence
+;*******************************************************************************
+ProcessOperations(ops)
+{
+    For i,op in ops
+    {
+        if (op.name=="repeat")
+        {
+            Loop, % op.count
+            {
+                if (!ProcessOperations(op.operations))
+                    return 0
+            }
+        }
+        else
+          Loop, % op.count
+          {
+              if (!DoOperation(op))
+                    return 0
+          }
+    }
+    
+    return 1
+}
+
+;*******************************************************************************
+; DoOperation : Will do the given operation name
+;*******************************************************************************
+DoOperation(op)
+{
+    Switch op.name
+    {
+        case "RESSOURCES" :
+            if !CheckFreeResources()
+            {
+                Log ("ERROR : Failed to collect free resources !", 2)
+                return 0
+            }
+                
+        case "BUILD" :
+            if !BuildShips(FrigatesAmount)
+            {
+                Log ("ERROR : Failed to build ships !", 2)
+                return 0
+            }
+                                
+        case "FARMING_ELITES_V2" :
+            if (!FarmElites_v2(1, 1))
+            {
+                Log ("ERROR : Failed to farm Elites !", 2)
+                return 0
+            }
+            
+        case "FARMING_KRAKEN_V2" :
+            if (!FarmElites_v2(1, 2))
+            {
+                Log ("ERROR : Failed to farm Krakens !", 2)
+                return 0
+            }
+            
+        case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
+
+            switch RunMode
+            {
+                case "FARMING_MULTI_1":                 
+                    FleetsSpan := Object( 1, 6)
+                case "FARMING_MULTI_2":
+                    FleetsSpan := Object( 1, 3, 4, 6)
+                default:
+                    FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
+            }
+
+            if (!FarmPirates_v2(FleetsSpan))
+            {
+                Log ("ERROR : Failed to farm pirates !", 2)
+                return 0
+            }
+            
+        case "WHALE_ASSIST" :
+            if (!Whale_Assist())
+            {
+                Log ("ERROR : Failed assist on whales !", 2)
+                return 0
+            }                    
+            
+        case "FARMING_WHALES" :
+            if (!Whale_Farming())
+            {
+                Log ("ERROR : Failed farming whales !", 2)
+               return 0
+            }
+            
+        case "NOTIFY" :
+           SendDiscord(op.message)
+    }
+    
+    return 1
 }

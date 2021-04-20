@@ -1,0 +1,16 @@
+﻿
+{   
+    "GENERAL": [
+        { "Players" : [
+			{ "name": "LongChair" }
+		],
+	"PASTEBIN": {
+		"link": "",
+		"user": "",
+		"password": ""
+	},
+	"DISCORD": {
+		"webhook": "",
+	}
+}
+
