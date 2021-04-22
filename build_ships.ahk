@@ -7,17 +7,11 @@
 ;*******************************************************************************
 BuildShips(Amount)
 {
-    global FrigatesBuilt, FrigatesAmount
 	global Build_error
-	global FrigateType
+	global PlayerConfig
 	
     Build_error := 0
 	
-    if (Amount <= FrigatesBuilt)
-    {
-        Log("We already have built " . FrigatesBuilt . ", skipping for now.")
-        return 1
-    }
     
     ; popup the main menu
     if !PopRightMenu(1, "ECONOMY")
@@ -34,7 +28,7 @@ BuildShips(Amount)
 		{
         
             ; make sure frigates are selected on that shipyard
-            if (!NovaFindClick(Format("ships\{1}.png", FrigateType), 30, "w3000 n0"))
+            if (!NovaFindClick(Format("ships\{1}.png", PlayerConfig.BUILD.frigatetype), 30, "w3000 n0"))
             {
                 Log("ERROR : Could not find frigates as current ship, exiting.")
                 return 0
@@ -43,8 +37,6 @@ BuildShips(Amount)
             ; then click on build button
             while (NovaFindClick("buttons\build_ships.png", 20, "w1000 n1", FoundX, FoundY, 1550, 710, 1850, 850))
             {
-                FrigatesBuilt := FrigatesBuilt + 1
-                Log(Format("We queued ship {1} / {2}", FrigatesBuilt, FrigatesAmount))
                 Sleep, 500
             }
             
@@ -60,12 +52,6 @@ BuildShips(Amount)
                 Log("ERROR : Could not find economy tab, while getting back to main screen, exiting.")
                 return 0
             }    
-			
-			if (Amount <= FrigatesBuilt)
-			{
-				Log("We already have built " . FrigatesBuilt . ", skipping for now.")
-				return 1
-			}
 		}
 				
 		; move mouse on top of shipyards

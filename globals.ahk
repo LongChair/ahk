@@ -5,6 +5,9 @@ global Version := "5.0"
 global BlueStacksPath := "C:\ProgramData\BlueStacks\Client\Bluestacks.exe"
 global Emulator = "BLUESTACKS"
 
+global NovaConfig
+global PlayerConfig
+
 ; Loop time and activation
 global LoopTime := 0
 global Farming := 0

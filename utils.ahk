@@ -1413,16 +1413,19 @@ GoToFavorite_Found:
 	return 1
 }
 
+;*******************************************************************************
+; SendDiscord : Send text to the according discord channel
+;*******************************************************************************
 SendDiscord(Text)
 {
-	global DiscordWebhooKURL
+	global NovaConfig
 	;global discord
 	;discord.SendMessage("832981146807173191", Text)
 	
 	Http := ComObjCreate("WinHTTP.WinHTTPRequest.5.1")
 	
 	; Send the request
-	Http.Open("POST", DiscordWebhooKURL, false)
+	Http.Open("POST", NovaConfig.DISCORD.webhook, false)
 	Http.SetRequestHeader("Content-Type", "application/json")
 	postdata = 
 		( LTrim Join
@@ -1433,5 +1436,38 @@ SendDiscord(Text)
 		)
 		
 	Http.Send(postdata)
+}
+
+;*******************************************************************************
+; GetObjectFromJSON : Get an object straight from JSON
+;*******************************************************************************
+GetObjectFromJSON(FileName)
+{
+	json_str := "" 
+	FileRead json_str, %FileName%
+	
+	if (json_str == "")
+		return ""
+	
+	; parse the json string
+	return  JSON.Load(json_str)
+}
+
+;*******************************************************************************
+; GetObjectFromJSON : Get an object straight from JSON
+;*******************************************************************************
+SaveObjectToJSON(Object, FileName)
+{
+	
+	json_str := JSON.Dump(Object,,4)
+	json_str := StrReplace(json_str, "`n", "`r`n")
+	
+	FileDelete %FileName%
+	FileAppend %json_str%, %FileName%
+	
+	if ErrorLevel 
+		return 0
+	Else	
+		return 1
 }
 

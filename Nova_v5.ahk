@@ -28,60 +28,52 @@ SetTitleMatchMode 2
 
 Loop
 {
-	global PasteBinUser, PasteBinPassword
-	global discord
-	global DiscordWebhooKURL
+	global NovaConfig
+	global PlayerName
 	
 	; global Nova config file
-    FullPath =  %A_ScriptDir%\Nova.ini
-	IniPath =  %A_ScriptDir%\PasteBin.ini
+    NovaPath =  %A_ScriptDir%\nova.json
+	PastebinPath =  %A_ScriptDir%\pastebin.json
     
-    ; Read Player Count
-    IniRead, PlayerCount, %FullPath%, GENERAL, PlayerCount, 0
-	
-    IniRead, PasteBinConfigLink, %FullPath%, PASTEBIN, PasteBinConfigLink, ""
-	IniRead, PasteBinUser, %FullPath%, PASTEBIN, PasteBinUser, ""
-    IniRead, PasteBinPassword, %FullPath%, PASTEBIN, PasteBinPassword, ""
-	
-    IniRead, DiscordToken, %FullPath%, DISCORD, DiscordToken
-	IniRead, DiscordWebhooKURL, %FullPath%, DISCORD, DiscordWebhooKURL
-	
-	; get pasteBinconfig
-	;if !StorePasteBinConfig(PasteBinConfigLink, IniPath)
-	;{
-	;	LOG("ERROR : Failed to save pastebin configuration into ini file.", 2)
-	;	return
-	;}
-	
-	
-	; Loops players
-	PlayerIndex := 1
-	Loop, %PlayerCount%
+
+	NovaConfig := GetObjectFromJSON(NovaPath)
+	if (NovaConfig == "") 
 	{
+		LOG("ERROR : Failed to read nova.json", 2)
+		return
+	}
 		
-		
-		; Get player name
-		Key := "Player" . PlayerIndex
-		IniRead, Player, %FullPath%, PLAYERS, %Key%, 0
-		
-		; check if player name is Active
-		IniRead, PlayerEnable, %IniPath%, ENABLE, %Player%, -1
-		
-		if PlayerEnable
+	; get pasteBinconfig
+	if !StorePasteBinConfig(NovaConfig.PASTEBIN.link, PastebinPath)
+	{
+		LOG("ERROR : Failed to save pastebin configuration into file.", 2)
+		LOG("Using existing file.")
+	}
+	
+
+	PasteBinConfig := GetObjectFromJSON(PastebinPath)
+	if (PasteBinConfig == "") 
+	{
+		LOG("ERROR : Failed to read pastebin.json", 2)
+		return
+	}
+
+	
+	For i, player in NovaConfig.GENERAL.Players
+	{
+		if (PasteBinConfig.Players[player.name].enable)
 		{
-		   LOG(Format("Player {1} is enabled, proceeding.", Player))
-		   DoAccount(Player)
-		  
-		   LOG(Format("Player {1} was processed in {2:i} seconds.", Player, ElapsedTime / 1000))
+			PlayerName := player.name
+			LOG(Format("Player {1} is enabled, proceeding.", player.name))
+			DoAccount(player)
 		}
-		Else
+		else
 		{
-  		   LOG(Format("Player {1} is disabled, skipping.", Player))
+  		   LOG(Format("Player {1} is disabled, skipping.", player.name))
 		   Sleep, 10000
 		}
-		
-		PlayerIndex := PlayerIndex + 1
 	}
+	
 } 
 
 ;*******************************************************************************
@@ -91,11 +83,14 @@ Loop
 ;*******************************************************************************
 StorePasteBinConfig(Link, FileName)
 {
-	global PasteBinUser, PasteBinPassword
+	global NovaConfig
 	
-	pbin := new pastebin(PasteBinUser, PasteBinPassword)
+	pbin := new pastebin(NovaConfig.PASTEBIN.user, NovaConfig.PASTEBIN.password)
 	PasteBinConfig := pbin.getPastedata(Link)
 	
+	if (Substr(PasteBinConfig, 1,1) != "{")
+		return 0
+		
 	file := FileOpen(FileName, "w")
 	if !IsObject(file)
 	{
@@ -113,24 +108,29 @@ StorePasteBinConfig(Link, FileName)
 ;*******************************************************************************
 ; DoAccount : Does the whole program for given account
 ;*******************************************************************************
-DoAccount(Account)
-{
-	global PlayerName
-	global StartH, StartM, EndH, EndM
-	
-	PlayerName := Account
+DoAccount(player)
+{	
+	global PlayerConfig
 	
 	Log("Nova Empire Automation version " . Version . " - (c) LongChair 2019")
 
 	; Read Configureation
     Log("Reading Configuration...")
-    ReadConfig()
 	
-    DoSequence()
+	FullPath :=  Format("{1}\{2}.json", A_ScriptDir, player.name)
+    PlayerConfig := GetObjectFromJSON(FullPath)
+	if (PlayerConfig == "") 
+	{
+		LOG(Format("ERROR : Failed to read {1}.json, exiting", player.name), 2)
+		return
+	}
+	
+    DoSequence(player)
      
     ; Write Configuration
     Log("Writing Configuration...")
-    WriteConfig()
+    SaveObjectToJSON(PlayerConfig, FullPath)
+	
     
     Log("Waiting...")
     Sleep, LoopTime
@@ -138,7 +138,7 @@ DoAccount(Account)
 ;*******************************************************************************
 ; DoSequence : Main loop of the program
 ;*******************************************************************************
-DoSequence()
+DoSequence(player)
 {
     
     global FrigatesAmount, NumFreeMecas, MaxPlayerMecas
@@ -150,14 +150,16 @@ DoSequence()
 	global RunMode, Sequence
 	global FarmingMulti
 	
+	global PlayerConfig
+	
     Fail := 1
     StartTime := A_TickCount
 
 	; wait for period to be done
-	if  (LastStartTime > A_TickCount)
-		LastStartTime := A_TickCount - (LoopPeriod * 1000)
+	if  (PlayerConfig.COUNTERS.LastStartTime > A_TickCount)
+		PlayerConfig.COUNTERS.LastStartTime := A_TickCount - (LoopPeriod * 1000)
 
-	MinTime := LastStartTime + (1000 * LoopPeriod)
+	MinTime := PlayerConfig.COUNTERS.LastStartTime + (1000 * LoopPeriod)
 	
 	; wait for it
 	if (MinTime > A_TickCount)
@@ -167,57 +169,53 @@ DoSequence()
 		Sleep, % WaitTime_ms
 	}
 	
-	LOG(Format("Loop period was : {1:i} s...", (StartTime - LastStartTime) / 1000))
-	LastStartTime := StartTime
+	LOG(Format("Loop period was : {1:i} s...", (StartTime - PlayerConfig.COUNTERS.LastStartTime) / 1000))
+	PlayerConfig.COUNTERS.LastStartTime := StartTime
 
 	
 	
-    Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . PlayerName . " -------------------")	
+    Log("------------------ Starting Sequence in " .  A_ScriptDir . " for " . player.name . " -------------------")	
 	
     if LaunchNova()
     {	
-		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", RunMode))
-		
-        ; reads the config file text
-		FileRead json_str, RunMode . ".json"
-        if (json_str="")
+		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
+		       
+	   config := GetObjectFromJSON("runmodes\" . PlayerConfig.GENERAL.runmode . ".json")
+	   if (config == "")
         {
-            LOG(Format("ERROR : Failed to read {1}.json file, stopping", 2)
+            LOG(Format("ERROR : Failed to read {1}.json file, stopping",PlayerConfig.GENERAL.runmode) 2)
             goto TheEnd
         }
-        
-        ; parse the json string
-        config := JSON.Load(json_str)
-        
+                
         ; process the config object
         if (!ProcessOperations(config.operations))
         {
-            LOG(Format("ERROR : Failed to process command lists, stopping", 2)
+            LOG(Format("ERROR : Failed to process command lists, stopping", 2))
             goto TheEnd
         }
 
 DoSequence_Complete:	
 		; compute iteration time
-		ElapsedTime := A_TickCount - StartTime
-		IterationTime := (ElapsedTime / 1000)
+		;ElapsedTime := A_TickCount - StartTime
+		;IterationTime := (ElapsedTime / 1000)
 		   
         ; logs the summuary of the iteration
-		Summuary := GetSummuary()
-        Log(Format("`r`n{1}", Summuary), 1)
+		;Summuary := GetSummuary()
+        ;Log(Format("`r`n{1}", Summuary), 1)
 		
 		; paste it to pastebin
-		pbin := new pastebin(PasteBinUser, PasteBinPassword)
-		pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
-        Fail := 0
+		;pbin := new pastebin(PasteBinUser, PasteBinPassword)
+		;pbin.paste(Summuary, Format("Nova for {3} at {1}:{2}", A_Hour, A_Min, PlayerName), "autohotkey", "1H", 2)
+        ;Fail := 0
 		
 		;SaveBlackLists()
     }
     
     TheEnd:
-	SendDiscord(Format(":stop_button: Stopped Sequence for {1} ", PlayerName))
+	SendDiscord(Format(":stop_button: Stopped Sequence for {1} ", player.name))
 	Fail := 1
     StopNova(Fail)
-    Log("------------------------------ Stopping Sequence for " . PlayerName . " ------------------------------")
+    Log("------------------------------ Stopping Sequence for " . player.name . " ------------------------------")
 }
 
 ;*******************************************************************************
@@ -410,8 +408,8 @@ LaunchNova()
 {
     global AppX, AppY, AppW, AppH
     global MainWinX, MainWinY, MainWinW, MainWinH, WinCenterX, WinCenterY, WinBorderX, WinBorderY
-    global CommandLine, WindowName, Emulator
 	global Window_ID
+	global PlayerConfig
 	
 	SetTitleMatchMode 2
 	SetControlDelay 1
@@ -421,15 +419,16 @@ LaunchNova()
 	
 	
 	Log("***** Launching Emulator...")
+	CommandLine := PlayerConfig.GENERAL.commandline 
 	Run, %CommandLine%
-	while !WinExist(WindowName)
+	while !WinExist(PlayerConfig.GENERAL.windowname)
 	{
 		Sleep, 1000
 	}
     Log("Emulator Launched...")
 	
     ; Activate BlueStacks Window
-	Window_ID := WinExist(WindowName)
+	Window_ID := WinExist(PlayerConfig.GENERAL.windowname)
     WinActivate, ahk_id %Window_ID%
     WinMove, ahk_id %Window_ID%,, AppX, AppY, AppW, AppH
     WinGetPos, MainWinX, MainWinY, MainWinW, MainWinH, ahk_id %Window_ID%
@@ -463,7 +462,7 @@ LaunchNova()
 				}
 				
 				Sleep, 1000
-				Loop, Parse, UserName
+				Loop, Parse, % PlayerConfig.GENERAL.username
 				{
    				  Send %A_LoopField%
 				  Sleep, 100
@@ -479,7 +478,7 @@ LaunchNova()
 					return 0
 				}
 				Sleep, 1000
-				Loop, Parse, PassWord
+				Loop, Parse, % PlayerConfig.GENERAL.password
 				{
 				  if InStr(A_LoopField ,"#") then
 					Send {#}
@@ -586,7 +585,7 @@ ProcessOperations(ops)
 {
     For i,op in ops
     {
-        if (op.name=="repeat")
+        if (op.name=="REPEAT")
         {
             Loop, % op.count
             {
@@ -610,6 +609,7 @@ ProcessOperations(ops)
 ;*******************************************************************************
 DoOperation(op)
 {
+
     Switch op.name
     {
         case "RESSOURCES" :
@@ -642,7 +642,7 @@ DoOperation(op)
             
         case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
 
-            switch RunMode
+            switch op.name
             {
                 case "FARMING_MULTI_1":                 
                     FleetsSpan := Object( 1, 6)
@@ -674,6 +674,9 @@ DoOperation(op)
             
         case "NOTIFY" :
            SendDiscord(op.message)
+		   
+		case "WAIT" :
+           Sleep, op.value
     }
     
     return 1

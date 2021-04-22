@@ -217,15 +217,15 @@ Whale_Assist()
 Whale_Farming()
 {
 	global MapPosX, MapPosY
+	global WinCenterX, WinCenterY
 	global WhaleX, WhaleY
 	global FarmingWhales
 	global Voids
-	global WinCenterX, WinCenterY
 	global LastWhalekillTime
-	global WhaleKillCount, MaxWhaleKillCount
 	global VoidCollected
+	global PlayerConfig
 	
-	if (WhaleKillCount >= MaxWhaleKillCount)
+	if (PlayerConfig.WHALES.currentkillpower >= PlayerConfig.WHALES.maxkillpower)
 	{
 		Log("we have killed enough whales, waiting ...")
 		Sleep, 10000
@@ -292,8 +292,9 @@ Whale_Farming()
 		if NovaFindClick("pirates\valid\6M.png", 50, "w1000 n0", FoundX, FoundY, 450, 550, 820, 640)
 			WhaleSize := 6
 		
-		Log(Format("We seem to have a {1}M Whale, Count {2}M / {3}M", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
-		SendDiscord(Format(":whale: We seem to have a **{1}M** Whale, Count {2}M / {3}M", WhaleSize, WhaleKillCount, MaxWhaleKillCount))
+		msg := Format("We seem to have a {1}M Whale, Count {2}M / {3}M", WhaleSize, PlayerConfig.WHALES.currentkillpower, PlayerConfig.WHALES.maxkillpower)
+		Log(msg)
+		SendDiscord(Format(":whale: {1}", msg))
 		
 		; Monitor the whale for some time and leave others a chance to kill it
 		NovaEscapeMenu()
@@ -353,15 +354,16 @@ Whale_Farming()
 		; recall the fleets
 		RecallAllFleets()
 		
-		LastWhalekillTime := A_TickCount
-		WhaleKillCount := WhaleKillCount + WhaleSize
-		SendDiscord(Format(":thumbsup: Whale Killed. (Total power = {1}M / {2}M)", WhaleKillCount, MaxWhaleKillCount))
+		PlayerConfig.WHALES.lastkilltime := A_TickCount
+		PlayerConfig.WHALES.currentkillpower := PlayerConfig.WHALES.currentkillpower + WhaleSize
+		
+		SendDiscord(Format(":thumbsup: Whale Killed. (Total power = {1}M / {2}M)", PlayerConfig.WHALES.currentkillpower, PlayerConfig.WHALES.maxkillpower))
 		
 		WriteConfig()
 	}
 	Else
 	{
-		Delay := (A_TickCount - LastWhalekillTime) / 1000
+		Delay := (A_TickCount - PlayerConfig.WHALES.lastkilltime) / 1000
 		Log(Format("it's been {1} secs since last whale kill", Delay))
 		
 		if (Delay < (30 * 60) )

@@ -74,9 +74,7 @@ CheckFreeResources()
 
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
-    {
-        Log("Collecting free resources ... YEAH!")
-        
+    {     
 		; Wait for the carte to show up
 		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 850, 300, 1150, 650)
 		{
@@ -85,6 +83,7 @@ CheckFreeResources()
 		}
     	
 		Log("Collecting free resources ... YEAH!", 1)
+		SendDiscord(":candy: Collected free ressource.")
 		
 	    ; look for the grab button
         Log("Clicking on grab button...")
