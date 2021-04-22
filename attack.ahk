@@ -3,6 +3,20 @@
 #include utils.ahk
 
 ; Attacks a target with validation, the params array is a json structure
+;{
+;	"pirates" :
+;	{
+;		"approach": false,
+;		"fleets": [],
+;		"location": {
+;			"x": 0,
+;			"y": 0
+;		},
+;		"target" : "pirate",
+;		"validation": "pirate"
+;	}
+;}
+
 Attack(params)
 {
     global WinCenterX, WinCenterY
