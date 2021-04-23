@@ -1,4 +1,4 @@
-*.json
+/*.json
 *.ahk.bak
 *-Fleets.ini
 *.ini
