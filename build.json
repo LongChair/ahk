@@ -1,6 +1,7 @@
 ﻿
 {
     "PossibleModes": [
+		{"RESSOURCES":   "to check ressources"},
         {"BUILD":   "to build ships"},
         {"FARMING_ELITES_V2":   "to farm elites"},
         {"FARMING_KRAKEN_V2":   "to farm krakens"},
@@ -8,18 +9,20 @@
         {"FARMING_MULTI_2":   "to farm pirates in 2 systems"},
         {"FARMING_MULTI_3":   "to farm pirates in 3 systems"},
         {"WHALE_ASSIST":   "to get assistance from farm on whale"},
-        {"FARMING_WHALES":   "to farm whales"}  
+        {"FARMING_WHALES":   "to farm whales"},  
+		{"NOTIFY":   "to notify on discord"},
+		{"WAIT":   "wait in ms"}
     ],
     
     "operations": [
-        { "name" : "repeat", 
-          "count" : 3,
+        { "name" : "REPEAT", 
+          "count" : 2,
           "operations": [
                 { "name": "RESSOURCES", "count": 1},
-                { "name": "BUILD", "count": 5 },
-                { "name": "NOTIFY", "count": 1, "message" : "End of sequence." }
+				{ "name": "BUILD", "count": 1}
             ]
-        }
+        },
+		{ "name": "NOTIFY", "count": 1, "message" : ":information_source: Build sequence completed." }
      ]
 }
 

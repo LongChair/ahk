@@ -16,6 +16,7 @@
 #include build_ships.ahk
 #include whales.ahk
 #include discord.ahk
+#include attack.ahk
 
 #NoEnv
 SetWorkingDir %A_ScriptDir%
@@ -178,6 +179,7 @@ DoSequence(player)
 	
     if LaunchNova()
     {	
+	
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
 		       
 	   config := GetObjectFromJSON("runmodes\" . PlayerConfig.GENERAL.runmode . ".json")
@@ -677,7 +679,38 @@ DoOperation(op)
 		   
 		case "WAIT" :
            Sleep, op.value
+		   
+		case "TEST" :
+			test()
     }
     
     return 1
+}
+
+; test() : just a test function
+test()
+{
+	json_str=
+	(
+	{
+		"pirates":
+		{
+			"approach": false,
+			"fleets": [1, 3, 5],
+			"location": {
+				"x": 0,
+				"y": 0
+			},
+			"target": "pirate",
+			"validation": "pirate"
+		}
+	}
+	)
+
+	param := JSON.Load(json_str)
+	param.pirates.location.x := -650
+	param.pirates.location.y := 1300
+
+	;Attack(param.pirates)
+	SelectFleets(param.pirates.fleets)
 }

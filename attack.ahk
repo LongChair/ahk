@@ -17,6 +17,7 @@
 ;	}
 ;}
 
+
 Attack(params)
 {
     global WinCenterX, WinCenterY
@@ -32,7 +33,7 @@ Attack(params)
     }
 
     ; we validate the target
-    if NovaFindClick(Format("targets\validation\{1}.png", params.validation), 80, "w1000 n0", FoundX, FoundY, 500, 470, 790, 540)
+    if (!NovaFindClick(Format("targets\validation\{1}.png", params.validation), 80, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540))
     {
         LOG("ERROR : (attack) Could Not validate the target, cancelling", 2)
         NovaEscapeMenu()
