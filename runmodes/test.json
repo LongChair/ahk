@@ -1,0 +1,26 @@
+﻿
+{
+    "PossibleModes": [
+		{"RESSOURCES":   "to check ressources"},
+        {"BUILD":   "to build ships"},
+        {"FARMING_ELITES_V2":   "to farm elites"},
+        {"FARMING_KRAKEN_V2":   "to farm krakens"},
+        {"FARMING_MULTI_1":   "to farm pirates in 1 system"},
+        {"FARMING_MULTI_2":   "to farm pirates in 2 systems"},
+        {"FARMING_MULTI_3":   "to farm pirates in 3 systems"},
+        {"WHALE_ASSIST":   "to get assistance from farm on whale"},
+        {"FARMING_WHALES":   "to farm whales"},  
+		{"NOTIFY":   "to notify on discord"},
+		{"WAIT":   "wait in ms"}
+    ],
+    
+    "operations": [
+        { "name" : "REPEAT", 
+          "count" : 1,
+          "operations": [
+                { "name": "TEST", "count": 1}
+            ]
+        }
+     ]
+}
+
