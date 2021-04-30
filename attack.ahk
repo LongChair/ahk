@@ -117,12 +117,10 @@ Attack(params, x, y)
 	}
 	SaveFleetPositions()
 	
+    ; Increments the target counter and saves the stats file
 	key := Format("kill.{1}", params.target)
-	if (Stats[key] =="")
-		Stats[key] := 0
-		
-	Stats[key] := Stats[key] + 1
-	SaveStats()
+	AddStats(key, 1)
+    
     return 1
 }
 

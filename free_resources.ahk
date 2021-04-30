@@ -1,31 +1,12 @@
 ﻿#include globals.ahk
 #include utils.ahk
 
-global FreeResCount := []
-
-;*******************************************************************************
-; ResetStats : Resets the global stats variable
-;*******************************************************************************
-ResetStats()
-{
-	global FreeResCollected, OtherResCollected
-	global FreeResCount, PossibleRes
-	global KilledCount
-	global EliteKill
-
-	FreeResCollected := 0
-	OtherResCollected := 0
-	KilledCount := 0
-	EliteKill := 0
-	Helped := 0
-}
-
 ;*******************************************************************************
 ; CheckFreeResources : Checks and grabs free ressources
 ;*******************************************************************************
 CheckFreeResources()
 {   
-    global FreeResCollected, MaxFreeRes
+    global Stats
     
     ; Go into space station screen 
     Log("Checking free resources ...")
@@ -102,7 +83,8 @@ CheckFreeResources()
         }
 		Else
 		{
-			SendDiscord(":candy: Collected free ressource.")
+            AddStats("freeressources", 1)
+			SendDiscord(Format(":candy: Collected free ressource {1}.", Stats["freeressources"]))            
 		}
                 
         if (!WaitNovaScreen("STATION", 1))

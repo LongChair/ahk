@@ -40,10 +40,6 @@ global AppY := 0
 global RunMode := ""
 global Sequence := ""
 
-; free resources collected
-global FreeResCollected := 0
-global MaxFreeRes := 30
-
 ; regular free collected
 global OtherResCollected := 0
 

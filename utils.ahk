@@ -1510,3 +1510,26 @@ SaveStats()
 	global Stats
 	return SaveObjectToJSON(Stats, "data\stats.json")
 }
+
+;*******************************************************************************
+; AddStats : Adds soem amount to the given key stats
+;*******************************************************************************
+AddStats(key, Amount)
+{
+    global Stats
+    if (Stats[key] == "")
+		Stats[key] := 0
+		
+	Stats[key] := Stats[key] + Amount
+    SaveStats()
+}
+
+
+;*******************************************************************************
+; ResetStats : Adds soem amount to the given key stats
+;*******************************************************************************
+ResetStats()
+{
+    FileDelete, "data\stats.json"
+    LoadStats()
+}
