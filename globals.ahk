@@ -118,5 +118,4 @@ global EndM := 0
 
 global DiscordWebhooKURL
 
-global Stats := []
-global attack_time := []
+global ConText := []

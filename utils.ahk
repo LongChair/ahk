@@ -1492,23 +1492,30 @@ GetObjectProperty(object, Property, default)
 }
 
 ;*******************************************************************************
-; LoadStats : Loads stats from file
+; LoadContext : Loads Context from file
 ;*******************************************************************************
-LoadStats()
+LoadContext()
 {
-	global Stats
-	Stats := GetObjectFromJSON("data\stats.json")
-	if (Stats=="")
-		Stats := []
+	global Context
+	Stats := GetObjectFromJSON("data\context.json")
+	if (Context=="")
+		Context := []
+    
+    if (Context["Stats"] == "")
+        Context["Stats"] := []
+        
+    if (Context["KillTimes"] == "")
+        Context["KillTimes"] := []
+    
 }
 
 ;*******************************************************************************
-; LoadStats : Loads stats from file
+; SaveContext : Saves context to file
 ;*******************************************************************************
-SaveStats()
+SaveContext()
 {
-	global Stats
-	return SaveObjectToJSON(Stats, "data\stats.json")
+	global Context
+	return SaveObjectToJSON(Context, "data\context.json")
 }
 
 ;*******************************************************************************
@@ -1516,20 +1523,20 @@ SaveStats()
 ;*******************************************************************************
 AddStats(key, Amount)
 {
-    global Stats
-    if (Stats[key] == "")
-		Stats[key] := 0
+    global Context
+    if (Context.Stats[key] == "")
+		Context.Stats[key] := 0
 		
-	Stats[key] := Stats[key] + Amount
-    SaveStats()
+	Context.Stats[key] := Context.Stats[key] + Amount
+    SaveContext()
 }
-
 
 ;*******************************************************************************
 ; ResetStats : Adds soem amount to the given key stats
 ;*******************************************************************************
 ResetStats()
 {
-    FileDelete, "data\stats.json"
-    LoadStats()
+    global Context
+    Context.Stats := []
+    SaveContext())
 }

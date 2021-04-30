@@ -182,6 +182,8 @@ DoSequence(player)
     if LaunchNova()
     {	
 	
+        LoadContext()
+       
 		GetFleetPosition(1)
 		
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
@@ -218,6 +220,8 @@ DoSequence_Complete:
     }
     
     TheEnd:
+    SaveContext()
+    
 	SendDiscord(Format(":stop_button: Stopped Sequence for {1} ", player.name))
 	Fail := 1
     StopNova(Fail)
