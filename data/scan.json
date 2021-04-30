@@ -1,0 +1,51 @@
+{
+	"systems": {
+		"farmsystem1": {
+			"radius": 3
+		},
+		"farmsystem2": {
+			"radius": 5
+		},
+		"farmsystem3": {
+			"radius": 4
+		},
+		"farmsystem4": {
+			"radius": 5
+		},
+		"farmsystem5": {
+			"radius": 3
+		},
+		"farmsystem6": {
+			"radius": 4
+		},
+		"falom": {
+			"radius": 3
+		},
+		"utotia": {
+			"radius": 4
+		},
+		"zabi": {
+			"radius": 5
+		},
+		"korvus": {
+			"radius": 4
+		},
+		"hiela": {
+			"radius": 6
+		},
+		"Hchwassrann": {
+			"radius": 5
+		},
+		"Cumgunnia": {
+			"radius": 3
+		}
+	},
+	"levels": {
+		"station": 50,
+		"whale": 80,
+		"void": 80,
+		"elite": 80,
+		"pirate": 80,
+		"debris": 30
+	}
+}

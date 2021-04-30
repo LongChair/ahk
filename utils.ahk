@@ -1450,7 +1450,16 @@ GetObjectFromJSON(FileName)
 		return ""
 	
 	; parse the json string
-	return  JSON.Load(json_str)
+	try
+	{	
+		result := JSON.Load(json_str)
+	}
+	Catch e
+	{
+		LOG(Format("ERROR : failed to load file {1}, Reason {2}", FileName, e.message))
+	}
+	
+	return  result
 }
 
 ;*******************************************************************************

@@ -18,8 +18,8 @@
         { "name" : "REPEAT", 
           "count" : 100,
           "operations": [
-                { "name": "RESSOURCES", "count": 1},
-				{ "name": "WAIT", "count": 1, "value" : 300000 }
+                { "name": "RESSOURCES", "count": 1, "enable" : true},
+				{ "name": "WAIT", "count": 1, "value" : 300000, "enable": true  }
             ]
         }
      ]

@@ -18,24 +18,36 @@
 ;}
 
 
-Attack(params)
+global FleetPositions := ""
+
+Attack(params, x, y)
 {
     global WinCenterX, WinCenterY
-    
+	global FleetPositions
+	global AreaX1, AreaY1, AreaX2, AreaY2
+    	
     ; move to the pirate location
-    MapMoveToXY(params.location.x, params.location.y)
-    
-    ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), 80, "w1000 n1", FoundX, FoundY, 860, 470, 1020, 630))
+    MapMoveToXY(x, y)
+
+	; check if we don't have any yellow fleet in the area
+	if (NovaFindClick("targets\yellow.png", 50, "w100 n1", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2))
     {
-        LOG("ERROR : (attack) Could Not find the target, cancelling", 2)
+        LOG("ERROR : (attack) Will not attack, yellow fleet detected, cancelling", 2)
+        return 1
+    }
+
+
+    ; we look for the target and click it
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), 80, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
+    {
+        LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
         return 1
     }
 
     ; we validate the target
-    if (!NovaFindClick(Format("targets\validation\{1}.png", params.validation), 80, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540))
+    if (!NovaFindClick(Format("targets\validation\{1}.png", params.target), 80, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540))
     {
-        LOG("ERROR : (attack) Could Not validate the target, cancelling", 2)
+       LOG(Format("ERROR : (attack) Could Not validate the target for '{1}', cancelling",params.validation), 2)
         NovaEscapeMenu()
         return 1
     }
@@ -73,16 +85,44 @@ Attack(params)
     }
     
     ; now select fleets
-    if (!SelectFleets(params.fleets))
+	ret := SelectFleets(params.fleets)
+    if ( ret != 1)
+        return ret
+    
+	; check if we have to wait for idel fleets
+	if (param.wait)
+	{
+		
+			
+	}
+	
+	
+	; save the fleet position
+	for i, fleet in params.fleets
     {
-        return 0
-    }
-
+        switch fleet
+        {
+            case "all":
+				Loop, 6 
+				{
+					FleetPositions.fleet[i].x := x
+					FleetPositions.fleet[i].y := y
+				}
+                
+            default :
+				FleetPositions.fleet[fleet].x := x
+				FleetPositions.fleet[fleet].y := y
+		}
+	}
+	SaveFleetPositions()
+	
+	
     return 1
 }
 
 
 ; Select the fleets 
+; returns : 1 if success, 0 if failed, 2 if fleets was busy
 SelectFleets(Fleets)
 {
     for i, fleet in Fleets
@@ -106,7 +146,8 @@ SelectFleets(Fleets)
 					{
 
 						LOG(Format("INFO : (select) Fleet {1} is not idle, skipping ...", fleet))
-                        return 1
+						NovaEscapeClick()
+                        return 2
 					}
 				}
 
@@ -122,4 +163,25 @@ SelectFleets(Fleets)
     }
 
     return 1
+}
+
+; get fleet position
+GetFleetPosition(index)
+{
+	global FleetPositions
+	
+			; load from File
+	if (FleetPositions == "")
+		FleetPositions := GetObjectFromJSON("data\fleets.json")
+	
+	if index is integer
+		return FleetPositions.fleet[index]
+	Else
+		return FleetPositions.fleet[1]
+}
+
+SaveFleetPositions()
+{
+	global FleetPositions
+	SaveObjectToJSON(FleetPositions, "data\fleets.json")
 }

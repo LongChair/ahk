@@ -53,6 +53,7 @@ CheckFreeResources()
             return 0
         }
 		
+		Sleep, 1000
 		NovaEscapeClick()
 	 
         ; reset all stats counters
@@ -83,7 +84,6 @@ CheckFreeResources()
 		}
     	
 		Log("Collecting free resources ... YEAH!", 1)
-		SendDiscord(":candy: Collected free ressource.")
 		
 	    ; look for the grab button
         Log("Clicking on grab button...")
@@ -100,12 +100,18 @@ CheckFreeResources()
         {
             Log("ERROR : Failed to click the reward button for free resources, could be that we got them all ?", 2)
         }
+		Else
+		{
+			SendDiscord(":candy: Collected free ressource.")
+		}
                 
         if (!WaitNovaScreen("STATION", 1))
         {
             Log("ERROR : Timeout waiting for station screen, stopping", 2)
             return 0
         }
+		
+	
     }
 	Else
     {

@@ -1,0 +1,110 @@
+﻿{
+	"PossibleModes": [
+		"RESSOURCES",
+		"BUILD",
+		"FARMING_ELITES_V2",
+		"FARMING_KRAKEN_V2",
+		"FARMING_MULTI_1",
+		"FARMING_MULTI_2",
+		"FARMING_MULTI_3",
+		"WHALE_ASSIST",
+		"FARMING_WHALES",
+		"NOTIFY",
+		"WAIT"
+	],
+	"operations": [
+		{
+			"name": "REPEAT",
+			"count": 1000,
+			"enable": true,
+			"operations": [
+				{
+					"name": "RESSOURCES",
+					"count": 1,
+					"enable": true
+				},
+				{
+					"name": "FARM",
+					"comment": "farm pirates and collect debris in farmsysteml",
+					"count": 1,
+					"enable": true,
+					"favorite": 1,
+					"system": "farmsystem1",
+					"scan": {
+						"targets": [
+							"pirate",
+							"debris"
+						]
+					},
+					"attacks": [
+						{
+							"approach": false,
+							"wait": false,
+							"fleets": [
+								1
+							],
+							"target": "pirate"
+						},
+						{
+							"approach": false,
+							"wait": false,
+							"fleets": [
+								2
+							],
+							"target": "pirate"
+						}
+					],
+					"collections": [
+						{
+							"target": "debris"
+						},
+						{
+							"target": "debris"
+						},
+						{
+							"target": "debris"
+						},
+						{
+							"target": "debris"
+						},
+						{
+							"target": "debris"
+						},
+						{
+							"target": "debris"
+						}
+					]
+				},
+				{
+					"name": "FARM",
+					"comment": "farm elites in farmsystem1",
+					"count": 1,
+					"enable": true,
+					"favorite": 1,
+					"system": "farmsystem1",
+					"scan": {
+						"targets": [
+							"elite"
+						]
+					},
+					"attacks": [
+						{
+							"approach": false,
+							"wait": false,
+							"fleets": [
+								"all"
+							],
+							"target": "elite"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "NOTIFY",
+			"count": 1,
+			"enable": true,
+			"message": ":information_source: Farming sequence completed."
+		}
+	]
+}

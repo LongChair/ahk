@@ -11,18 +11,6 @@ global AreaY2 := 980
 global ScanResult := []
 global ScanType := ""
 
-json_str = 
-(
-{
-    "whales": 1,
-    "voids": 1,
-    "pirates": 0
-}
-)
-
-options := JSON.Load(json_str)
-Res := Scan("falom", options)
-SaveObjectToJSON(Res, "out.json")
 
 ;*******************************************************************************
 ; Scan : Scans the given system name
@@ -35,15 +23,17 @@ Scan(systemname, options)
 {
     global AreaX1, AreaY1, AreaX2, AreaY2
     global ScanType
+	global MapPosX, MapPosY
+	
     
-    systems := GetObjectFromJSON("data\systems.json")
-    if (systems == "")
+    scan := GetObjectFromJSON("data\scan.json")
+    if (scan == "")
     {
-        LOG("ERROR : (scan) Could Not load systems.json, cancelling", 2)
+        LOG("ERROR : (scan) Could Not load scan.json, cancelling", 2)
         return 0
     }
     
-    SystemWidth  := systems[systemname].radius * 1000
+    SystemWidth  := 2*(590 + (scan.systems[systemname].radius-1) * 260)
     SystemHeight := SystemWidth
     
     MapStepX := 1000
@@ -54,14 +44,31 @@ Scan(systemname, options)
 	LoopY := (SystemHeight / MapStepY) + 1 
     LoopX := (SystemWidth / MapStepX) + 1 
     
-    
+    MapPosX := 0
+	MapPosY := 0
+		
     ; setup the scan results
+	ScanResult := LoadScan(systemname)
+	
+	if ((ScanResult["timestamp"] is time) AND (A_Now - ScanResult["timestamp"] < (10 * 60)))
+	{
+		for i, key in options.targets
+			if (ScanResult[key].Length() == 0)
+			{
+				LOG("Can't reuse last scan, it's empty.")
+				Goto Scan_DoScan
+			}
+				
+		LOG("Reusing last scan.")
+		return ScanResult
+	}
+	
+	Scan_DoScan:
     ScanResult := []
     
-    for key, val in options
-        if (val)
-            ScanResult[key] := []
-    
+    for i, key in options.targets
+		ScanResult[key] := []
+   	
     ; Scan the ressources on the map and fill the ressources array
 	; Loop Y
 	Loop, % LoopY
@@ -71,13 +78,10 @@ Scan(systemname, options)
 		{
 			MapMoveToXY(CurrentX, CurrentY)
 
-            for key, val in options
+            for i, key in options.targets
             {
-                if (val)
-                {
-                    ScanType := type
-                    NovaFindClick(Format("target\{1}.png", ScanType), 80, "e n0 FuncHandleScan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)          
-                }
+				ScanType := key
+				NovaFindClick(Format("targets\{1}.png", ScanType), scan.levels[key], "e n0 FuncHandle_Scan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)          
             }
 			
 			CurrentX := CurrentX + MapStepX
@@ -89,14 +93,27 @@ Scan(systemname, options)
 		CurrentY := CurrentY - MapStepY
 	}
 	
+	
+	; totals display
+	Summuary := ""
+	for i, key in options.targets
+		Summuary .= Format("{1}:{2} ", key, ScanResult[key].Length())
+		
+	Log(Format("Scan summuary : {1}", Summuary))
+	
+	ScanResult["system"] := systemname
+	ScanResult["timestamp"] := A_Now
+
+	SaveScan(ScanResult)
+	
     return ScanResult.Clone()
 }
 
 ;*******************************************************************************
-; HandleScan : Handle the collection of a single ressource
+; Handle_Scan : Handle the collection of a single ressource
 ; ResX, ResY : Window coordinate of the location of the resource
 ;*******************************************************************************
-HandleScan(ResX, ResY)
+Handle_Scan(ResX, ResY)
 {
 	global MainWinX, MainWinY
     global MainWinW, MainWinH
@@ -106,6 +123,15 @@ HandleScan(ResX, ResY)
 	ResX := (ResX - MainWinX - WinBorderX - (MainWinW / 2)) + MapPosX 
 	ResY := MapPosY - (ResY - MainWinY - WinBorderY - (MainWinH / 2))
 	
+	; check if it's not a dupplicate
+	MaxDist := 25
+	for i, res in ScanResult[ScanType]
+	{
+		if (Abs(ResX - res.x) < MaxDist) AND (Abs(ResY - res.y) < MaxDist)
+		{
+			return
+		}
+	}
 	
     index:= ScanResult[ScanType].Length() + 1
     ScanResult[ScanType][index] :=[]
@@ -113,4 +139,51 @@ HandleScan(ResX, ResY)
     ScanResult[ScanType][index].y := ResY
     
     Log(Format("Found a '{3}' at ({1:i},{2:i}), Total={4}", ResX, ResY, ScanType, ScanResult[ScanType].Length()))
+}
+
+;*******************************************************************************
+; PeekClosestRes : will peeks the closest ressource from the list to
+; the given position
+;*******************************************************************************
+PeekClosestTarget(ByRef List, X, Y)
+{
+	FoundIndex := 0
+	CurrentRes := 1
+	MinDist := 99999999999999
+	
+	for i, target in List
+	{
+		DX := target.x - X
+		DY := target.y - Y
+		
+		Dist := sqrt(DX*DX + DY*DY)
+		
+		
+		if ((Dist < MinDist))
+		{
+			MinDist := Dist
+			FoundIndex := i
+		}
+		
+	}
+	
+	; remove ressource and return it
+	if (FoundIndex> 0)
+	{
+		item := List[FoundIndex]
+		List.RemoveAt(FoundIndex)
+		return item
+	}
+	Else
+		return ""
+}
+
+SaveScan(scan)
+{
+	return SaveObjectToJSON(scan, Format("data\scans\{1}.json", scan["system"]))	
+}
+
+LoadScan(systemname)
+{
+	return GetObjectFromJSON(Format("data\scans\{1}.json", systemname))
 }
