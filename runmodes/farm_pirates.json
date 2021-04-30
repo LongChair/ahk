@@ -15,24 +15,18 @@
 	"operations": [
 		{
 			"name": "REPEAT",
-			"count": 20,
-			"enable": true,
+			"count": 200,
 			"operations": [
 				{
-					"name": "RESSOURCES",
-					"count": 1,
-					"enable": true
+					"name": "RESSOURCES"
 				},
 				{
 					"name": "REPEAT",
-					"count": 50,
-					"enable": true,
-					"operations": [
+					"count": 10,
+					"operations": [					
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsysteml",
-							"count": 1,
-							"enable": true,
 							"favorite": 1,
 							"system": "falom",
 							"scan": {
@@ -42,16 +36,12 @@
 							},
 							"attacks": [
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										1
 									],
 									"target": "pirate"
 								},
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										6
 									],
@@ -63,8 +53,6 @@
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem2",
-							"count": 1,
-							"enable": true,
 							"favorite": 2,
 							"system": "korvus",
 							"scan": {
@@ -74,8 +62,6 @@
 							},
 							"attacks": [
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										2
 									],
@@ -87,8 +73,6 @@
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem3",
-							"count": 1,
-							"enable": true,
 							"favorite": 3,
 							"system": "hiela",
 							"scan": {
@@ -98,8 +82,6 @@
 							},
 							"attacks": [
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										3
 									],
@@ -111,8 +93,6 @@
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem4",
-							"count": 1,
-							"enable": true,
 							"favorite": 4,
 							"system": "Hchwassrann",
 							"scan": {
@@ -122,8 +102,6 @@
 							},
 							"attacks": [
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										4
 									],
@@ -135,8 +113,6 @@
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem5",
-							"count": 1,
-							"enable": true,
 							"favorite": 5,
 							"system": "Cumgunnia",
 							"scan": {
@@ -146,8 +122,6 @@
 							},
 							"attacks": [
 								{
-									"approach": false,
-									"wait": false,
 									"fleets": [
 										5
 									],
@@ -160,16 +134,13 @@
 				},
 				{
 					"name": "NOTIFY",
-					"count": 1,
-					"enable": true,
-					"message": ":information_source: Farming loop completed."
+					"message": ":information_source: Farming loop completed, ({1} killed.)",
+					"param1": "kill.pirate"
 				}
 			]
 		},
 		{
 			"name": "NOTIFY",
-			"count": 1,
-			"enable": true,
 			"message": ":information_source: Farming sequence completed."
 		}
 	]

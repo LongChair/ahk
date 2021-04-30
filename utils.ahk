@@ -1480,3 +1480,33 @@ SaveObjectToJSON(Object, FileName)
 		return 1
 }
 
+;*******************************************************************************
+; GetObjectProperty : Get an object property or retruns defult value if doesn't exist
+;*******************************************************************************
+GetObjectProperty(object, Property, default)
+{
+	if (object.HasKey(Property))
+		return object[Property]
+	else
+		return default
+}
+
+;*******************************************************************************
+; LoadStats : Loads stats from file
+;*******************************************************************************
+LoadStats()
+{
+	global Stats
+	Stats := GetObjectFromJSON("data\stats.json")
+	if (Stats=="")
+		Stats := []
+}
+
+;*******************************************************************************
+; LoadStats : Loads stats from file
+;*******************************************************************************
+SaveStats()
+{
+	global Stats
+	return SaveObjectToJSON(Stats, "data\stats.json")
+}

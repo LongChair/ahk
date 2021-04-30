@@ -25,6 +25,7 @@ Attack(params, x, y)
     global WinCenterX, WinCenterY
 	global FleetPositions
 	global AreaX1, AreaY1, AreaX2, AreaY2
+	global Stats
     	
     ; move to the pirate location
     MapMoveToXY(x, y)
@@ -52,7 +53,7 @@ Attack(params, x, y)
         return 1
     }
     
-    if (params.approach)
+    if (GetObjectProperty(params, "approach", false))
     {
         NovaEscapeMenu()
            
@@ -90,7 +91,7 @@ Attack(params, x, y)
         return ret
     
 	; check if we have to wait for idel fleets
-	if (param.wait)
+	if (GetObjectProperty(params, "wait", false))
 	{
 		
 			
@@ -116,7 +117,12 @@ Attack(params, x, y)
 	}
 	SaveFleetPositions()
 	
-	
+	key := Format("kill.{1}", params.target)
+	if (Stats[key] =="")
+		Stats[key] := 0
+		
+	Stats[key] := Stats[key] + 1
+	SaveStats()
     return 1
 }
 

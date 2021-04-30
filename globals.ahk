@@ -122,3 +122,5 @@ global EndM := 0
 
 global DiscordWebhooKURL
 
+global Stats := []
+

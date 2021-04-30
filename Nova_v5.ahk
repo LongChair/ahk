@@ -34,15 +34,9 @@ Loop
 	global NovaConfig
 	global PlayerName
 	
-	
-;	Date1 := "20210425115500"
-;	Date2 := A_Now
-;	Date3 := A_Now - Date1
-;	Date4 := A_Now + "00000000020000"
 	; global Nova config file
 	NovaPath =  %A_ScriptDir%\nova.json
 	PastebinPath =  %A_ScriptDir%\pastebin.json
-    
 
 	NovaConfig := GetObjectFromJSON(NovaPath)
 	if (NovaConfig == "") 
@@ -66,6 +60,7 @@ Loop
 		return
 	}
 
+	LoadStats()
 	
 	For i, player in NovaConfig.GENERAL.Players
 	{
@@ -596,16 +591,17 @@ ProcessOperations(ops)
 {
     For i,op in ops
     {
+		Count := GetObjectProperty(op, "count", 1)
         if (op.name=="REPEAT")
         {
-            Loop, % op.count
+            Loop, % Count
             {
                 if (!ProcessOperations(op.operations))
                     return 0
             }
         }
         else
-          Loop, % op.count
+          Loop, % Count
           {
               if (!DoOperation(op))
                     return 0
@@ -620,7 +616,9 @@ ProcessOperations(ops)
 ;*******************************************************************************
 DoOperation(op)
 {
-	if (!op.enable)
+	global Stats
+	
+	if (!GetObjectProperty(op, "enable", true))
 		return 1
 		
     Switch op.name
@@ -686,7 +684,7 @@ DoOperation(op)
             }
             
         case "NOTIFY" :
-           SendDiscord(op.message)
+           SendDiscord(Format(op.message, Stats[op.param1], Stats[op.param2], Stats[op.param3]))
 		   
 		case "WAIT" :
            Sleep, op.value
