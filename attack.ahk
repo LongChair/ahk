@@ -18,14 +18,13 @@
 ;}
 
 
-global FleetPositions := ""
 
 Attack(params, x, y)
 {
     global WinCenterX, WinCenterY
 	global FleetPositions
 	global AreaX1, AreaY1, AreaX2, AreaY2
-	global Stats
+	global Stats, attack_time
     	
     ; move to the pirate location
     MapMoveToXY(x, y)
@@ -97,7 +96,6 @@ Attack(params, x, y)
 			
 	}
 	
-	
 	; save the fleet position
 	for i, fleet in params.fleets
     {
@@ -120,6 +118,13 @@ Attack(params, x, y)
     ; Increments the target counter and saves the stats file
 	key := Format("kill.{1}", params.target)
 	AddStats(key, 1)
+    
+    ; saves the last attack time for that type
+    attack_time := GetObjectFromJSON("data\attack_time.json")
+    if (attack_time == "")
+        attack_time := []
+    attack_time[params.target] := A_Now
+    SaveObjectToJSON(attack_time, "data\attack_time.json")
     
     return 1
 }

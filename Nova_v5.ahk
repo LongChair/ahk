@@ -618,7 +618,7 @@ DoOperation(op)
 {
 	global Stats
 	
-	if (!GetObjectProperty(op, "enable", true))
+	if (!IsActive(op))
 		return 1
 		
     Switch op.name
@@ -710,6 +710,8 @@ DoOperation(op)
 
 farm(op)
 {
+    global attack_time
+    
 	; first got to favorite
 	Log(Format("Going to favorite {1}...", op.favorite))
 	if (!GoToFavorite(op.favorite))
@@ -747,7 +749,9 @@ farm(op)
 			}
 			
 			if (ret == 1)
-				Log("Attack completed.")
+            {
+				Log("Attack completed.")                
+            }
 			Else
 			{
 				; put back target in the list
@@ -764,28 +768,59 @@ Farm_Collect:
 	; proceed with collection
 	for i, collect in op.collections
 	{
-		target := PeekClosestTarget(Targets[collect.target], 0, 0)
-		
-		if (target =="")
-		{
-			Log(Format("no more targets '{1}' found.", collect.target))
-			return 1
-		}
-		Else
-		{
-			Log(Format("Collecting {1} at ({2}, {3}) ...", collect.target, target.x, target.y))
-			
-			if (!collect(collect, target.x, target.y))
-			{
-				Log("ERROR : (collect) failed to complete collection. exiting", 2)
-				return 0	
-			}
-			
-			Log("Collection completed.")
-		}
+        if ((A_now - attack_time[collect.source]) < (20 * 60))
+        {
+            target := PeekClosestTarget(Targets[collect.target], 0, 0)
+            
+            if (target =="")
+            {
+                Log(Format("no more targets '{1}' found.", collect.target))
+                return 1
+            }
+            Else
+            {
+                Log(Format("Collecting {1} at ({2}, {3}) ...", collect.target, target.x, target.y))
+                
+                if (!collect(collect, target.x, target.y))
+                {
+                    Log("ERROR : (collect) failed to complete collection. exiting", 2)
+                    return 0	
+                }
+                
+                Log("Collection completed.")
+            }
+        }
+        else
+        {
+            Log(Format("Not Collecting '{1}', last attack time is too old!", collect.target))
+        }
 	}
 	
 	return 1
+}
+
+
+;*******************************************************************************
+; IsActive : Will tell if an opération is active
+;*******************************************************************************
+IsActive(op)
+{
+    if (!GetObjectProperty(op, "enable", true))
+        return false
+    
+    if (!op.HasKey["time"])
+        return true
+        
+    for i, t in op.time
+    {
+        DT1 := format("{1}{2}{3}{4}", A_YYYY, A_MM, A_DD, t.start)
+        DT2 := format("{1}{2}{3}{4}", A_YYYY, A_MM, A_DD, t.end)
+        
+        if ((A_now >= DT1) AND (A_Now <= DT2))
+            return true
+    }
+    
+    return false
 }
 
 ; test() : just a test function

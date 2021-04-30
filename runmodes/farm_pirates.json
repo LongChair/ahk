@@ -23,7 +23,7 @@
 				{
 					"name": "REPEAT",
 					"count": 10,
-					"operations": [					
+					"operations": [
 						{
 							"name": "FARM",
 							"comment": "farm pirates in farmsysteml",
