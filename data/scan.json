@@ -38,12 +38,18 @@
 		},
 		"Cumgunnia": {
 			"radius": 3
+		},
+		"parason": {
+			"radius": 3
+		},
+		"Oritan": {
+			"radius": 4
 		}
 	},
 	"levels": {
 		"station": 50,
 		"whale": 80,
-		"void": 80,
+		"void": 70,
 		"elite": 80,
 		"pirate": 80,
 		"debris": 30

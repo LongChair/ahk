@@ -318,6 +318,14 @@ Whale_Farming()
 			goto Whale_Farming_End
 		}
 			
+		; check if we don't have any yellow fleet in the area
+		if (NovaFindClick("targets\yellow.png", 50, "w100 n1", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2))
+		{
+			LOG("ERROR : (attack) Will not attack, yellow fleet detected, cancelling", 2)
+			return 1
+		}
+
+
 		; attack the whale
 		if (!NovaFindClick("buttons\group_attack.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
 		{

@@ -1497,7 +1497,7 @@ GetObjectProperty(object, Property, default)
 LoadContext()
 {
 	global Context
-	Stats := GetObjectFromJSON("data\context.json")
+	Context := GetObjectFromJSON("data\context.json")
 	if (Context=="")
 		Context := []
     
@@ -1506,6 +1506,19 @@ LoadContext()
         
     if (Context["KillTimes"] == "")
         Context["KillTimes"] := []
+
+    if (Context["FleetPositions"] == "")
+	{
+		Context["FleetPositions"] := []
+		
+		Loop, 6
+		{
+			Context.FleetPositions[A_Index] := {}
+			Context.FleetPositions[A_Index].x := 0
+			Context.FleetPositions[A_Index].y := 0
+		}
+	}
+        
     
 }
 
@@ -1538,5 +1551,5 @@ ResetStats()
 {
     global Context
     Context.Stats := []
-    SaveContext())
+    SaveContext()
 }

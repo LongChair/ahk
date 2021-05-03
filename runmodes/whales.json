@@ -28,11 +28,11 @@
 							"name": "FARM",
 							"comment": "farm whales",
 							"favorite": 1,
-							"system": "falom",
+							"system": "Oritan",
 							"time": [
 								{
 									"start": "000000",
-									"end": "060000"
+									"end": "235959"
 								},
 								{
 									"start": "230000",
@@ -40,13 +40,16 @@
 								}
 							],
 							"scan": {
+								"reuse" : false,
 								"targets": [
 									"whale",
-									"voids"
+									"void"
 								]
 							},
-							"attacks": [
+							"attacks": [					
 								{
+									"wait" : 60,
+									"recall": true,
 									"fleets": [
 										"all"
 									],
@@ -55,17 +58,30 @@
 							],
 							"collections": [
 								{
-									"source": "whale"
+									"source": "whale",
+									"target": "void"
+								},
+								{
+									"source": "whale",
+									"target": "void"
+								},
+								{
+									"source": "whale",
 									"target": "void"
 								}
 							]
+						},
+						{
+							"name" : "WAIT",
+							"value" : 20000
 						}
 					]
 				},
 				{
 					"name": "NOTIFY",
-					"message": ":information_source: Farming whale loop completed, ({1} killed.)",
-					"param1": "kill.whale"
+					"message": ":information_source: Farming whale loop completed, ({1} killed, {2} voids collected.)",
+					"param1": "kill.whale",
+					"param2": "collect.void"
 				}
 			]
 		}

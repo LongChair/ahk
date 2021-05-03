@@ -22,15 +22,22 @@
 Attack(params, x, y)
 {
     global WinCenterX, WinCenterY
-	global FleetPositions
 	global AreaX1, AreaY1, AreaX2, AreaY2
 	global Context
     	
     ; move to the pirate location
     MapMoveToXY(x, y)
 
+	; Wait before attacking eventually
+	WaitSec := GetObjectProperty(params, "wait", 0)
+	if (WaitSec)
+	{
+		LOG(Format("Waiting {1} seconds before attacking....", WaitSec))
+		Sleep, WaitSec*1000
+	}
+	
 	; check if we don't have any yellow fleet in the area
-	if (NovaFindClick("targets\yellow.png", 50, "w100 n1", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2))
+	if (NovaFindClick("targets\yellow.png", 50, "w100 n0", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2))
     {
         LOG("ERROR : (attack) Will not attack, yellow fleet detected, cancelling", 2)
         return 1
@@ -38,16 +45,16 @@ Attack(params, x, y)
 
 
     ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), 80, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), 90, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
         LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
         return 1
     }
 
     ; we validate the target
-    if (!NovaFindClick(Format("targets\validation\{1}.png", params.target), 80, "w1000 n0", FoundX, FoundY, 600, 470, 790, 540))
+    if (!NovaFindClick(Format("targets\validation\{1}.png", params.target), 80, "w2000 n0", FoundX, FoundY, 600, 470, 790, 540))
     {
-       LOG(Format("ERROR : (attack) Could Not validate the target for '{1}', cancelling",params.validation), 2)
+       LOG(Format("ERROR : (attack) Could Not validate the target for '{1}', cancelling", params.target), 2)
         NovaEscapeMenu()
         return 1
     }
@@ -104,17 +111,16 @@ Attack(params, x, y)
             case "all":
 				Loop, 6 
 				{
-					FleetPositions.fleet[i].x := x
-					FleetPositions.fleet[i].y := y
+					Context.FleetPositions[i].x := x
+					Context.FleetPositions[i].y := y
 				}
                 
             default :
-				FleetPositions.fleet[fleet].x := x
-				FleetPositions.fleet[fleet].y := y
+				Context.FleetPositions[fleet].x := x
+				Context.FleetPositions[fleet].y := y
 		}
 	}
-	SaveFleetPositions()
-
+	
     ; saves the last attack time for that type
     Context.killtimes[params.target] := A_Now
 
@@ -122,8 +128,22 @@ Attack(params, x, y)
     ; Increments the target counter and saves the stats file
 	key := Format("kill.{1}", params.target)
 	AddStats(key, 1)    
-    SaveContext()
-    
+
+	recall := GetObjectProperty(params, "recall", false)
+	if (recall)
+	{
+		Log("Waiting for fleets to be idle...")
+		if (!WaitForFleetsIdle(300))
+		{
+			LOG("ERROR : while waiting for fleets to be idle", 2)
+			return 0
+		}
+		
+		Log("Recalling fleets...")
+		; recall the fleets
+		RecallAllFleets()
+	}
+	
     return 1
 }
 
@@ -170,25 +190,4 @@ SelectFleets(Fleets)
     }
 
     return 1
-}
-
-; get fleet position
-GetFleetPosition(index)
-{
-	global FleetPositions
-	
-			; load from File
-	if (FleetPositions == "")
-		FleetPositions := GetObjectFromJSON("data\fleets.json")
-	
-	if index is integer
-		return FleetPositions.fleet[index]
-	Else
-		return FleetPositions.fleet[1]
-}
-
-SaveFleetPositions()
-{
-	global FleetPositions
-	SaveObjectToJSON(FleetPositions, "data\fleets.json")
 }

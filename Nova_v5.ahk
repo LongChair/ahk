@@ -60,7 +60,6 @@ Loop
 		return
 	}
 
-	LoadStats()
 	
 	For i, player in NovaConfig.GENERAL.Players
 	{
@@ -183,9 +182,7 @@ DoSequence(player)
     {	
 	
         LoadContext()
-       
-		GetFleetPosition(1)
-		
+      
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
 		       
 	   config := GetObjectFromJSON("runmodes\" . PlayerConfig.GENERAL.runmode . ".json")
@@ -577,7 +574,8 @@ StopNova(CloseBluestacks := 1)
 	Else
 	{
 		Log("Closing Nova Empire...")
-		while (NovafindClick("Buttons\close_nova.png", 50, "w100 n1", FoundX, FoundY, 0, 0, 600, 50))
+		while (NovafindClick("Buttons\close_nova.png", 50, "w100 n1", FoundX, FoundY, 0, 0, 1200, 50) 
+		OR NovafindClick("Buttons\close_nova_alt.png", 50, "w100 n1", FoundX, FoundY, 0, 0, 1200, 50))
 		{
 			NovaLeftMouseClick(FoundX +50, FoundY)
 			sleep, 1000
@@ -620,7 +618,7 @@ ProcessOperations(ops)
 ;*******************************************************************************
 DoOperation(op)
 {
-	global Stats
+	global Context
 	
 	if (!IsActive(op))
 		return 1
@@ -641,44 +639,44 @@ DoOperation(op)
                 return 0
             }
                                 
-        case "FARMING_ELITES_V2" :
-            if (!FarmElites_v2(1, 1))
-            {
-                Log ("ERROR : Failed to farm Elites !", 2)
-                return 0
-            }
-            
-        case "FARMING_KRAKEN_V2" :
-            if (!FarmElites_v2(1, 2))
-            {
-                Log ("ERROR : Failed to farm Krakens !", 2)
-                return 0
-            }
-            
-        case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
+        ;case "FARMING_ELITES_V2" :
+            ;if (!FarmElites_v2(1, 1))
+            ;{
+                ;Log ("ERROR : Failed to farm Elites !", 2)
+                ;return 0
+            ;}
+            ;
+        ;case "FARMING_KRAKEN_V2" :
+            ;if (!FarmElites_v2(1, 2))
+            ;{
+                ;Log ("ERROR : Failed to farm Krakens !", 2)
+                ;return 0
+            ;}
+            ;
+        ;case "FARMING_MULTI_1", "FARMING_MULTI_2" , "FARMING_MULTI_3":
 
-            switch op.name
-            {
-                case "FARMING_MULTI_1":                 
-                    FleetsSpan := Object( 1, 6)
-                case "FARMING_MULTI_2":
-                    FleetsSpan := Object( 1, 3, 4, 6)
-                default:
-                    FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
-            }
+            ;switch op.name
+            ;{
+                ;case "FARMING_MULTI_1":                 
+                    ;FleetsSpan := Object( 1, 6)
+                ;case "FARMING_MULTI_2":
+                    ;FleetsSpan := Object( 1, 3, 4, 6)
+                ;default:
+                    ;FleetsSpan := Object( 1, 2, 3, 4, 5, 6)
+            ;}
 
-            if (!FarmPirates_v2(FleetsSpan))
-            {
-                Log ("ERROR : Failed to farm pirates !", 2)
-                return 0
-            }
-            
-        case "WHALE_ASSIST" :
-            if (!Whale_Assist())
-            {
-                Log ("ERROR : Failed assist on whales !", 2)
-                return 0
-            }                    
+            ;if (!FarmPirates_v2(FleetsSpan))
+            ;{
+                ;Log ("ERROR : Failed to farm pirates !", 2)
+                ;return 0
+            ;}
+            ;
+        ;case "WHALE_ASSIST" :
+            ;if (!Whale_Assist())
+            ;{
+                ;Log ("ERROR : Failed assist on whales !", 2)
+                ;return 0
+            ;}                    
             
         case "FARMING_WHALES" :
             if (!Whale_Farming())
@@ -688,7 +686,7 @@ DoOperation(op)
             }
             
         case "NOTIFY" :
-           SendDiscord(Format(op.message, Stats[op.param1], Stats[op.param2], Stats[op.param3]))
+           SendDiscord(Format(op.message, Context.Stats[op.param1], Context.Stats[op.param2], Context.Stats[op.param3]))
 		   
 		case "WAIT" :
            Sleep, op.value
@@ -714,7 +712,7 @@ DoOperation(op)
 
 farm(op)
 {
-    global attack_time
+    global Context
     
 	; first got to favorite
 	Log(Format("Going to favorite {1}...", op.favorite))
@@ -728,11 +726,12 @@ farm(op)
 	Log(Format("Scanning system '{1}'...", op.system))
 	Targets := Scan(op.system, op.scan)
 	
+	
 	; proceed with attacks
 	for i, attack in op.attacks
 	{
 		; get the current first fleet position
-		Pos := GetFleetPosition(attack.fleets[1])
+		Pos := Context.FleetPositions(attack.fleets[1])
 		
 		target := PeekClosestTarget(Targets[attack.target], Pos.x, Pos.y)
 		
@@ -772,32 +771,34 @@ Farm_Collect:
 	; proceed with collection
 	for i, collect in op.collections
 	{
-        if ((A_now - attack_time[collect.source]) < (20 * 60))
-        {
-            target := PeekClosestTarget(Targets[collect.target], 0, 0)
-            
-            if (target =="")
-            {
-                Log(Format("no more targets '{1}' found.", collect.target))
-                return 1
-            }
-            Else
-            {
-                Log(Format("Collecting {1} at ({2}, {3}) ...", collect.target, target.x, target.y))
-                
-                if (!collect(collect, target.x, target.y))
-                {
-                    Log("ERROR : (collect) failed to complete collection. exiting", 2)
-                    return 0	
-                }
-                
-                Log("Collection completed.")
-            }
-        }
-        else
-        {
-            Log(Format("Not Collecting '{1}', last attack time is too old!", collect.target))
-        }
+        
+		target := PeekClosestTarget(Targets[collect.target], 0, 0)
+		
+		if (target =="")
+		{
+			Log(Format("no more targets '{1}' found.", collect.target))
+			return 1
+		}
+		Else
+		{
+			if ((A_now - Context.killtimes[collect.source]) < (20 * 60))
+			{
+				Log(Format("Collecting {1} at ({2}, {3}) ...", collect.target, target.x, target.y))
+				
+				if (!collect(collect, target.x, target.y))
+				{
+					Log("ERROR : (collect) failed to complete collection. exiting", 2)
+					return 0	
+				}
+				
+				Log("Collection completed.")
+			}
+			else
+			{
+				Log(Format("Not Collecting '{1}', last attack time is too old!", collect.target))
+			}				
+		}
+
 	}
 	
 	return 1
@@ -812,7 +813,7 @@ IsActive(op)
     if (!GetObjectProperty(op, "enable", true))
         return false
     
-    if (!op.HasKey["time"])
+    if (!op.time.Length())
         return true
         
     for i, t in op.time

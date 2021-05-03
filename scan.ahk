@@ -48,19 +48,24 @@ Scan(systemname, options)
 	MapPosY := 0
 		
     ; setup the scan results
-	ScanResult := LoadScan(systemname)
+	reuse := GetObjectProperty(options, "reuse", true)
 	
-	if ((ScanResult["timestamp"] is time) AND (A_Now - ScanResult["timestamp"] < (10 * 60)))
+	if (reuse)
 	{
-		for i, key in options.targets
-			if (ScanResult[key].Length() == 0)
-			{
-				LOG("Can't reuse last scan, it's empty.")
-				Goto Scan_DoScan
-			}
-				
-		LOG("Reusing last scan.")
-		return ScanResult
+		ScanResult := LoadScan(systemname)
+		
+		if ((ScanResult["timestamp"] is time) AND (A_Now - ScanResult["timestamp"] < (10 * 60)))
+		{
+			for i, key in options.targets
+				if (ScanResult[key].Length() == 0)
+				{
+					LOG("Can't reuse last scan, it's empty.")
+					Goto Scan_DoScan
+				}
+					
+			LOG("Reusing last scan.")
+			return ScanResult
+		}
 	}
 	
 	Scan_DoScan:

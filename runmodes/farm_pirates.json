@@ -54,7 +54,7 @@
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem2",
 							"favorite": 2,
-							"system": "korvus",
+							"system": "Hchwassrann",
 							"scan": {
 								"targets": [
 									"pirate"
@@ -94,7 +94,7 @@
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem4",
 							"favorite": 4,
-							"system": "Hchwassrann",
+							"system": "Cumgunnia",
 							"scan": {
 								"targets": [
 									"pirate"
@@ -114,7 +114,7 @@
 							"name": "FARM",
 							"comment": "farm pirates in farmsystem5",
 							"favorite": 5,
-							"system": "Cumgunnia",
+							"system": "parason",
 							"scan": {
 								"targets": [
 									"pirate"
