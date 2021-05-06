@@ -53,7 +53,6 @@ Loop
 		LOG("Using existing file.")
 	}
 	
-
 	PasteBinConfig := GetObjectFromJSON(PastebinPath)
 	if (PasteBinConfig == "") 
 	{

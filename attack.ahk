@@ -46,7 +46,6 @@ Attack(params, x, y)
         return 1
     }
 
-
     ; we look for the target and click it
     if (!NovaFindClick(Format("targets\{1}.png", params.target), 90, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
@@ -197,15 +196,16 @@ SelectFleets(Fleets)
     return 1
 }
 
-
 ; OnStartAttack : called when entering the attack
 OnStartAttack(params)
 {
 	switch params.target
 	{
 		case "whale":
-			FormatTime NextTime, A_Now + 45*60, HH:mm
-			SendDiscord(Format(":whale: We found a whale! (Next one at ~{1})", NextTime))
+			NextTime := A_Now
+			NextTime += 45, Minutes
+			FormatTime, TimeString, %NextTime%, HH:mm
+			SendDiscord(Format(":whale: We found a whale! (Next one at ~{1})", TimeString))
 	}
 }
 
