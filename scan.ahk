@@ -33,16 +33,30 @@ Scan(systemname, options)
         return 0
     }
     
-    SystemWidth  := 2*(590 + (scan.systems[systemname].radius-1) * 260)
-    SystemHeight := SystemWidth
-    
     MapStepX := 1000
-    MapStepY := 600
-    
-    CurrentX := -(SystemWidth / 2)
-    CurrentY :=  (SystemHeight / 2)
-	LoopY := (SystemHeight / MapStepY) + 1 
-    LoopX := (SystemWidth / MapStepX) + 1 
+    MapStepY := 600    
+        
+    if (1)
+    {
+        SystemWidth  := 2*(590 + (scan.systems[systemname].radius-1) * 260)
+        SystemHeight := SystemWidth
+        
+        CurrentX := -(SystemWidth / 2)
+        CurrentY :=  (SystemHeight / 2)
+        LoopY := (SystemHeight / MapStepY) + 1 
+        LoopX := (SystemWidth / MapStepX) + 1 
+    }
+    else
+    {
+        SystemWidth := scan.systems[systemname].width
+        Systemheight := scan.systems[systemname].height
+        
+        LoopX := Ceil(SystemWidth / MapStepX) 
+        LoopY := Ceil(SystemHeight / MapStepY)
+        
+        CurrentX := -(LoopX * MapStepX) / 2
+        CurrentY :=  (LoopY * MapStepY) / 2
+    }
     
     MapPosX := 0
 	MapPosY := 0
