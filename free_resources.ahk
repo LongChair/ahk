@@ -84,7 +84,7 @@ CheckFreeResources()
 		Else
 		{
             AddStats("freeressources", 1)
-			SendDiscord(Format(":candy: Collected free ressource {1}.", Context.Stats["freeressources"]))            
+			SendDiscord(Format(":candy: Collected free ressource : **{1}**.", Context.Stats["freeressources"]))            
 		}
                 
         if (!WaitNovaScreen("STATION", 1))

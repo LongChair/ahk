@@ -1427,11 +1427,13 @@ SendDiscord(Text)
 	; Send the request
 	Http.Open("POST", NovaConfig.DISCORD.webhook, false)
 	Http.SetRequestHeader("Content-Type", "application/json")
+	
+	Message := Format("{1}:{2} - {3}", A_Hour, A_Min, Text)
 	postdata = 
 		( LTrim Join
 		 {  
 			"username": "NovaBot",
-			"content": "%Text%"
+			"content": "%Message%"
 		 } 
 		)
 		

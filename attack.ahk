@@ -24,7 +24,9 @@ Attack(params, x, y)
     global WinCenterX, WinCenterY
 	global AreaX1, AreaY1, AreaX2, AreaY2
 	global Context
-    	
+
+	OnStartAttack(params)
+	
     ; move to the pirate location
     MapMoveToXY(x, y)
 
@@ -37,9 +39,10 @@ Attack(params, x, y)
 	}
 	
 	; check if we don't have any yellow fleet in the area
-	if (NovaFindClick("targets\yellow.png", 50, "w100 n0", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2))
+	if (NovaFindClick("targets\yellow.png", 50, "w100 n0", FoundX, FoundY, 750, 400, 1150, 720))
     {
         LOG("ERROR : (attack) Will not attack, yellow fleet detected, cancelling", 2)
+		OnCancelAttack(params, "Yellow Fleet Detected !")
         return 1
     }
 
@@ -48,17 +51,21 @@ Attack(params, x, y)
     if (!NovaFindClick(Format("targets\{1}.png", params.target), 90, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
         LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
+		OnCancelAttack(params, "Target not available anymore !")
         return 1
     }
 
     ; we validate the target
     if (!NovaFindClick(Format("targets\validation\{1}.png", params.target), 80, "w2000 n0", FoundX, FoundY, 600, 470, 790, 540))
     {
-       LOG(Format("ERROR : (attack) Could Not validate the target for '{1}', cancelling", params.target), 2)
+		LOG(Format("ERROR : (attack) Could Not validate the target for '{1}', cancelling", params.target), 2)
+		OnCancelAttack(params, "Could Not validate target!")
         NovaEscapeMenu()
         return 1
     }
     
+	OnTargetValidated(params)
+	
     if (GetObjectProperty(params, "approach", false))
     {
         NovaEscapeMenu()
@@ -96,12 +103,6 @@ Attack(params, x, y)
     if ( ret != 1)
         return ret
     
-	; check if we have to wait for idel fleets
-	if (GetObjectProperty(params, "wait", false))
-	{
-		
-			
-	}
 	
 	; save the fleet position
 	for i, fleet in params.fleets
@@ -124,7 +125,9 @@ Attack(params, x, y)
     ; saves the last attack time for that type
     Context.killtimes[params.target] := A_Now
 
-
+	
+	OnSendingFleet(params)
+	
     ; Increments the target counter and saves the stats file
 	key := Format("kill.{1}", params.target)
 	AddStats(key, 1)    
@@ -143,6 +146,8 @@ Attack(params, x, y)
 		; recall the fleets
 		RecallAllFleets()
 	}
+	
+	OnTargetKilled(params)
 	
     return 1
 }
@@ -191,3 +196,68 @@ SelectFleets(Fleets)
 
     return 1
 }
+
+
+; OnStartAttack : called when entering the attack
+OnStartAttack(params)
+{
+	switch params.target
+	{
+		case "whale":
+			FormatTime NextTime, A_Now + 45*60, HH:mm
+			SendDiscord(Format(":whale: We found a whale! (Next one at ~{1})", NextTime))
+	}
+}
+
+; OnCancelAttack : called when entering the cancelled
+OnCancelAttack(params, Reason)
+{
+	switch params.target
+	{
+		case "whale":
+			SendDiscord(Format(":warning: Attack cancelled : {1}", Reason))
+	}
+}
+
+; OnTargetValidated : called when the target was validated
+OnTargetValidated(params)
+{
+	switch params.target
+	{
+		case "whale":
+		
+			; we check whale size
+			if NovaFindClick("pirates\valid\20M.png", 50, "w100 n0", FoundX, FoundY, 450, 550, 820, 640)
+				WhaleSize := 20
+			if NovaFindClick("pirates\valid\10M.png", 50, "w100 n0", FoundX, FoundY, 450, 550, 820, 640)
+				WhaleSize := 10
+			if NovaFindClick("pirates\valid\6M.png", 50, "w100 n0", FoundX, FoundY, 450, 550, 820, 640)
+				WhaleSize := 6
+				
+			SendDiscord(Format(":whale: We have validated a **{1}M** whale", WhaleSize))
+			
+	}
+}
+
+; OnSendingFleet : called when sending fleets in attack
+OnSendingFleet(params)
+{
+	switch params.target
+	{
+		case "whale":
+			SendDiscord(":rocket: sending fleets...")
+	}
+}
+
+
+; OnTargetKilled : called when target was killed
+OnTargetKilled(params)
+{
+	switch params.target
+	{
+		case "whale":
+			SendDiscord(":thumbsup: Whale killed.")
+	}
+}
+
+

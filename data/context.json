@@ -1,8 +1,8 @@
 {
     "FleetPositions": [
         {
-            "x": "22.000000",
-            "y": "401.000000"
+            "x": "789.000000",
+            "y": "457.000000"
         },
         {
             "x": "-1294.000000",
@@ -27,11 +27,11 @@
     ],
     "KillTimes": {
         "pirate": "20210501114756",
-        "whale": "20210503123856"
+        "whale": "20210506115333"
     },
     "Stats": {
-        "collect.void": "58",
-        "freeressources": "19",
-        "kill.whale": "11"
+        "collect.void": "71",
+        "freeressources": "17",
+        "kill.whale": "13"
     }
 }

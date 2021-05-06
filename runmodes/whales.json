@@ -48,7 +48,7 @@
 							},
 							"attacks": [					
 								{
-									"wait" : 60,
+									"wait" : 30,
 									"recall": true,
 									"fleets": [
 										"all"
