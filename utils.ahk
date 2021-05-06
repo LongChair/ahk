@@ -1348,44 +1348,48 @@ GoToFavorite(Index)
 	}
 	
 	; now scroll down and click the 
-	FavoriteFound := 0
-	if (0)
-	{
-		Loop, 4 
-		{
-			if (!NovaFindClick("buttons\menu_favoris.png", 30, "w500 n1"))
-			{
-				NovaDragMouse(1600, 520, 0 , -750, 10)
-			}
-			Else
-			{
-				FavoriteFound := 1
-				goto GoToFavorite_Found
-			}
-		}
-	}
-	Else
-	{
-		Loop, 3
-		{
-			if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n1"))
-			{
-				Log("ERROR : failed to find the menu scroller. exiting", 2)
-				return 0
-			}
-			
-			if (!NovaFindClick("buttons\menu_favoris.png", 50, "w500 n1"))
-			{
-				
-			}
-			Else
-			{
-				Sleep, 500
-				FavoriteFound := 1
-				goto GoToFavorite_Found
-			}
-		}
-	}
+    FavoriteFound := 0
+    if (1)
+    {
+        Loop, 3
+        {
+            if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n1"))
+            {
+                Log("ERROR : failed to find the menu scroller. exiting", 2)
+                return 0
+            }
+            
+            if (!NovaFindClick("buttons\menu_favoris.png", 50, "w500 n1"))
+            {
+                
+            }
+            Else
+            {
+                Sleep, 500
+                FavoriteFound := 1
+                goto GoToFavorite_Found
+            }
+        }
+     }
+     else
+     {
+        if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n3"))
+        {
+            Log("ERROR : failed to find the menu scroller. exiting", 2)
+            return 0
+        }
+        
+        if (!NovaFindClick("buttons\menu_favoris.png", 50, "w500 n1"))
+        {
+            
+        }
+        Else
+        {
+            Sleep, 500
+            FavoriteFound := 1
+            goto GoToFavorite_Found
+        }
+     }
 
 GoToFavorite_Found:
 	if (!FavoriteFound)
