@@ -3,6 +3,19 @@
 #include libs\JSON.ahk
 #include utils.ahk
 
+Sleep, 5000
+
+Loop, 5
+{
+    MouseClickDrag L, 800, 800, 800, 200, 2 
+    Sleep, 500
+}
+
+Loop, 5
+{
+    MouseClickDrag L, 800, 200, 800, 800, 2 
+    Sleep, 500
+}
 i := 10
 b := [7,8]
 json_str = 
