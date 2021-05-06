@@ -55,18 +55,23 @@ NovaLeftMouseClick(X,Y)
 ;*******************************************************************************
 NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
 {
-	XMargin := 100
-	YMargin := 100
 	
 	X := X - (SpanX / 2)
 	Y := Y - (SpanY / 2)
-		
-	MouseMove, X, Y
-	SendEvent {Click down}
-	Sleep, 100
-	MouseMove, X + SpanX, Y + SpanY, Speed
-	SendEvent {click up}
-	Sleep, 100
+
+    if (1)
+    {
+        MouseMove, X, Y
+        SendEvent {Click down}
+        Sleep, 100
+        MouseMove, X + SpanX, Y + SpanY, Speed
+        SendEvent {click up}
+        Sleep, 100
+    }
+    else
+    {
+        MouseClickDrag L, X, Y, X + SpanX, Y + SpanY, Speed 
+    }
 }
 
 ;*******************************************************************************
