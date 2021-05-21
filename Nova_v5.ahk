@@ -180,7 +180,6 @@ DoSequence(player)
 	
     if LaunchNova()
     {	
-	
         LoadContext()
       
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
@@ -218,7 +217,7 @@ DoSequence_Complete:
     
     TheEnd:
     SaveContext()
-    
+    NovaScreenShot()
 	SendDiscord(Format(":stop_button: Stopped Sequence for {1} ", player.name))
 	Fail := 1
     StopNova(Fail)
@@ -445,7 +444,7 @@ LaunchNova()
  
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
-	Loop, 15
+	Loop, 20
 	{
 		if (!NovaFindClick("buttons\ceg.png", 60, "w5000 n0", FoundX, FoundY, 1700, 40, 1960, 150))
 		{

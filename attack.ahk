@@ -45,13 +45,21 @@ Attack(params, x, y)
 		OnCancelAttack(params, "Yellow Fleet Detected !")
         return 1
     }
+	
+	if (NovaFindClick("targets\blue.png", 50, "w100 n0", FoundX, FoundY, 750, 400, 1150, 720))
+    {
+        LOG("Other friendly ships are around", 1)
+		params.alone := false
+    }
+	Else
+		params.alone := true
 
     ; we look for the target and click it
     if (!NovaFindClick(Format("targets\{1}.png", params.target), 90, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
         LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
-		OnCancelAttack(params, "Target not available anymore !")
-        return 1
+		OnCancelAttack(params, "Target not visible anymore !")
+		NovaleftMouseClick(WinCenterX/2, WinCenterY/2)
     }
 
     ; we validate the target
@@ -65,20 +73,25 @@ Attack(params, x, y)
     
 	OnTargetValidated(params)
 	
-    if (GetObjectProperty(params, "approach", false))
+	approach := GetObjectProperty(params, "approach", false)
+    if (approach)
     {
+		Sleep, 500
         NovaEscapeMenu()
            
         ;click aside the target
         NovaLeftMouseClick(WinCenterX + 35, WinCenterY + 35)
 
         ; Click the group move button
+		LOG(Format("Approaching '{1}'...", params.target), 1)
         if (!NovaFindClick("buttons\group_move.png", 80, "w2000 n1", FoundX, FoundY, 1230,380, 1400, 480))
         {
             LOG("ERROR : (attack) Could Not find the group move menu, cancelling", 2)
             NovaEscapeMenu()
             return 1
-        }             
+        }
+		
+		Sleep, 1000
     }
     else
     {
@@ -124,15 +137,17 @@ Attack(params, x, y)
     ; saves the last attack time for that type
     Context.killtimes[params.target] := A_Now
 
-	
 	OnSendingFleet(params)
 	
     ; Increments the target counter and saves the stats file
-	key := Format("kill.{1}", params.target)
-	AddStats(key, 1)    
-
+	if (!approach)
+	{
+		key := Format("kill.{1}", params.target)
+		AddStats(key, 1)    	
+	}
+	
 	recall := GetObjectProperty(params, "recall", false)
-	if (recall)
+	if (recall OR approach)
 	{
 		Log("Waiting for fleets to be idle...")
 		if (!WaitForFleetsIdle(300))
@@ -141,14 +156,22 @@ Attack(params, x, y)
 			return 0
 		}
 		
+	}
+	
+	if (recall)
+	{	
 		Log("Recalling fleets...")
 		; recall the fleets
 		RecallAllFleets()
 	}
-	
-	OnTargetKilled(params)
-	
-    return 1
+		
+	if (approach)
+		return 2
+	else
+	{
+		OnTargetKilled(params)
+		return 1
+	}
 }
 
 
@@ -234,7 +257,12 @@ OnTargetValidated(params)
 			if NovaFindClick("pirates\valid\6M.png", 50, "w100 n0", FoundX, FoundY, 450, 550, 820, 640)
 				WhaleSize := 6
 				
-			SendDiscord(Format(":whale: We have validated a **{1}M** whale", WhaleSize))
+			if (params.alone)
+				AloneString := "We are alone"
+			Else
+				AloneString := "We are NOT alone"
+				
+			SendDiscord(Format(":whale: We have validated a **{1}M** whale, ({2})", WhaleSize, AloneString))
 			
 	}
 }
@@ -245,7 +273,10 @@ OnSendingFleet(params)
 	switch params.target
 	{
 		case "whale":
-			SendDiscord(":rocket: sending fleets...")
+			if (params.approach)
+				SendDiscord(":rocket: sending fleets (approach)...")
+			Else
+				SendDiscord(":rocket: sending fleets (attack)...")
 	}
 }
 

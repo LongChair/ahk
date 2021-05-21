@@ -43,13 +43,15 @@
 			"radius": 3
 		},
 		"Oritan": {
+			"width" : 3000,
+			"height" : 2400,
 			"radius": 4
 		}
 	},
 	"levels": {
 		"station": 50,
-		"whale": 80,
-		"void": 70,
+		"whale": 50,
+		"void": 75,
 		"elite": 80,
 		"pirate": 80,
 		"debris": 30

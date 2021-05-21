@@ -42,45 +42,14 @@
 							"scan": {
 								"reuse" : false,
 								"targets": [
-									"whale",
-									"void",
 									"debris"
 								]
 							},
 							"attacks": [					
-								{
-									"wait" : 120,
-									"recall": true,
-									"fleets": [
-										"all"
-									],
-									"target": "whale"
-								}
 							],
 							"collections": [
 								{
-									"source": "whale",
-									"target": "void"
-								},
-								{
-									"source": "whale",
-									"target": "void"
-								},
-								{
-									"source": "whale",
-									"target": "void"
-								},
-								{
-									"startmin" : 10,
-									"stopmin" : 20,
-									"source": "whale",
-									"target": "debris",
-									"validation": "cristaux"
-								},
-								{
-									"startmin" : 10,
-									"stopmin" : 20,
-									"source": "whale",
+									"source": "",
 									"target": "debris",
 									"validation": "cristaux"
 								}

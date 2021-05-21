@@ -26,7 +26,7 @@
 					"operations": [
 						{
 							"name": "FARM",
-							"comment": "farm pirates in farmsysteml",
+							"comment": "farm pirates in farmsysteml with 6 fleets",
 							"favorite": 1,
 							"system": "Oritan",
 							"scan": {

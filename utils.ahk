@@ -70,7 +70,8 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
     }
     else
     {
-        MouseClickDrag L, X, Y, X + SpanX, Y + SpanY, Speed 
+        MouseClickDrag L, X, Y, X + SpanX, Y + SpanY, 10
+		Sleep, 100
     }
 }
 
@@ -326,6 +327,17 @@ NovaGrab(X, Y, W, H)
 }
 
 ;*******************************************************************************
+; NovaScreenShot : Takes a full window screenshot
+;*******************************************************************************
+NovaScreenShot()
+{
+	global MainWinX, MainWinY
+	global MainWinW, MainWinH
+	
+	NovaGrab(MainWinX, MainWinY, MainWinW, MainWinH)
+}
+
+;*******************************************************************************
 ; MapMoveToXY : Move to a position on the map, using mouse scrolls
 ; Will return maintain MapPosX and MapPosY
 ;*******************************************************************************
@@ -341,6 +353,9 @@ MapMoveToXY(X, Y)
 	MoveXDir := 0
     MoveYDir := 0
 	
+	if ((X == MapPosX) AND (Y == MapPosY)) 
+		Return
+		
 	Loop 
 	{
 		if (X >= MapPosX)
@@ -1335,13 +1350,13 @@ LoadFleetPosFromFile(InputFile)
 GoToFavorite(Index)
 {
 	; click the "+" Menu
-	if (!NovaFindClick("buttons\plus_menu.png", 50, "w5000 n1"))
+	if (!NovaFindClick("buttons\plus_menu.png", 30, "w5000 n1", FoundX, FoundY, 1400, 30, 1600, 150))
 	{
 		Log("ERROR : failed to find the plus menu button. exiting", 2)
 		return 0
 	}
 	
-	if (!NovaFindClick("buttons\menu_academie.png", 50, "w5000 n0"))
+	if (!NovaFindClick("buttons\menu_academie.png", 50, "w5000 n0",FoundX, FoundY, 1300, 30, 1450, 700))
 	{
 		Log("ERROR : failed to find the academy button. exiting", 2)
 		return 0
@@ -1349,13 +1364,13 @@ GoToFavorite(Index)
 	
 	; now scroll down and click the 
     FavoriteFound := 0
-	if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n3"))
+	if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n5"))
 	{
 		Log("ERROR : failed to find the menu scroller. exiting", 2)
 		return 0
 	}
 	
-	if (!NovaFindClick("buttons\menu_favoris.png", 50, "w500 n1"))
+	if (!NovaFindClick("buttons\menu_favoris.png", 50, "w2000 n1"))
 	{
 		
 	}

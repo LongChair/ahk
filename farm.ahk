@@ -21,7 +21,14 @@ farm(op)
 	for i, attack in op.attacks
 	{
 		; get the current first fleet position
-		Pos := Context.FleetPositions(attack.fleets[1])
+		if (attack.fleets[1] != "all")
+			Pos := Context.FleetPositions(attack.fleets[1])
+		Else
+		{
+			Pos := {}
+			Pos.x := 0
+			Pos.y := 0
+		}
 		
 		target := PeekClosestTarget(Targets[attack.target], Pos.x, Pos.y)
 		
@@ -62,32 +69,60 @@ Farm_Collect:
 	for i, collect in op.collections
 	{
         
+		Farm_Collect_Next_Target:	
 		target := PeekClosestTarget(Targets[collect.target], 0, 0)
+		;target := PeekFurthestTarget(Targets[collect.target], 0, 0)
 		
 		if (target =="")
 		{
 			Log(Format("no more targets '{1}' found.", collect.target))
-			return 1
+			goto Farm_Collect_Next_Collect
 		}
 		Else
 		{
-			if ((A_now - Context.killtimes[collect.source]) < (20 * 60))
+			startmin := GetObjectProperty(collect, "startmin", 0)
+			stopmin  := GetObjectProperty(collect, "stopmin", 20)
+			
+			
+			if (collect.source != "")
+			{
+				ElapsedTime := A_now 
+				ElapsedTime -= Context.killtimes[collect.source], seconds
+			}
+			Else
+				ElapsedTime := (startmin + stopmin) * 60 / 2
+			
+			
+			if ((ElapsedTime >= 60 * startmin) AND (ElapsedTime <= 60*stopmin)) OR 0
 			{
 				Log(Format("Collecting {1} at ({2}, {3}) ...", collect.target, target.x, target.y))
 				
-				if (!collect(collect, target.x, target.y))
-				{
-					Log("ERROR : (collect) failed to complete collection. exiting", 2)
-					return 0	
-				}
+				ret := collect(collect, target.x, target.y)
 				
-				Log("Collection completed.")
+				switch ret
+				{
+					case 0:					
+						Log("ERROR : (collect) failed to complete collection. exiting", 2)
+						return 0	
+						
+					case 1:
+						Log("Collection completed.")
+						
+					case 2:
+						return 1
+						
+					case 3:
+						Log("Failed to collect but going to next target.")
+						Goto Farm_Collect_Next_Target
+				}
 			}
 			else
 			{
-				Log(Format("Not Collecting '{1}', last attack time is too old!", collect.target))
+				Log(Format("Not Collecting '{1}', time window not matching : {4:.1f} -> range {2} - {3}", collect.target, startmin, stopmin , ElapsedTime / 60 ))
 			}				
 		}
+		
+		Farm_Collect_Next_Collect:
 
 	}
 	

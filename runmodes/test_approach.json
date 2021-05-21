@@ -42,20 +42,26 @@
 							"scan": {
 								"reuse" : false,
 								"targets": [
-									"whale",
-									"void",
-									"debris"
+									"pirate"
 								]
 							},
 							"attacks": [					
 								{
-									"wait" : 120,
+									"approach" : true,
+									"fleets": [
+										"all"
+									],
+									"target": "pirate"
+								},
+								{
+									"wait" : 30,
 									"recall": true,
 									"fleets": [
 										"all"
 									],
-									"target": "whale"
+									"target": "pirate"
 								}
+								
 							],
 							"collections": [
 								{
@@ -69,20 +75,6 @@
 								{
 									"source": "whale",
 									"target": "void"
-								},
-								{
-									"startmin" : 10,
-									"stopmin" : 20,
-									"source": "whale",
-									"target": "debris",
-									"validation": "cristaux"
-								},
-								{
-									"startmin" : 10,
-									"stopmin" : 20,
-									"source": "whale",
-									"target": "debris",
-									"validation": "cristaux"
 								}
 							]
 						},

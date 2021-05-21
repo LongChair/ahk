@@ -77,16 +77,22 @@ CheckFreeResources()
 		FreeResCollected := FreeResCollected + 1
 		
         Log("Waiting for reward screen...")
-        if !NovaFindClick("buttons\reward.png", 80, "w5000 n1")
-        {
-            Log("ERROR : Failed to click the reward button for free resources, could be that we got them all ?", 2)
-        }
+		if (NovaFindClick("buttons\reward.png", 80, "w5000 n1"))
+		{
+			AddStats("freeressources", 1)
+			SendDiscord(Format(":candy: Collected free ressource : **{1}**.", Context.Stats["freeressources"]))            
+			
+			while (NovaFindClick("buttons\reward.png", 80, "w5000 n1"))
+			{
+				Log("reclicking on reward...", 1)
+				Sleep, 1000
+			}
+		}
 		Else
 		{
-            AddStats("freeressources", 1)
-			SendDiscord(Format(":candy: Collected free ressource : **{1}**.", Context.Stats["freeressources"]))            
+			Log("ERROR : Failed to click the reward button for free resources, could be that we got them all ?", 2)
 		}
-                
+		                
         if (!WaitNovaScreen("STATION", 1))
         {
             Log("ERROR : Timeout waiting for station screen, stopping", 2)

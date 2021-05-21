@@ -12,6 +12,18 @@ global ScanResult := []
 global ScanType := ""
 
 
+scan_trial()
+{
+	global Window_ID
+	Window_ID := 0x135515f8
+	
+	key := "void"
+	tolerance := 80
+	ScanResult := []
+	ScanResult[key] := []
+	NovaFindClick(Format("targets\{1}.png", key), tolerance, "dx e n0 FuncHandle_Scan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)          
+}
+
 ;*******************************************************************************
 ; Scan : Scans the given system name
 ; systemname : Name of the system to look in data\systems.json
@@ -24,6 +36,7 @@ Scan(systemname, options)
     global AreaX1, AreaY1, AreaX2, AreaY2
     global ScanType
 	global MapPosX, MapPosY
+	global WinCenterX, WinCenterY
 	
     
     scan := GetObjectFromJSON("data\scan.json")
@@ -36,7 +49,7 @@ Scan(systemname, options)
     MapStepX := 1000
     MapStepY := 600    
         
-    if (1)
+    if (0)
     {
         SystemWidth  := 2*(590 + (scan.systems[systemname].radius-1) * 260)
         SystemHeight := SystemWidth
@@ -90,10 +103,10 @@ Scan(systemname, options)
    	
     ; Scan the ressources on the map and fill the ressources array
 	; Loop Y
-	Loop, % LoopY
+	Loop, % (LoopY +1)
 	{
 		; Loop X
-		Loop, % LoopX
+		Loop, % (LoopX +1)
 		{
 			MapMoveToXY(CurrentX, CurrentY)
 
@@ -112,6 +125,8 @@ Scan(systemname, options)
 		CurrentY := CurrentY - MapStepY
 	}
 	
+	;MapMoveToXY(0, 0)
+	;NovaMouseMove(WinCenterX, WinCenterY)
 	
 	; totals display
 	Summuary := ""
@@ -161,7 +176,7 @@ Handle_Scan(ResX, ResY)
 }
 
 ;*******************************************************************************
-; PeekClosestRes : will peeks the closest ressource from the list to
+; PeekClosestTarget : will peeks the closest target from the list to
 ; the given position
 ;*******************************************************************************
 PeekClosestTarget(ByRef List, X, Y)
@@ -181,6 +196,43 @@ PeekClosestTarget(ByRef List, X, Y)
 		if ((Dist < MinDist))
 		{
 			MinDist := Dist
+			FoundIndex := i
+		}
+		
+	}
+	
+	; remove ressource and return it
+	if (FoundIndex> 0)
+	{
+		item := List[FoundIndex]
+		List.RemoveAt(FoundIndex)
+		return item
+	}
+	Else
+		return ""
+}
+
+;*******************************************************************************
+; PeekFurthestTarget : will peeks the furthest target from the list to
+; the given position
+;*******************************************************************************
+PeekFurthestTarget(ByRef List, X, Y)
+{
+	FoundIndex := 0
+	CurrentRes := 1
+	MaxDist := 0
+	
+	for i, target in List
+	{
+		DX := target.x - X
+		DY := target.y - Y
+		
+		Dist := sqrt(DX*DX + DY*DY)
+		
+		
+		if ((Dist > MaxDist))
+		{
+			MaxDist := Dist
 			FoundIndex := i
 		}
 		
