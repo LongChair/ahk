@@ -57,7 +57,7 @@ CheckFreeResources()
     ; Try to collect the free resources
     if NovaFindClick("buttons\free_ressources.png", 80, "n1", FoundX, FoundY, 200, 840, 600, 1050)
     {     
-		; Wait for the carte to show up
+		; Wait for the crate to show up
 		if !NovaFindClick("buttons\crate.png", 50, "w2000 n0", FoundX, FoundY, 850, 300, 1150, 650)
 		{
 			Log("ERROR : Failed to find the crate, maybe we have completed all daylies", 2)
@@ -65,6 +65,7 @@ CheckFreeResources()
 		}
     	
 		Log("Collecting free resources ... YEAH!", 1)
+		Sleep, 500
 		
 	    ; look for the grab button
         Log("Clicking on grab button...")
@@ -75,18 +76,23 @@ CheckFreeResources()
         }
         
 		FreeResCollected := FreeResCollected + 1
+		Sleep, 500
 		
         Log("Waiting for reward screen...")
-		if (NovaFindClick("buttons\reward.png", 80, "w5000 n1"))
+		if (NovaFindClick("buttons\reward.png", 60, "w5000 n1", FoundX, FoundY, 350, 220, 850, 400))
 		{
+			Log("Found reward screen...")
 			AddStats("freeressources", 1)
 			SendDiscord(Format(":candy: Collected free ressource : **{1}**.", Context.Stats["freeressources"]))            
 			
-			while (NovaFindClick("buttons\reward.png", 80, "w5000 n1"))
+			Log("waiting for reward screen to go ...")
+			while (NovaFindClick("buttons\reward.png", 60, "w100 n1", FoundX, FoundY, 350, 220, 850, 400))
 			{
 				Log("reclicking on reward...", 1)
 				Sleep, 1000
 			}
+			Log("reward screen gone.")
+			
 		}
 		Else
 		{

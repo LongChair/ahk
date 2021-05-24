@@ -9,7 +9,7 @@ global NovaConfig
 global PlayerConfig
 
 ; Loop time and activation
-global LoopTime := 0
+global LoopTime := 30
 global Farming := 0
 global Farming3D := 0
 global FarmingMulti := 0
@@ -119,3 +119,4 @@ global EndM := 0
 global DiscordWebhooKURL
 
 global ConText := []
+global ScanInfo := []

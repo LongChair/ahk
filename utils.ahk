@@ -66,7 +66,7 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
         Sleep, 100
         MouseMove, X + SpanX, Y + SpanY, Speed
         SendEvent {click up}
-        Sleep, 100
+        Sleep, 500
     }
     else
     {
@@ -1370,9 +1370,15 @@ GoToFavorite(Index)
 		return 0
 	}
 	
-	if (!NovaFindClick("buttons\menu_favoris.png", 50, "w2000 n1"))
+	ClickRetry := 0
+	while (!NovaFindClick("buttons\menu_favoris.png", 50, "w2000 n1"))
 	{
+		NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n1")
+		Sleep, 500
+		ClickRetry += 1
 		
+		if (ClickRetry >= 5)
+			Goto GoToFavorite_Found
 	}
 	Else
 	{
@@ -1508,6 +1514,9 @@ LoadContext()
         
     if (Context["KillTimes"] == "")
         Context["KillTimes"] := []
+		
+    if (Context["Killpos"] == "")
+        Context["Killpos"] := []
 
     if (Context["FleetPositions"] == "")
 	{
@@ -1531,6 +1540,23 @@ SaveContext()
 {
 	global Context
 	return SaveObjectToJSON(Context, "data\context.json")
+}
+
+;*******************************************************************************
+; LoadScanInfo : Loads the scan information into a global object
+;*******************************************************************************
+LoadScanInfo()
+{
+	global ScanInfo
+	
+	ScanInfo := GetObjectFromJSON("data\scan.json")
+	if (ScanInfo == "")
+	{
+		LOG("ERROR : (scan) Could Not load scan.json, cancelling", 2)
+		return 0
+	}
+	
+	return 1
 }
 
 ;*******************************************************************************

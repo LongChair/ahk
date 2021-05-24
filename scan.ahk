@@ -37,21 +37,14 @@ Scan(systemname, options)
     global ScanType
 	global MapPosX, MapPosY
 	global WinCenterX, WinCenterY
-	
-    
-    scan := GetObjectFromJSON("data\scan.json")
-    if (scan == "")
-    {
-        LOG("ERROR : (scan) Could Not load scan.json, cancelling", 2)
-        return 0
-    }
+	global ScanInfo
     
     MapStepX := 1000
     MapStepY := 600    
         
     if (0)
     {
-        SystemWidth  := 2*(590 + (scan.systems[systemname].radius-1) * 260)
+        SystemWidth  := 2*(590 + (ScanInfo.systems[systemname].radius-1) * 260)
         SystemHeight := SystemWidth
         
         CurrentX := -(SystemWidth / 2)
@@ -61,8 +54,8 @@ Scan(systemname, options)
     }
     else
     {
-        SystemWidth := scan.systems[systemname].width
-        Systemheight := scan.systems[systemname].height
+        SystemWidth := ScanInfo.systems[systemname].width
+        Systemheight := ScanInfo.systems[systemname].height
         
         LoopX := Ceil(SystemWidth / MapStepX) 
         LoopY := Ceil(SystemHeight / MapStepY)
@@ -113,7 +106,7 @@ Scan(systemname, options)
             for i, key in options.targets
             {
 				ScanType := key
-				NovaFindClick(Format("targets\{1}.png", ScanType), scan.levels[key], "e n0 FuncHandle_Scan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)          
+				NovaFindClick(Format("targets\{1}.png", ScanType), ScanInfo.levels[key], "e n0 FuncHandle_Scan", FoundX, FoundY, AreaX1, AreaY1, AreaX2, AreaY2)          
             }
 			
 			CurrentX := CurrentX + MapStepX
@@ -179,7 +172,7 @@ Handle_Scan(ResX, ResY)
 ; PeekClosestTarget : will peeks the closest target from the list to
 ; the given position
 ;*******************************************************************************
-PeekClosestTarget(ByRef List, X, Y)
+PeekClosestTarget(ByRef List, X, Y, radius:=10000)
 {
 	FoundIndex := 0
 	CurrentRes := 1
@@ -193,7 +186,7 @@ PeekClosestTarget(ByRef List, X, Y)
 		Dist := sqrt(DX*DX + DY*DY)
 		
 		
-		if ((Dist < MinDist))
+		if ((Dist < MinDist) AND (Dist <= radius))
 		{
 			MinDist := Dist
 			FoundIndex := i

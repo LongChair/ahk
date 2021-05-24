@@ -17,11 +17,11 @@
 collect(params, x, y)
 {
     global WinCenterX, WinCenterY
+	global ScanInfo
     
     ; move to the pirate location
     MapMoveToXY(x, y)
 	
-	scan := GetObjectFromJSON("data\scan.json")
     
 	if (!NovaFindClick("targets\door.png", 30, "w100 n0", FoundX, FoundY, 600, 300, 1200, 800))
     {
@@ -31,7 +31,7 @@ collect(params, x, y)
 
 
     ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), scan.levels[params.target], "w1000 n1", FoundX, FoundY, 830, 440, 1020, 630))
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w1000 n1", FoundX, FoundY, 830, 440, 1020, 630))
     {
         ;LOG(Format("ERROR : (collect) Could Not find the target for '{1}', cancelling", params.target), 2)
         ;return 3
@@ -55,6 +55,13 @@ collect(params, x, y)
 	if (!NovaFindClick("buttons\collect.png", 50, "w2000 n1", FoundX, FoundY, 500,175, 1600, 875))
 	{
 		LOG("ERROR : (collect) Could Not find the collect buttons in menu, different menu popped up ?", 2)
+		
+		if (NovaFindClick("buttons\favori.png", 50, "w2000 n1", FoundX, FoundY, 1200,300, 1600, 700))
+		{
+			; if we have the menu, discard it
+			NovaEscapeMenu()
+		}
+		
 		return 1
 	}
 	

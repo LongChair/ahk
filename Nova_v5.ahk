@@ -181,7 +181,10 @@ DoSequence(player)
     if LaunchNova()
     {	
         LoadContext()
-      
+		
+		if (!LoadScanInfo())
+			goto TheEnd
+	
 		SendDiscord(Format(":arrow_forward: Started and running in **{1}** mode", PlayerConfig.GENERAL.runmode))
 		       
 	   config := GetObjectFromJSON("runmodes\" . PlayerConfig.GENERAL.runmode . ".json")

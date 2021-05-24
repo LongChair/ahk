@@ -24,7 +24,11 @@ Attack(params, x, y)
     global WinCenterX, WinCenterY
 	global AreaX1, AreaY1, AreaX2, AreaY2
 	global Context
+	global ScanInfo
 
+
+	scan := GetObjectFromJSON("data\scan.json")
+	
 	OnStartAttack(params)
 	
     ; move to the pirate location
@@ -55,7 +59,7 @@ Attack(params, x, y)
 		params.alone := true
 
     ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), 90, "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
         LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
 		OnCancelAttack(params, "Target not visible anymore !")
@@ -136,7 +140,11 @@ Attack(params, x, y)
 	
     ; saves the last attack time for that type
     Context.killtimes[params.target] := A_Now
-
+	
+	Context.Killpos[params.target] := {}
+	Context.Killpos[params.target].x := x
+	Context.Killpos[params.target].y := y
+	
 	OnSendingFleet(params)
 	
     ; Increments the target counter and saves the stats file
@@ -157,6 +165,9 @@ Attack(params, x, y)
 		}
 		
 	}
+	
+	Context.killtimes[params.target] := A_Now
+
 	
 	if (recall)
 	{	

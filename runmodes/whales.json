@@ -49,7 +49,7 @@
 							},
 							"attacks": [					
 								{
-									"wait" : 120,
+									"wait" : 60,
 									"recall": true,
 									"fleets": [
 										"all"
@@ -71,18 +71,18 @@
 									"target": "void"
 								},
 								{
-									"startmin" : 10,
+									"radius" : 200,
+									"startmin" : 5,
 									"stopmin" : 20,
 									"source": "whale",
-									"target": "debris",
-									"validation": "cristaux"
+									"target": "debris"
 								},
 								{
-									"startmin" : 10,
+									"radius" : 200,
+									"startmin" : 5,
 									"stopmin" : 20,
 									"source": "whale",
-									"target": "debris",
-									"validation": "cristaux"
+									"target": "debris"
 								}
 							]
 						},
