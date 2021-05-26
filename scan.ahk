@@ -3,10 +3,10 @@
 
 
 ; scan area coordinates
-global AreaX1 := 300
+global AreaX1 := 260
 global AreaY1 := 170
 global AreaX2 := 1600
-global AreaY2 := 980
+global AreaY2 := 940
 
 global ScanResult := []
 global ScanType := ""

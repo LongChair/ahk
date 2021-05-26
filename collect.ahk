@@ -56,7 +56,7 @@ collect(params, x, y)
 	{
 		LOG("ERROR : (collect) Could Not find the collect buttons in menu, different menu popped up ?", 2)
 		
-		if (NovaFindClick("buttons\favori.png", 50, "w2000 n1", FoundX, FoundY, 1200,300, 1600, 700))
+		if (NovaFindClick("buttons\favori.png", 50, "w2000 n0", FoundX, FoundY, 1200,300, 1600, 700))
 		{
 			; if we have the menu, discard it
 			NovaEscapeMenu()

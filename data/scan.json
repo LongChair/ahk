@@ -54,6 +54,7 @@
 		"void": 75,
 		"elite": 80,
 		"pirate": 80,
-		"debris": 30
+		"debris": 30,
+		"pirates_4": 50
 	}
 }

@@ -1,4 +1,4 @@
-﻿
+﻿#include utils.ahk
 
 farm(op)
 {
@@ -20,6 +20,10 @@ farm(op)
 	; proceed with attacks
 	for i, attack in op.attacks
 	{
+	
+		if (!IsActive(attack))
+			goto Farm_Next_Attack
+			
 		; get the current first fleet position
 		if (attack.fleets[1] != "all")
 			Pos := Context.FleetPositions(attack.fleets[1])
@@ -69,6 +73,10 @@ Farm_Collect:
 	for i, collect in op.collections
 	{
         
+		if (!IsActive(collect))
+			goto Farm_Collect_Next_Collect
+		
+		
 		startmin := GetObjectProperty(collect, "startmin", 0)
 		stopmin  := GetObjectProperty(collect, "stopmin", 20)
 		
@@ -133,12 +141,14 @@ Farm_Collect:
 							
 			}
 			
-			Farm_Collect_Next_Collect:
+			
 		}
 		else
 		{
 			Log(Format("Not Collecting '{1}', time window not matching : {4:.1f} -> range {2} - {3}", collect.target, startmin, stopmin , ElapsedTime / 60 ))
-		}	
+		}
+		
+		Farm_Collect_Next_Collect:
 	}
 	
 	return 1

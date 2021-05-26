@@ -66,7 +66,7 @@ NovaDragMouse(X, Y, SpanX, SpanY, Speed:=10)
         Sleep, 100
         MouseMove, X + SpanX, Y + SpanY, Speed
         SendEvent {click up}
-        Sleep, 500
+        Sleep, 200
     }
     else
     {
@@ -1362,31 +1362,29 @@ GoToFavorite(Index)
 		return 0
 	}
 	
-	; now scroll down and click the 
-    FavoriteFound := 0
-	if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n5"))
+
+	FavoriteFound := 0
+	ClickRetry := 0
+	
+	while (!NovaFindClick("buttons\menu_favoris.png", 30, "n1", FoundX, FoundY, 1300, 30, 1450, 1100))
 	{
-		Log("ERROR : failed to find the menu scroller. exiting", 2)
-		return 0
+		ClickRetry += 1
+		if (!NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n5"))
+		{
+			Log("ERROR : failed to find the menu scroller. exiting", 2)
+			goto GoToFavorite_Found
+		}
+		
+		if (ClickRetry > 2)
+		{
+			Log("ERROR : failed to find the favorite menu, retries exceeded. exiting", 2)
+			goto GoToFavorite_Found
+		}
 	}
 	
-	ClickRetry := 0
-	while (!NovaFindClick("buttons\menu_favoris.png", 50, "w2000 n1"))
-	{
-		NovaFindClick("buttons\menu_scroller.png", 30, "w2000 n1")
-		Sleep, 500
-		ClickRetry += 1
-		
-		if (ClickRetry >= 5)
-			Goto GoToFavorite_Found
-	}
-	Else
-	{
-		Sleep, 500
-		FavoriteFound := 1
-		goto GoToFavorite_Found
-	}
-
+	FavoriteFound := 1
+	
+	
 
 GoToFavorite_Found:
 	if (!FavoriteFound)
@@ -1580,4 +1578,27 @@ ResetStats()
     global Context
     Context.Stats := []
     SaveContext()
+}
+
+;*******************************************************************************
+; IsActive : Will tell if an opération is active
+;*******************************************************************************
+IsActive(op)
+{
+    if (!GetObjectProperty(op, "enable", true))
+        return false
+    
+    if (!op.time.Length())
+        return true
+        
+    for i, t in op.time
+    {
+        DT1 := format("{1}{2}{3}{4}", A_YYYY, A_MM, A_DD, t.start)
+        DT2 := format("{1}{2}{3}{4}", A_YYYY, A_MM, A_DD, t.end)
+        
+        if ((A_now >= DT1) AND (A_Now <= DT2))
+            return true
+    }
+    
+    return false
 }

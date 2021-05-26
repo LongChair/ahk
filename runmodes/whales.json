@@ -44,7 +44,8 @@
 								"targets": [
 									"whale",
 									"void",
-									"debris"
+									"debris",
+									"elite_4"
 								]
 							},
 							"attacks": [					
@@ -55,6 +56,14 @@
 										"all"
 									],
 									"target": "whale"
+								},
+								{
+									"enable": false,
+									"recall": true,
+									"fleets": [
+										"all"
+									],
+									"target": "elite_4"
 								}
 							],
 							"collections": [

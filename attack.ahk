@@ -59,11 +59,11 @@ Attack(params, x, y)
 		params.alone := true
 
     ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w1000 n1", FoundX, FoundY, 800, 450, 1120, 650))
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w3000 n1", FoundX, FoundY, 800, 450, 1120, 650))
     {
         LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
 		OnCancelAttack(params, "Target not visible anymore !")
-		NovaleftMouseClick(WinCenterX/2, WinCenterY/2)
+		NovaleftMouseClick(WinCenterX, WinCenterY)
     }
 
     ; we validate the target
@@ -239,7 +239,7 @@ OnStartAttack(params)
 			NextTime := A_Now
 			NextTime += 45, Minutes
 			FormatTime, TimeString, %NextTime%, HH:mm
-			SendDiscord(Format(":whale: We found a whale! (Next one at ~{1})", TimeString))
+			SendDiscord(Format(":whale: We found a whale! (Next one at **~{1}**)", TimeString))
 	}
 }
 
@@ -269,9 +269,9 @@ OnTargetValidated(params)
 				WhaleSize := 6
 				
 			if (params.alone)
-				AloneString := "We are alone"
+				AloneString := "We are **alone**"
 			Else
-				AloneString := "We are NOT alone"
+				AloneString := "We are **NOT alone**"
 				
 			SendDiscord(Format(":whale: We have validated a **{1}M** whale, ({2})", WhaleSize, AloneString))
 			

@@ -9,7 +9,7 @@ global NovaConfig
 global PlayerConfig
 
 ; Loop time and activation
-global LoopTime := 30
+global LoopTime := 10000
 global Farming := 0
 global Farming3D := 0
 global FarmingMulti := 0
