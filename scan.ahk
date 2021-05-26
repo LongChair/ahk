@@ -133,7 +133,9 @@ Scan(systemname, options)
 
 	SaveScan(ScanResult)
 	
-    return ScanResult.Clone()
+    Ret := ScanResult.Clone()
+    OnScanComplete(options, Ret)
+    return Ret
 }
 
 ;*******************************************************************************
@@ -250,4 +252,12 @@ SaveScan(scan)
 LoadScan(systemname)
 {
 	return GetObjectFromJSON(Format("data\scans\{1}.json", systemname))
+}
+
+OnScanComplete(scan, Result)
+{
+    if (Result["elites"].length())
+    {
+        SendDiscord(":medal: @LongChair We have an elite...")
+    }
 }
