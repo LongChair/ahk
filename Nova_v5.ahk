@@ -235,9 +235,10 @@ LaunchNova()
 	
 	Log("***** Launching Emulator...")
 	CommandLine := PlayerConfig.GENERAL.commandline 
-	Run, %CommandLine%
-	while !WinExist(PlayerConfig.GENERAL.windowname)
+	
+	while (!WinExist(PlayerConfig.GENERAL.windowname))
 	{
+		Run, %CommandLine%
 		Sleep, 1000
 	}
     Log("Emulator Launched...")
@@ -250,7 +251,13 @@ LaunchNova()
 	WinCenterX := (MainWinW - WinBorderX) / 2 + WinBorderX
 	WinCenterY := (MainWinH - WinBorderY) / 2 + WinBorderY
    
- 
+    Log("Waiting for Nova tab ...")   
+    while (!NovaFindClick("buttons\nova_tab.png", 30, "w1000 n0", FoundX, FoundY, 0, 0, 1960, 50))
+	{
+		Run, %CommandLine%
+		Sleep, 1000
+	}
+	
 	  ; check CEG button
     Log("Waiting for Nova Main screen ...")   
 	Loop, 20

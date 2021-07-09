@@ -50,11 +50,12 @@
 	},
 	"levels": {
 		"station": 50,
-		"whale": 50,
-		"void": 75,
+		"whale": 80,
+		"void": 80,
 		"elite": 80,
 		"pirate": 80,
 		"debris": 30,
-		"pirates_4": 50
+		"elite_4": 80,
+		"elite_5": 80
 	}
 }

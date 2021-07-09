@@ -27,8 +27,6 @@ Attack(params, x, y)
 	global ScanInfo
 
 
-	scan := GetObjectFromJSON("data\scan.json")
-	
 	OnStartAttack(params)
 	
     ; move to the pirate location
@@ -43,10 +41,12 @@ Attack(params, x, y)
 	}
 	
 	; check if we don't have any yellow fleet in the area
-	if (NovaFindClick("targets\yellow.png", 50, "w100 n0", FoundX, FoundY, 750, 400, 1150, 720))
+	if (   NovaFindClick("targets\yellow.png", 50, "w100 n0", FoundX, FoundY, 750, 400, 1150, 720)  
+		OR NovaFindClick("targets\yellow_square.png", 50, "w100 n0", FoundX, FoundY, 900, 450, 1050, 600))
     {
         LOG("ERROR : (attack) Will not attack, yellow fleet detected, cancelling", 2)
 		OnCancelAttack(params, "Yellow Fleet Detected !")
+		NovaScreenShot()
         return 1
     }
 	
@@ -59,10 +59,11 @@ Attack(params, x, y)
 		params.alone := true
 
     ; we look for the target and click it
-    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w3000 n1", FoundX, FoundY, 800, 450, 1120, 650))
+    if (!NovaFindClick(Format("targets\{1}.png", params.target), ScanInfo.levels[params.target], "w3000 n1", FoundX, FoundY, 800, 400, 1120, 650))
     {
-        LOG(Format("ERROR : (attack) Could Not find the target for '{1}', cancelling", params.target), 2)
+        LOG(Format("ERROR : (attack) Could Not find the target for '{1}' (t={2}), cancelling", params.target, ScanInfo.levels[params.target]), 2)
 		OnCancelAttack(params, "Target not visible anymore !")
+		NovaScreenShot()
 		NovaleftMouseClick(WinCenterX, WinCenterY)
     }
 

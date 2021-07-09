@@ -45,12 +45,12 @@
 									"whale",
 									"void",
 									"debris",
-									"elite_4"
+									"elite_5"
 								]
 							},
 							"attacks": [					
 								{
-									"wait" : 60,
+									"wait" : 30,
 									"recall": true,
 									"fleets": [
 										"all"
@@ -58,12 +58,12 @@
 									"target": "whale"
 								},
 								{
-									"enable": false,
+									"enable": true,
 									"recall": true,
 									"fleets": [
 										"all"
 									],
-									"target": "elite_4"
+									"target": "elite_5"
 								}
 							],
 							"collections": [

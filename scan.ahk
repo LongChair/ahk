@@ -148,6 +148,7 @@ Handle_Scan(ResX, ResY)
     global MainWinW, MainWinH
 	global WinBorderX, WinBorderY
     global ScanResult, ScanType
+	global MapPosX, MapPosY
     
 	ResX := (ResX - MainWinX - WinBorderX - (MainWinW / 2)) + MapPosX 
 	ResY := MapPosY - (ResY - MainWinY - WinBorderY - (MainWinH / 2))
@@ -256,8 +257,8 @@ LoadScan(systemname)
 
 OnScanComplete(scan, Result)
 {
-    if (Result["elites"].length())
+    if (Result["elite_5"].length())
     {
-        SendDiscord(":medal: @LongChair We have an elite...")
+        SendDiscord(":medal: <@447689539989929985> We have a big elite !")
     }
 }
